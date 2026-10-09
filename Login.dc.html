@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Log in · Radiant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@100..900&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#161310}
+body{color:#F3EDE6;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#F08A4B;text-decoration:none}
+a:hover{color:#F3EDE6}
+button:focus-visible{outline:2px solid #E0641C;outline-offset:3px}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" data-screen-label="Login" style="min-height:100vh;display:flex;background:#161310;color:#F3EDE6;font-family:'Hanken Grotesk',system-ui,sans-serif">
+  <main style="flex:1 1 440px;min-width:0;min-height:100vh;box-sizing:border-box;display:flex;flex-direction:column;padding:clamp(22px,3vw,36px) clamp(24px,4vw,56px)">
+    <div data-in0="1" style="display:flex;align-items:center;gap:12px">
+      <span style="width:32px;height:32px;border-radius:9px;background:#E0641C;display:grid;place-items:center;flex:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><g transform="rotate(-45 12 12)"><rect x="7" y="10.2" width="10" height="3.6" rx="1"></rect><circle cx="7" cy="9.9" r="2.3"></circle><circle cx="7" cy="14.1" r="2.3"></circle><circle cx="17" cy="9.9" r="2.3"></circle><circle cx="17" cy="14.1" r="2.3"></circle></g></svg></span>
+      <span style="font-size:19px;font-weight:700;letter-spacing:-0.02em">Radiant</span>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:clamp(40px,8vh,80px) 0">
+      <div ref="{{ formRef }}" style="width:100%;max-width:380px">
+
+        <sc-if value="{{ vForm }}" hint-placeholder-val="{{ true }}">
+          <div data-in="1" role="tablist" aria-label="Log in or sign up" style="position:relative;display:inline-flex;padding:3px;border-radius:12px;background:rgba(243,237,230,.04);border:1px solid rgba(243,237,230,.1)">
+            <span style="position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:9px;background:#E0641C;transform:translateX({{ segX }});transition:transform .5s cubic-bezier(.2,.7,.2,1)"></span>
+            <button type="button" role="tab" aria-selected="{{ loginSel }}" onClick="{{ setLogin }}" style="position:relative;height:38px;min-width:104px;padding:0 16px;border:none;background:none;border-radius:9px;font-family:inherit;font-size:14.5px;font-weight:600;color:{{ loginC }};cursor:pointer;transition:color .35s ease">Log in</button>
+            <button type="button" role="tab" aria-selected="{{ signupSel }}" onClick="{{ setSignup }}" style="position:relative;height:38px;min-width:104px;padding:0 16px;border:none;background:none;border-radius:9px;font-family:inherit;font-size:14.5px;font-weight:600;color:{{ signupC }};cursor:pointer;transition:color .35s ease">Sign up</button>
+          </div>
+          <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+            <div data-in="1" data-sw="1">
+              <h1 style="margin:32px 0 0;font-size:clamp(36px,3.6vw,46px);line-height:1.04;letter-spacing:-0.04em;font-weight:700">Welcome back</h1>
+              <p style="margin:12px 0 0;font-size:16.5px;line-height:1.55;color:#A89E93;text-wrap:pretty">Log in with your Google account to continue to Radiant.</p>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+            <div data-in="1" data-sw="1">
+              <h1 style="margin:32px 0 0;font-size:clamp(36px,3.6vw,46px);line-height:1.04;letter-spacing:-0.04em;font-weight:700">Create your account</h1>
+              <p style="margin:12px 0 0;font-size:16.5px;line-height:1.55;color:#A89E93;text-wrap:pretty">Sign up with your Google account to start reviewing radiographs.</p>
+            </div>
+          </sc-if>
+          <div data-in="1" style="margin-top:28px;min-height:44px">
+            <div ref="{{ gRef }}" style="display:flex;justify-content:center"></div>
+            <sc-if value="{{ demo }}" hint-placeholder-val="{{ false }}">
+              <button type="button" onClick="{{ gDemo }}" style="position:relative;width:100%;height:44px;display:flex;align-items:center;justify-content:center;padding:0 48px;box-sizing:border-box;border-radius:22px;border:1px solid #3C4043;background:#202124;color:#E8EAED;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;transition:background .2s ease,border-color .2s ease" style-hover="background:#2B2C2F;border-color:#5F6368">
+                <span style="position:absolute;left:5px;top:50%;width:32px;height:32px;margin-top:-16px;border-radius:50%;background:#fff;display:grid;place-items:center"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg></span>
+                <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}"><span>Sign in with Google</span></sc-if>
+                <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}"><span>Sign up with Google</span></sc-if>
+              </button>
+            </sc-if>
+          </div>
+          <sc-if value="{{ nSetup }}" hint-placeholder-val="{{ false }}">
+            <div data-nt="1" role="status" style="margin-top:14px;padding:14px 16px;border-radius:12px;background:rgba(224,100,28,.08);border:1px solid rgba(224,100,28,.3)">
+              <div style="font-size:14px;font-weight:600;color:#F3EDE6">Google sign-in isn’t connected yet</div>
+              <p style="margin:4px 0 0;font-size:13.5px;line-height:1.55;color:#B9AFA4">Add a Google OAuth client ID to turn it on. Until then, you can look around with a demo account.</p>
+              <button type="button" onClick="{{ useDemo }}" style="margin-top:12px;height:36px;padding:0 14px;border-radius:9px;border:1px solid rgba(243,237,230,.22);background:rgba(243,237,230,.04);color:#F3EDE6;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:border-color .2s ease,color .2s ease" style-hover="border-color:#F08A4B;color:#F08A4B">Use a demo account</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ nOrigin }}" hint-placeholder-val="{{ false }}">
+            <div data-nt="1" role="status" style="margin-top:14px;padding:14px 16px;border-radius:12px;background:rgba(224,100,28,.08);border:1px solid rgba(224,100,28,.3)">
+              <div style="font-size:14px;font-weight:600;color:#F3EDE6">Google sign-in is blocked on this address</div>
+              <p style="margin:4px 0 0;font-size:13.5px;line-height:1.55;color:#B9AFA4">Add this address to your client ID’s Authorized JavaScript origins in Google Cloud Console:</p>
+              <div style="margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#F08A4B;overflow-wrap:anywhere">{{ origin }}</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ nError }}" hint-placeholder-val="{{ false }}">
+            <div data-nt="1" role="status" style="margin-top:14px;padding:14px 16px;border-radius:12px;background:rgba(224,100,28,.08);border:1px solid rgba(224,100,28,.3)">
+              <div style="font-size:14px;font-weight:600;color:#F3EDE6">Couldn’t reach Google</div>
+              <p style="margin:4px 0 0;font-size:13.5px;line-height:1.55;color:#B9AFA4">Check your connection, then reload this page.</p>
+            </div>
+          </sc-if>
+          <sc-if value="{{ nFail }}" hint-placeholder-val="{{ false }}">
+            <div data-nt="1" role="status" style="margin-top:14px;padding:14px 16px;border-radius:12px;background:rgba(224,100,28,.08);border:1px solid rgba(224,100,28,.3)">
+              <div style="font-size:14px;font-weight:600;color:#F3EDE6">That sign-in didn’t go through</div>
+              <p style="margin:4px 0 0;font-size:13.5px;line-height:1.55;color:#B9AFA4">Please try again.</p>
+            </div>
+          </sc-if>
+          <button data-in="1" type="button" role="checkbox" aria-checked="{{ rememberS }}" onClick="{{ toggleRemember }}" style="margin-top:22px;width:100%;display:flex;align-items:flex-start;gap:12px;padding:0;border:none;background:none;color:inherit;font-family:inherit;text-align:left;cursor:pointer">
+            <span style="flex:none;margin-top:1px;width:20px;height:20px;box-sizing:border-box;border-radius:6px;border:1.5px solid {{ cbBorder }};background:{{ cbBg }};display:grid;place-items:center;transition:background .2s ease,border-color .2s ease">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ cbOp }};transform:scale({{ cbS }});transition:opacity .2s ease,transform .35s cubic-bezier(.34,1.56,.64,1)"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+            </span>
+            <span style="min-width:0">
+              <span style="display:block;font-size:15px;font-weight:500;color:#F3EDE6">Keep me signed in on this device</span>
+              <span style="display:block;margin-top:3px;font-size:13.5px;line-height:1.5;color:#8A8178">Radiant will recognize you next time, so you won’t have to log in again.</span>
+            </span>
+          </button>
+          <p data-in="1" style="margin:28px 0 0;padding-top:20px;border-top:1px solid rgba(243,237,230,.1);font-size:13px;line-height:1.55;color:#8A8178">Radiant only receives your name, email address and profile photo from Google.</p>
+        </sc-if>
+
+        <sc-if value="{{ vKnown }}" hint-placeholder-val="{{ false }}">
+          <div data-in="1" style="width:60px;height:60px;border-radius:50%;overflow:hidden;background:#E0641C;color:#fff;display:grid;place-items:center;font-size:24px;font-weight:700;box-shadow:0 0 0 4px rgba(224,100,28,.18)">
+            <sc-if value="{{ pic }}" hint-placeholder-val="{{ false }}"><img data-pic="1" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+            <sc-if value="{{ noPic }}" hint-placeholder-val="{{ true }}"><span>{{ initial }}</span></sc-if>
+          </div>
+          <div data-in="1" style="margin-top:26px;display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#B9AFA4"><span style="width:7px;height:7px;border-radius:50%;background:#E0641C"></span>{{ knownNote }}</div>
+          <h1 data-in="1" style="margin:10px 0 0;font-size:clamp(34px,3.4vw,44px);line-height:1.05;letter-spacing:-0.04em;font-weight:700;overflow-wrap:anywhere">Welcome back, {{ given }}</h1>
+          <p data-in="1" style="margin:10px 0 0;font-size:16.5px;line-height:1.5;color:#A89E93;overflow-wrap:anywhere">{{ email }}</p>
+          <button data-in="1" type="button" onClick="{{ cont }}" style="margin-top:30px;width:100%;height:50px;display:flex;align-items:center;justify-content:center;gap:10px;border:none;border-radius:11px;background:#E0641C;color:#fff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease,background .2s ease" style-hover="transform:translateY(-2px);background:#EA6E26;box-shadow:0 16px 30px -14px rgba(224,100,28,.6)" style-active="transform:translateY(0) scale(.98)"><span>Continue as {{ given }}</span><span>→</span></button>
+          <button data-in="1" type="button" onClick="{{ forget }}" style="margin-top:12px;width:100%;height:44px;border:none;background:none;color:#A89E93;font-family:inherit;font-size:14.5px;cursor:pointer;transition:color .2s ease" style-hover="color:#F3EDE6">Not you? Use a different account</button>
+        </sc-if>
+
+        <sc-if value="{{ vDone }}" hint-placeholder-val="{{ false }}">
+          <div role="status" aria-live="polite">
+            <div data-in="1" style="width:60px;height:60px;border-radius:50%;overflow:hidden;background:#E0641C;color:#fff;display:grid;place-items:center;font-size:24px;font-weight:700;box-shadow:0 0 0 4px rgba(224,100,28,.18)">
+              <sc-if value="{{ pic }}" hint-placeholder-val="{{ false }}"><img data-pic="1" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+              <sc-if value="{{ noPic }}" hint-placeholder-val="{{ true }}"><span>{{ initial }}</span></sc-if>
+            </div>
+            <h1 data-in="1" style="margin:26px 0 0;font-size:clamp(34px,3.4vw,44px);line-height:1.05;letter-spacing:-0.04em;font-weight:700;overflow-wrap:anywhere">{{ doneTitle }}</h1>
+            <p data-in="1" style="margin:10px 0 0;font-size:16.5px;line-height:1.5;color:#A89E93">Opening Radiant…</p>
+            <div data-in="1" style="margin-top:26px;height:2px;border-radius:2px;background:rgba(243,237,230,.12);overflow:hidden"><div data-l="bar" style="height:100%;background:#E0641C;transform:scaleX(0);transform-origin:left"></div></div>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;googleClientId&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Google sign-in&quot;},&quot;keepDefault&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Saved login&quot;},&quot;previewReducedMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Accessibility&quot;}}">
+// Paste your Google OAuth 2.0 Web client ID here (or set it in Tweaks → Google sign-in).
+const GOOGLE_CLIENT_ID = '';
+const KEY = 'radiant-account', KEEP = 30 * 864e5;
+const readAcct = () => { for (const s of ['localStorage', 'sessionStorage']) { try { const st = window[s], a = JSON.parse(st.getItem(KEY) || 'null'); if (a && (!a.exp || a.exp > Date.now())) return a; if (a) st.removeItem(KEY); } catch (e) {} } return null; };
+const saveAcct = (a, keep) => {
+  const v = Object.assign({}, a, { at: Date.now(), keep: !!keep, exp: keep ? Date.now() + KEEP : 0 });
+  try { if (keep) { localStorage.setItem(KEY, JSON.stringify(v)); sessionStorage.removeItem(KEY); } else { sessionStorage.setItem(KEY, JSON.stringify(v)); localStorage.removeItem(KEY); } } catch (e) {}
+  return v;
+};
+const clearAcct = () => ['localStorage', 'sessionStorage'].forEach(s => { try { window[s].removeItem(KEY); } catch (e) {} });
+const jwt = t => { const p = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'), b = atob(p + '='.repeat((4 - p.length % 4) % 4)); return JSON.parse(new TextDecoder().decode(Uint8Array.from(b, c => c.charCodeAt(0)))); };
+const NEXT = (() => { try { const n = new URLSearchParams(location.search).get('next') || ''; return /^(Radiant|Intro|Analyze)\.dc\.html(#[\w-]+)?$/.test(n) ? n : 'Radiant.dc.html'; } catch (e) { return 'Radiant.dc.html'; } })();
+const MODE0 = /[?&]mode=signup(&|$)/.test(location.search) ? 'signup' : 'login';
+const DEMO = { id: 'demo', name: 'Guest', given: 'Guest', email: 'Demo account', picture: '', provider: 'demo' };
+const EZ = 'cubic-bezier(.2,.7,.2,1)';
+const IN = [{ opacity: 0, transform: 'translate3d(0,16px,0)', filter: 'blur(8px)' }, { opacity: 1, transform: 'translate3d(0,0,0)', filter: 'blur(0px)' }];
+const fontsOk = () => { try { const fs = document.fonts; if (!fs) return true; let h = false; fs.forEach(f => { if (f.status === 'loaded' && /Hanken/i.test(f.family)) h = true; }); return h && fs.status === 'loaded'; } catch (e) { return true; } };
+
+class Component extends DCLogic {
+  state = (() => { const a = readAcct(); return { mode: MODE0, remember: true, view: a ? 'known' : 'form', acct: a, fresh: false, gis: 'loading', notice: '', wide: window.innerWidth >= 900 }; })();
+  rootRef = React.createRef(); formRef = React.createRef(); gRef = React.createRef();
+  rm() { return !!this.props.previewReducedMotion || !!(this._mq && this._mq.matches); }
+  pics() { const p = (this.state.acct && this.state.acct.picture) || ''; if (!p || !this.root) return; this.root.querySelectorAll('img[data-pic]').forEach(i => { if (i.getAttribute('src') !== p) i.setAttribute('src', p); }); }
+  cidNow() { return String(this.props.googleClientId || GOOGLE_CLIENT_ID || '').trim(); }
+
+  componentDidMount() {
+    this.root = this.rootRef.current; if (!this.root) return;
+    this._ps = { view: this.state.view, mode: this.state.mode, notice: this.state.notice, wide: this.state.wide };
+    this._mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    this._wq = window.matchMedia('(min-width: 900px)'); this._setW = () => this.setState({ wide: this._wq.matches }); this._wq.addEventListener('change', this._setW);
+    if (this.props.keepDefault === false) this.setState({ remember: false });
+    this.cid = this.cidNow(); this.loadGis();
+    this._rs = () => { clearTimeout(this._rsT); this._rsT = setTimeout(() => this.renderG(), 160); };
+    window.addEventListener('resize', this._rs);
+    this.intro(); this.pics();
+  }
+  componentDidUpdate(pp) {
+    if (!this.root) return;
+    const cid = this.cidNow(), st = this.state, ps = this._ps || {}; this._ps = { view: st.view, mode: st.mode, notice: st.notice, wide: st.wide }; this.pics();
+    if (cid !== this.cid) { this.cid = cid; this._gisOk = false; this._gEl = null; if (this.gRef.current) this.gRef.current.innerHTML = ''; this.setState({ gis: 'loading', notice: '' }); this.loadGis(); }
+    if (pp.keepDefault !== this.props.keepDefault) this.setState({ remember: this.props.keepDefault !== false });
+    if (ps.view !== st.view) { this.reveal(false); if (st.view === 'form') this.renderG(); if (st.view === 'done') this.bar(); }
+    else if (ps.mode !== st.mode) { this.anim('[data-sw]'); this.renderG(); }
+    if (st.notice && ps.notice !== st.notice) this.anim('[data-nt]');
+    if (st.wide && !ps.wide) this.panelIn();
+  }
+  componentWillUnmount() {
+    this.root = null;
+    cancelAnimationFrame(this._fw); clearTimeout(this._lv); clearTimeout(this._rsT); clearTimeout(this._gChk);
+    window.removeEventListener('resize', this._rs); if (this._wq) this._wq.removeEventListener('change', this._setW);
+  }
+
+  intro() {
+    const r = this.root, f = this.formRef.current, b = r.querySelector('[data-in0]'), p = r.querySelector('[data-l="panel"]');
+    if (this.rm()) return;
+    [f, b, p].forEach(n => { if (n) n.style.opacity = '0'; });
+    const t0 = performance.now(), wait = () => {
+      if (!this.root) return;
+      if (!fontsOk() && performance.now() - t0 < 1200) { this._fw = requestAnimationFrame(wait); return; }
+      [f, b].forEach(n => { if (n) n.style.opacity = ''; });
+      if (b) b.animate(IN, { duration: 900, easing: EZ, fill: 'backwards' });
+      this.reveal(true); this.panelIn();
+    };
+    this._fw = requestAnimationFrame(wait);
+  }
+  reveal(first) {
+    const f = this.formRef.current; if (!f || this.rm()) return;
+    f.querySelectorAll('[data-in]').forEach((n, i) => n.animate(IN, { duration: 900, delay: (first ? 140 : 0) + i * 70, easing: EZ, fill: 'backwards' }));
+  }
+  anim(sel) {
+    const f = this.formRef.current; if (!f || this.rm()) return;
+    f.querySelectorAll(sel).forEach((n, i) => n.animate([{ opacity: 0, transform: 'translate3d(0,8px,0)', filter: 'blur(6px)' }, { opacity: 1, transform: 'translate3d(0,0,0)', filter: 'blur(0px)' }], { duration: 480, delay: i * 60, easing: EZ, fill: 'backwards' }));
+  }
+  panelIn() {
+    const p = this.root && this.root.querySelector('[data-l="panel"]'); if (!p) return;
+    p.style.opacity = '';
+    if (this.rm() || p._in) return; p._in = true;
+    const img = p.querySelector('[data-l="xray"]'), sc = p.querySelector('[data-l="scan"]');
+    p.animate([{ opacity: 0, transform: 'scale(.985)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 1200, easing: EZ, fill: 'backwards' });
+    if (img) img.animate([{ filter: 'grayscale(1) brightness(.08) contrast(2) blur(14px)' }, { filter: 'grayscale(1) brightness(.95) contrast(1.35) blur(0px)' }], { duration: 2000, delay: 150, easing: EZ, fill: 'backwards' });
+    if (sc) sc.animate([{ top: '-20%', opacity: 0 }, { opacity: 1, offset: 0.05 }, { opacity: 1, offset: 0.3 }, { top: '100%', opacity: 0, offset: 0.36 }, { top: '100%', opacity: 0 }], { duration: 7000, delay: 1100, iterations: Infinity });
+  }
+  bar() {
+    const b = this.root.querySelector('[data-l="bar"]'); if (!b) return;
+    if (this.rm()) { b.style.transform = 'scaleX(1)'; return; }
+    b.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: this._barD || 1000, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' });
+  }
+
+  loadGis() {
+    if (!this.cid) { this.setState({ gis: 'demo' }); return; }
+    if (window.google && google.accounts && google.accounts.id) { this.initGis(); return; }
+    let s = document.querySelector('script[data-gsi]');
+    if (!s) { s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.async = true; s.dataset.gsi = '1'; document.head.appendChild(s); }
+    s.addEventListener('load', () => this.initGis());
+    s.addEventListener('error', () => { if (this.root) this.setState({ gis: 'error', notice: 'error' }); });
+  }
+  initGis() {
+    if (!this.root || this._gisOk || !this.cid) return;
+    try {
+      google.accounts.id.initialize({ client_id: this.cid, callback: this.onCred, ux_mode: 'popup', itp_support: true });
+      this._gisOk = true; this.setState({ gis: 'ready' }, () => this.renderG());
+    } catch (e) { this.setState({ gis: 'error', notice: 'error' }); }
+  }
+  renderG() {
+    const el = this.gRef.current; if (!el || !this._gisOk || this.state.view !== 'form') return;
+    const w = Math.round(Math.max(200, Math.min(400, el.offsetWidth || 380))), key = this.state.mode + w;
+    if (el === this._gEl && key === this._gKey) return;
+    this._gEl = el; this._gKey = key; el.innerHTML = '';
+    try { google.accounts.id.renderButton(el, { type: 'standard', theme: 'filled_black', size: 'large', shape: 'pill', text: this.state.mode === 'signup' ? 'signup_with' : 'signin_with', logo_alignment: 'left', width: w }); } catch (e) { this.setState({ notice: 'error' }); return; }
+    clearTimeout(this._gChk);
+    this._gChk = setTimeout(() => { if (this.root && this._gEl === el && this.state.view === 'form' && !el.querySelector('iframe')) this.setState({ notice: 'origin' }); }, 4000);
+  }
+  onCred = r => {
+    try {
+      const p = jwt(r.credential);
+      if (p.aud !== this.cid || p.exp * 1000 < Date.now() - 60000) throw new Error('token');
+      const name = p.name || p.email || 'there';
+      this.signIn({ id: p.sub, name, given: p.given_name || name.split(' ')[0], email: p.email || '', picture: p.picture || '', provider: 'google' });
+    } catch (e) { this.setState({ notice: 'fail' }); }
+  };
+  signIn(a) {
+    const v = saveAcct(a, this.state.remember);
+    try { sessionStorage.setItem('radiant-fresh', '1'); } catch (e) {}
+    this._barD = 1200; this.setState({ acct: v, fresh: true, view: 'done', notice: '' }); this.leave(1200);
+  }
+  cont = () => { const a = this.state.acct; if (a && a.keep) saveAcct(a, true); this._barD = 800; this.setState({ fresh: false, view: 'done' }); this.leave(800); };
+  forget = () => { clearAcct(); this._gEl = null; this.setState({ view: 'form', acct: null, notice: '' }); };
+  leave(d) {
+    clearTimeout(this._lv);
+    const go = () => { try { window.location.replace(NEXT); } catch (e) { window.location.href = NEXT; } };
+    this._lv = setTimeout(() => {
+      if (!this.root || this.rm() || !this.root.animate) { go(); return; }
+      this.root.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 480, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards' }).onfinish = go;
+    }, d);
+  }
+
+  renderVals() {
+    const st = this.state, a = st.acct || {}, login = st.mode === 'login', rem = st.remember, given = String(a.given || a.name || 'there').trim();
+    return {
+      rootRef: this.rootRef, formRef: this.formRef, gRef: this.gRef,
+      vForm: st.view === 'form', vKnown: st.view === 'known', vDone: st.view === 'done', wide: st.wide,
+      isLogin: login, isSignup: !login, segX: login ? '0%' : '100%', loginSel: login ? 'true' : 'false', signupSel: login ? 'false' : 'true',
+      loginC: login ? '#FFFFFF' : '#8A8178', signupC: login ? '#8A8178' : '#FFFFFF',
+      setLogin: () => this.setState({ mode: 'login', notice: st.notice === 'fail' ? '' : st.notice }), setSignup: () => this.setState({ mode: 'signup', notice: st.notice === 'fail' ? '' : st.notice }),
+      demo: st.gis === 'demo', gDemo: () => this.setState({ notice: 'setup' }), useDemo: () => this.signIn(DEMO),
+      nSetup: st.notice === 'setup', nOrigin: st.notice === 'origin', nError: st.notice === 'error', nFail: st.notice === 'fail', origin: window.location.origin,
+      rememberS: rem ? 'true' : 'false', toggleRemember: () => this.setState(s => ({ remember: !s.remember })),
+      cbBg: rem ? '#E0641C' : 'transparent', cbBorder: rem ? '#E0641C' : 'rgba(243,237,230,.35)', cbOp: rem ? 1 : 0, cbS: rem ? 1 : 0.4,
+      given, email: a.email || '', pic: a.picture || '', noPic: !a.picture, initial: (given[0] || '?').toUpperCase(),
+      knownNote: a.keep ? 'Saved login on this device' : 'Signed in for this session',
+      doneTitle: (st.fresh ? 'Welcome, ' : 'Welcome back, ') + given,
+      cont: this.cont, forget: this.forget
+    };
+  }
+}
+</script>
+</body>
+</html>

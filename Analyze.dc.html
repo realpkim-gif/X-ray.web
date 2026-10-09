@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Radiant — Insert an X-ray</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<script src="./tiles.js"></script>
+<style>
+html{scroll-behavior:auto;background:#12100E}
+body{margin:0;background:#12100E;color:#F3EDE6;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#F08A4B;text-decoration:none}
+a:hover{color:#FFB07F}
+*:focus-visible{outline:2px solid #E0641C;outline-offset:3px;border-radius:8px}
+</style>
+</helmet>
+
+<div ref="{{ rootRef }}" style="position:relative;min-height:100vh;background:#12100E;display:flex;flex-direction:column">
+<div data-a="cover" aria-hidden="true" style="position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:200;background:#161310"></div>
+<canvas data-a="ripple" aria-hidden="true" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas>
+
+<header style="position:relative;z-index:2;width:100%;max-width:1200px;margin:0 auto;box-sizing:border-box;padding:0 24px;height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+  <a data-in="0" href="Radiant.dc.html" aria-label="Radiant home" style="display:flex;align-items:center;gap:10px;color:#F3EDE6">
+    <span style="width:32px;height:32px;border-radius:9px;background:#E0641C;display:grid;place-items:center;flex:none">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><g transform="rotate(-45 12 12)"><rect x="7" y="10.2" width="10" height="3.6" rx="1"></rect><circle cx="7" cy="9.9" r="2.3"></circle><circle cx="7" cy="14.1" r="2.3"></circle><circle cx="17" cy="9.9" r="2.3"></circle><circle cx="17" cy="14.1" r="2.3"></circle></g></svg>
+    </span>
+    <sc-if value="{{ showWord }}" hint-placeholder-val="{{ true }}"><span style="font-size:19px;font-weight:700;letter-spacing:-0.02em">Radiant</span></sc-if>
+  </a>
+  <a data-in="60" data-back="1" href="Radiant.dc.html" aria-label="Return to home page" style="position:relative;display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 18px 0 16px;border-radius:11px;background:rgba(18,16,14,.72);color:#F3EDE6;font-size:15px;font-weight:600;white-space:nowrap;transition:background-color .35s ease,transform .25s cubic-bezier(.2,.7,.2,1)" style-hover="color:#F3EDE6;background-color:rgba(224,100,28,.10)" style-active="transform:scale(.97)">
+    <svg aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none"><rect x="0" y="0" width="100%" height="100%" rx="11" fill="none" stroke="#3A342E" stroke-width="1.5"></rect><rect data-bk="trace" x="0" y="0" width="100%" height="100%" rx="11" fill="none" stroke="#E0641C" stroke-width="1.5" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"></rect></svg>
+    <span data-bk="arrow" style="position:relative;display:inline-block;color:#F08A4B;transition:transform .4s cubic-bezier(.2,.7,.2,1)">←</span>
+    <span style="position:relative;display:block;overflow:hidden;height:1.3em;line-height:1.3em;white-space:pre"><span data-ch="1">R</span><span data-ch="1">e</span><span data-ch="1">t</span><span data-ch="1">u</span><span data-ch="1">r</span><span data-ch="1">n</span><span data-ch="1">&nbsp;</span><span data-ch="1">t</span><span data-ch="1">o</span><span data-ch="1">&nbsp;</span><span data-ch="1">h</span><span data-ch="1">o</span><span data-ch="1">m</span><span data-ch="1">e</span><span data-ch="1">&nbsp;</span><span data-ch="1">p</span><span data-ch="1">a</span><span data-ch="1">g</span><span data-ch="1">e</span></span>
+  </a>
+</header>
+
+<main style="position:relative;z-index:1;flex:1;width:100%;max-width:880px;margin:0 auto;box-sizing:border-box;padding:clamp(24px,6vh,72px) 24px 56px">
+  <h1 style="margin:0;text-align:center;font-size:clamp(44px,6.6vw,88px);line-height:1.02;letter-spacing:-0.045em;font-weight:700;color:#F3EDE6">
+    <span style="display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.1em"><span data-word="1" style="display:inline-block;padding:0 .08em;border-radius:.1em;background-image:linear-gradient(#E0641C,#E0641C);background-repeat:no-repeat;background-position:0 50%;background-size:0% 100%;transition:background-size .5s cubic-bezier(.7,0,.2,1),color .3s ease" style-hover="background-size:100% 100%;color:#12100E">Insert</span></span>
+    <span style="display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.1em"><span data-word="1" style="display:inline-block;padding:0 .08em;border-radius:.1em;background-image:linear-gradient(#E0641C,#E0641C);background-repeat:no-repeat;background-position:0 50%;background-size:0% 100%;transition:background-size .5s cubic-bezier(.7,0,.2,1),color .3s ease" style-hover="background-size:100% 100%;color:#12100E">an</span></span>
+    <span style="display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.1em"><span data-word="1" style="display:inline-block;padding:0 .08em;border-radius:.1em;color:#E0641C;background-image:linear-gradient(#F3EDE6,#F3EDE6);background-repeat:no-repeat;background-position:0 50%;background-size:0% 100%;transition:background-size .5s cubic-bezier(.7,0,.2,1),color .3s ease" style-hover="background-size:100% 100%;color:#12100E">X-ray.</span></span>
+  </h1>
+  <p data-in="160" style="margin:22px auto 0;max-width:560px;text-align:center;font-size:18px;line-height:1.55;color:#C9C1B8;text-wrap:pretty">Drag in a JPG or PNG of a dog or cat radiograph, or browse your files. The image stays in your browser.</p>
+
+  <input ref="{{ inputRef }}" type="file" accept="image/png,image/jpeg,image/webp" onChange="{{ onFile }}" style="display:none">
+
+  <sc-if value="{{ noFile }}" hint-placeholder-val="{{ true }}">
+    <div data-in="260" onClick="{{ pick }}" onKeyDown="{{ zoneKey }}" onPointerEnter="{{ zEnter }}" onPointerLeave="{{ zLeave }}" role="button" tabIndex="0" aria-label="Insert an X-ray image" style="position:relative;margin-top:44px;border-radius:22px;border:1.5px dashed {{ zBorder }};background:{{ zBg }};display:flex;flex-direction:column;align-items:center;gap:18px;padding:clamp(40px,7vh,64px) 24px;text-align:center;cursor:pointer;transform:scale({{ zScale }});transition:border-color .25s ease,background-color .25s ease,transform .4s cubic-bezier(.2,.7,.2,1)">
+      <span style="width:72px;height:72px;border-radius:50%;display:grid;place-items:center;border:1.5px solid {{ iconBorder }};background:#12100E;transform:translateY({{ iconY }});transition:border-color .25s ease,transform .4s cubic-bezier(.2,.7,.2,1)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F08A4B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"></path><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg>
+      </span>
+      <div>
+        <div style="font-size:22px;font-weight:600;letter-spacing:-0.01em;color:#F3EDE6">{{ zTitle }}</div>
+        <div style="margin-top:6px;font-size:15px;color:#A69D93">or</div>
+      </div>
+      <button type="button" onClick="{{ pick }}" data-hx="1" style="position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;gap:10px;height:50px;padding:0 22px;border:none;border-radius:11px;background:#E0641C;color:#fff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease,color .35s ease" style-hover="color:#12100E;transform:translateY(-2px);box-shadow:0 18px 34px -14px rgba(0,0,0,.7)" style-active="transform:translateY(0) scale(.97)"><span data-hx-fill="1" style="position:absolute;left:-10%;width:120%;top:100%;height:240%;border-radius:50%;background:#F3EDE6;z-index:-1;transform:translateY(0);transition:transform .6s cubic-bezier(.7,0,.2,1)"></span><span style="display:block;overflow:hidden;height:1.3em;line-height:1.3em"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .55s cubic-bezier(.7,0,.2,1)"><span>Browse files</span><span aria-hidden="true">Browse files</span></span></span></button>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;color:#8A8178">JPG, PNG or WebP · up to 20 MB · or paste with {{ pasteKey }}</div>
+      <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}">
+        <div role="alert" style="font-size:14px;color:#F08A4B">{{ err }}</div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasFile }}" hint-placeholder-val="{{ false }}">
+    <div data-a="preview" style="margin-top:44px;border-radius:22px;overflow:hidden;background:#0B0A09;border:1px solid #2A251F;box-shadow:0 30px 80px -40px rgba(0,0,0,.8)">
+      <div style="display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-bottom:1px solid #26211C">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F08A4B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+        <span style="flex:none;font-size:13px;font-weight:600;color:#F08A4B">Image added</span>
+        <span style="margin-left:auto;min-width:0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#BDB4AA;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ fileName }}</span>
+      </div>
+      <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#0B0A09">
+        <div data-a="img" role="img" aria-label="Inserted radiograph" style="position:absolute;inset:0;background-image:{{ fileBg }};background-size:contain;background-position:center;background-repeat:no-repeat"></div>
+        <div data-a="scan" style="position:absolute;left:0;right:0;top:-12%;height:64px;opacity:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.10) 70%,rgba(255,255,255,.55) 98%,rgba(255,255,255,0))"></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid #26211C">
+        <span style="font-size:13px;color:#A69D93">{{ fileMeta }}</span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button type="button" onClick="{{ pick }}" style="height:38px;padding:0 14px;border-radius:9px;border:1px solid #3A342E;background:transparent;color:#F3EDE6;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background-color .2s ease,border-color .2s ease" style-hover="background-color:#221D19;border-color:#6E665E">Replace</button>
+          <button type="button" onClick="{{ remove }}" style="height:38px;padding:0 14px;border-radius:9px;border:1px solid #3A342E;background:transparent;color:#F3EDE6;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background-color .2s ease,border-color .2s ease" style-hover="background-color:#221D19;border-color:#6E665E">Remove</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="margin-top:36px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
+    <div data-in="360" style="display:flex;gap:14px;padding:16px 18px;border-radius:14px;background-image:linear-gradient(#221D19,#221D19);background-repeat:no-repeat;background-position:0 0;background-size:0% 100%;transition:background-size .55s cubic-bezier(.7,0,.2,1)" style-hover="background-size:100% 100%">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#F08A4B;padding-top:3px">01</span>
+      <div><div style="font-size:16px;font-weight:600;color:#F3EDE6">One view per image</div><div style="margin-top:4px;font-size:14px;line-height:1.5;color:#A69D93">Upload each projection as its own file.</div></div>
+    </div>
+    <div data-in="420" style="display:flex;gap:14px;padding:16px 18px;border-radius:14px;background-image:linear-gradient(#221D19,#221D19);background-repeat:no-repeat;background-position:0 0;background-size:0% 100%;transition:background-size .55s cubic-bezier(.7,0,.2,1)" style-hover="background-size:100% 100%">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#F08A4B;padding-top:3px">02</span>
+      <div><div style="font-size:16px;font-weight:600;color:#F3EDE6">Fill the frame</div><div style="margin-top:4px;font-size:14px;line-height:1.5;color:#A69D93">Crop so the anatomy takes up most of the image.</div></div>
+    </div>
+    <div data-in="480" style="display:flex;gap:14px;padding:16px 18px;border-radius:14px;background-image:linear-gradient(#221D19,#221D19);background-repeat:no-repeat;background-position:0 0;background-size:0% 100%;transition:background-size .55s cubic-bezier(.7,0,.2,1)" style-hover="background-size:100% 100%">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#F08A4B;padding-top:3px">03</span>
+      <div><div style="font-size:16px;font-weight:600;color:#F3EDE6">Export, don't photograph</div><div style="margin-top:4px;font-size:14px;line-height:1.5;color:#A69D93">Photos of a screen or film lower image quality.</div></div>
+    </div>
+  </div>
+
+  <p data-in="560" style="margin:40px auto 0;max-width:560px;display:flex;gap:10px;font-size:13px;line-height:1.55;color:#8A8178">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F08A4B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"></path><path d="M12 8v5M12 16h.01"></path></svg>
+    <span>Radiant is an AI-assisted research prototype. It is not a veterinary diagnostic tool and does not replace evaluation by a qualified veterinarian.</span>
+  </p>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;previewReducedMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Accessibility&quot;}}">
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const MAX = 20 * 1048576;
+const whenT = (cb, fail) => { const t0 = performance.now(); const tick = () => { if (window.RadiantTiles) cb(window.RadiantTiles); else if (performance.now() - t0 > 1500) fail(); else setTimeout(tick, 16); }; tick(); };
+
+const EMBED = window.parent !== window && /[?&]embed=1/.test(location.search);
+const postUp = m => { try { window.parent.postMessage({ radiant: m }, '*'); } catch (e) {} };
+const KEY = 'radiant-account';
+const readAcct = () => { for (const s of ['localStorage', 'sessionStorage']) { try { const st = window[s], a = JSON.parse(st.getItem(KEY) || 'null'); if (a && (!a.exp || a.exp > Date.now())) return a; if (a) st.removeItem(KEY); } catch (e) {} } return null; };
+class Component extends DCLogic {
+  state = { file: null, over: false, zh: false, err: '', narrow: false };
+  rootRef = React.createRef();
+  inputRef = React.createRef();
+
+  rm() { return !!this.props.previewReducedMotion || !!(this._mq && this._mq.matches); }
+  q(k) { return this.root ? this.root.querySelector('[data-a="' + k + '"]') : null; }
+
+  componentDidMount() {
+    const root = this.rootRef.current; if (!root) return;
+    if (!EMBED && !readAcct()) { try { window.location.replace('Login.dc.html?next=Analyze.dc.html'); } catch (e) {} return; }
+    this.root = root;
+    this._mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const nq = window.matchMedia('(max-width: 520px)');
+    this._nq = nq; this._setN = () => this.setState({ narrow: nq.matches }); this._setN(); nq.addEventListener('change', this._setN);
+    this.initRipple(); this.initHx(); this.initBack(); this.unveil();
+    root.querySelectorAll('a[href="Radiant.dc.html"]').forEach(a => { a.dataset.to = 'Radiant.dc.html'; a.setAttribute('href', '#home'); });
+    this._onClick = e => { const a = e.target.closest && e.target.closest('[data-to]'); if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button > 0) return; e.preventDefault(); e.stopImmediatePropagation(); this.leave(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, a.dataset.to); };
+    window.addEventListener('click', this._onClick, true);
+    this._onShow = e => { if (!e.persisted) return; this._txBusy = false; const T = window.RadiantTiles, ov = this._txOv; this._txOv = null; if (ov && T) T.reveal(ov, { content: this.flow(), done: t => t.host.remove() }); else document.querySelectorAll('[data-radiant-tx]').forEach(n => n.remove()); };
+    window.addEventListener('pageshow', this._onShow);
+    if (EMBED) {
+      this._onMsg = e => { if (e.source === window.parent && e.data && e.data.radiant === 'enter') this.enterEmbed(); };
+      window.addEventListener('message', this._onMsg);
+      postUp('ready');
+    } else if (!this.rm()) {
+      const pre = () => whenT(T => { if (!this.tx && T.host) this.tx = T.host('Radiant.dc.html'); }, () => {});
+      this._pre = setTimeout(pre, 1600);
+      this._txHover = e => { if (e.target.closest && e.target.closest('[data-to]')) { clearTimeout(this._pre); pre(); } };
+      window.addEventListener('pointerover', this._txHover, true);
+    }
+    const files = e => { const t = e.dataTransfer && e.dataTransfer.types; return !!t && Array.from(t).includes('Files'); };
+    this._dOver = e => {
+      if (!files(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
+      if (!this.state.over) this.setState({ over: true });
+      clearTimeout(this._ovT); this._ovT = setTimeout(() => this.setState({ over: false }), 180);
+      const n = performance.now(); if (!this._ld || n - this._ld > 45) { this._ld = n; this.drop(e.clientX, e.clientY, 110, 1); }
+    };
+    this._dDrop = e => { if (!files(e)) return; e.preventDefault(); clearTimeout(this._ovT); this.setState({ over: false }); this.drop(e.clientX, e.clientY, 900, 3); this.loadFile(e.dataTransfer.files[0]); };
+    this._paste = e => { const fs = e.clipboardData && e.clipboardData.files, f = fs && Array.from(fs).find(x => x.type && x.type.startsWith('image/')); if (f) { e.preventDefault(); this.loadFile(f); } };
+    window.addEventListener('dragover', this._dOver); window.addEventListener('drop', this._dDrop); window.addEventListener('paste', this._paste);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('pageshow', this._onShow); if (this._onMsg) window.removeEventListener('message', this._onMsg); if (this._txHover) window.removeEventListener('pointerover', this._txHover, true); clearTimeout(this._pre);  window.removeEventListener('click', this._onClick, true);
+    window.removeEventListener('dragover', this._dOver); window.removeEventListener('drop', this._dDrop); window.removeEventListener('paste', this._paste);
+    if (this._nq) this._nq.removeEventListener('change', this._setN);
+    if (this._ripDown) window.removeEventListener('pointerdown', this._ripDown);
+    if (this._rsz) window.removeEventListener('resize', this._rsz);
+    clearInterval(this._amb); clearTimeout(this._uvT); clearTimeout(this._ovT); clearTimeout(this._trT); clearTimeout(this._bT);
+    this.rip = null;
+    if (this.state.file) URL.revokeObjectURL(this.state.file.url);
+  }
+  componentDidUpdate() {
+    const b = this.state.file && this.state.file.url;
+    if (b && b !== this._lastUrl) { this._lastUrl = b; requestAnimationFrame(() => this.reveal()); }
+    else if (!b) this._lastUrl = null;
+  }
+
+  unveil() {
+    const cv = this.q('cover'); if (!cv) return;
+    let tx = null; try { tx = JSON.parse(sessionStorage.getItem('radiant-tx') || 'null'); if (tx && tx.to === 'analyze') sessionStorage.removeItem('radiant-tx'); } catch (e) {}
+    const finish = t => { clearTimeout(this._uvT); cv.style.display = 'none'; if (t && t.layer) t.layer.remove(); };
+    if (EMBED) { finish(); return; }
+    if (this.rm() || !cv.animate || !(tx && tx.to === 'analyze' && Date.now() - tx.t < 10000)) { finish(); this.intro(80); return; }
+    this._uvT = setTimeout(finish, 6000);
+    whenT(T => T.arrive(cv, { content: this.flow(), start: base => { this.intro(base); }, done: finish }), () => finish());
+  }
+  leave(x, y, href) {
+    if (EMBED) { this._par = this.flow().map(el => el.animate([{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-6vh,0)' }], { duration: 960, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' })); postUp('back'); return; }
+    const T = window.RadiantTiles, nav = () => { window.location.href = href; };
+    if (this.rm() || !T) { nav(); return; }
+    const fallback = () => { if (this._txBusy) return; this._txBusy = true; try { sessionStorage.setItem('radiant-tx', JSON.stringify({ to: 'home', t: Date.now() })); } catch (e) {} this._txOv = T.leave(x, y, nav, { content: this.flow() }); };
+    if (T.host) { if (!this.tx) this.tx = T.host('Radiant.dc.html'); this.tx.open({ content: this.flow(), fallback }); } else fallback();
+  }
+  enterEmbed() {
+    if (this._par) { this._par.forEach(a => a.cancel()); this._par = null; }
+    if (this.rm()) return;
+    this.flow().forEach(el => el.animate([{ transform: 'translate3d(0,7vh,0)' }, { transform: 'translate3d(0,0,0)' }], { duration: 1210, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
+    this.intro(120);
+  }
+  flow() { return this.root ? Array.from(this.root.children).filter(el => { const p = getComputedStyle(el).position; return p !== 'fixed' && p !== 'absolute'; }) : []; }
+  intro(base) {
+    if (this.rm() || !this.root.animate) return;
+    const ez = 'cubic-bezier(.2,.7,.2,1)';
+    this.root.querySelectorAll('[data-word]').forEach((el, i) => el.animate([{ transform: 'translateY(112%)' }, { transform: 'translateY(0)' }], { duration: 1000, delay: base + i * 90, easing: ez, fill: 'backwards' }));
+    this.root.querySelectorAll('[data-in]').forEach(el => el.animate([{ opacity: 0, transform: 'translate3d(0,24px,0)' }, { opacity: 1, transform: 'translate3d(0,0,0)' }], { duration: 900, delay: base + (+el.dataset.in || 0), easing: ez, fill: 'backwards' }));
+  }
+  reveal() {
+    const pv = this.q('preview'), img = this.q('img'), scan = this.q('scan'); if (!pv) return;
+    const r = pv.getBoundingClientRect(); this.drop(r.left + r.width / 2, r.top + r.height / 2, 1300, 3);
+    if (this.rm() || !pv.animate) return;
+    const ez = 'cubic-bezier(.2,.7,.2,1)';
+    pv.animate([{ opacity: 0, transform: 'translate3d(0,24px,0) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 700, easing: ez });
+    if (img) img.animate([{ filter: 'brightness(.12) contrast(1.8) blur(10px)' }, { filter: 'brightness(1) contrast(1) blur(0px)' }], { duration: 1500, delay: 150, easing: ez, fill: 'backwards' });
+    if (scan) scan.animate([{ top: '-12%', opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.85 }, { top: '100%', opacity: 0 }], { duration: 1600, delay: 300, easing: 'cubic-bezier(.45,0,.25,1)' });
+  }
+
+  initHx() {
+    const set = (el, on) => {
+      el.querySelectorAll('[data-hx-fill]').forEach(a => { a.style.transform = on ? 'translateY(-70%)' : 'translateY(0)'; });
+      el.querySelectorAll('[data-hx-roll]').forEach(a => { a.style.transform = on ? 'translateY(-50%)' : 'translateY(0)'; });
+    };
+    this.root.addEventListener('pointerover', e => { const el = e.target.closest('[data-hx]'); if (el && !el.contains(e.relatedTarget)) set(el, true); });
+    this.root.addEventListener('pointerout', e => { const el = e.target.closest('[data-hx]'); if (el && !el.contains(e.relatedTarget)) set(el, false); });
+  }
+  initBack() {
+    const b = this.root.querySelector('[data-back]'); if (!b) return;
+    const chars = Array.from(b.querySelectorAll('[data-ch]')), tr = b.querySelector('[data-bk="trace"]'), ar = b.querySelector('[data-bk="arrow"]');
+    chars.forEach(c => { if (!c.textContent.trim()) { c.textContent = '\u00a0'; c.style.width = '.28em'; } c.style.display = 'inline-block'; c.style.textShadow = '0 1.3em 0 #F08A4B'; c.style.transition = 'transform .5s cubic-bezier(.7,0,.2,1)'; });
+    const on = v => {
+      const n = chars.length;
+      chars.forEach((c, i) => { c.style.transitionDelay = (v ? i : n - 1 - i) * 14 + 'ms'; c.style.transform = v ? 'translateY(-1.3em)' : 'translateY(0)'; });
+      if (ar) ar.style.transform = v ? 'translateX(-5px)' : 'translateX(0)';
+      if (tr) {
+        clearTimeout(this._trT);
+        tr.style.transition = 'stroke-dashoffset .8s cubic-bezier(.65,0,.35,1)';
+        tr.style.strokeDashoffset = v ? '0' : '-100';
+        if (!v) this._trT = setTimeout(() => { tr.style.transition = 'none'; tr.style.strokeDashoffset = '100'; }, 820);
+      }
+    };
+    b.addEventListener('pointerenter', () => on(true)); b.addEventListener('pointerleave', () => on(false));
+    b.addEventListener('focus', () => on(true)); b.addEventListener('blur', () => on(false));
+  }
+
+  initRipple() {
+    const cv = this.q('ripple'); if (!cv || !cv.getContext) return;
+    const ctx = cv.getContext('2d'), R = this.rip = { cv, ctx, run: false, last: null, mx: 0, my: 0, cx: 0, cy: 0, mt: 0, ms: 0, wave: false };
+    const size = () => {
+      const w = window.innerWidth, h = window.innerHeight, d = Math.min(2, window.devicePixelRatio || 1);
+      if (!w || !h) return;
+      cv.width = Math.round(w * d); cv.height = Math.round(h * d); ctx.setTransform(d, 0, 0, d, 0, 0);
+      R.w = w; R.h = h; R.S = w < 700 ? 24 : 30;
+      R.cols = Math.ceil(w / R.S) + 2; R.rows = Math.ceil(h / R.S) + 2;
+      const n = R.cols * R.rows; R.a = new Float32Array(n); R.b = new Float32Array(n); R.base = new Float32Array(n);
+      const cx = w * 0.5, cy = h * 0.4, md = Math.hypot(w, h) * 0.62;
+      for (let j = 0; j < R.rows; j++) for (let i = 0; i < R.cols; i++) R.base[j * R.cols + i] = 0.16 + 0.84 * Math.max(0, 1 - Math.hypot(i * R.S - cx, j * R.S - cy) / md);
+      this.drawRipple();
+    };
+    size(); this._rsz = size; window.addEventListener('resize', size);
+    if (this.rm()) return;
+    this._ripDown = e => { if (e.button > 0 || (e.target.closest && e.target.closest('button,a,input,label,[data-to]'))) return; this.drop(e.clientX, e.clientY, 560, 2); };
+    window.addEventListener('pointerdown', this._ripDown);
+  }
+  drop(x, y, str, rad) {
+    const R = this.rip; if (!R || !R.a || this.rm()) return;
+    const i0 = Math.round(x / R.S), j0 = Math.round(y / R.S);
+    for (let j = j0 - rad; j <= j0 + rad; j++) for (let i = i0 - rad; i <= i0 + rad; i++) {
+      if (i < 1 || j < 1 || i >= R.cols - 1 || j >= R.rows - 1) continue;
+      const f = 1 - Math.hypot(i - i0, j - j0) / (rad + 1); if (f > 0) R.a[j * R.cols + i] += str * f;
+    }
+    R.wave = true; this.kickRip();
+  }
+  kickRip() { const R = this.rip; if (R && !R.run) { R.run = true; R.lt = performance.now(); requestAnimationFrame(this.ripTick); } }
+  ripTick = () => {
+    const R = this.rip; if (!R || !R.a) { if (R) R.run = false; return; }
+    const now = performance.now(), s = Math.min(3, (now - R.lt) / 16.7); R.lt = now;
+    if (R.wave) {
+      const a = R.a, b = R.b, cols = R.cols, rows = R.rows; let e = 0;
+      for (let j = 1; j < rows - 1; j++) for (let i = 1; i < cols - 1; i++) {
+        const k = j * cols + i, n = ((a[k - 1] + a[k + 1] + a[k - cols] + a[k + cols]) * 0.5 - b[k]) * 0.955;
+        b[k] = n; e += n < 0 ? -n : n;
+      }
+      R.a = b; R.b = a;
+      if (e <= 3) { R.a.fill(0); R.b.fill(0); R.wave = false; }
+    }
+    R.ms += (R.mt - R.ms) * (1 - Math.pow(0.92, s));
+    const kf = 1 - Math.pow(0.86, s); R.cx += (R.mx - R.cx) * kf; R.cy += (R.my - R.cy) * kf;
+    if (!R.mt && R.ms < 0.002) R.ms = 0;
+    this.drawRipple();
+    const busy = R.wave || Math.abs(R.mt - R.ms) > 0.002 || (R.ms > 0 && Math.abs(R.mx - R.cx) + Math.abs(R.my - R.cy) > 0.15);
+    if (busy) requestAnimationFrame(this.ripTick); else R.run = false;
+  };
+  drawRipple() {
+    const R = this.rip; if (!R || !R.a) return;
+    const { ctx, cols, rows, S, base } = R, a = R.a, act = [], pol = [], ms = R.ms, bins = [[], [], [], [], [], [], [], []];
+    ctx.clearRect(0, 0, R.w, R.h);
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+      const k = j * cols + i, m = Math.min(1, Math.abs(a[k]) / 110);
+      let x = i * S, y = j * S, p = 0, ux = 0, uy = 0;
+      if (m > 0.01 && i > 0 && j > 0 && i < cols - 1 && j < rows - 1) { x += clamp((a[k + 1] - a[k - 1]) * 0.035, -7, 7); y += clamp((a[k + cols] - a[k - cols]) * 0.035, -7, 7); }
+      if (ms > 0) {
+        const dx = R.cx - x, dy = R.cy - y, d = Math.hypot(dx, dy);
+        if (d < 220 && d > 0.01) { const f = 1 - d / 220, sm = f * f * (3 - 2 * f); ux = dx / d; uy = dy / d; const pull = Math.min(d * 0.45, 20 * sm * ms); x += ux * pull; y += uy * pull; p = sm * ms * Math.min(1, d / 42); }
+      }
+      if (m > 0.06) { act.push(x, y, m, base[k]); continue; }
+      if (p > 0.003) { pol.push(x, y, ux, uy, p, base[k]); continue; }
+      bins[Math.min(7, (base[k] * 8) | 0)].push(x, y);
+    }
+    ctx.fillStyle = '#EDE4D9';
+    for (let b = 0; b < 8; b++) { const L = bins[b]; if (!L.length) continue; ctx.globalAlpha = (b + 0.5) / 8 * 0.15; ctx.beginPath(); for (let q = 0; q < L.length; q += 2) { ctx.moveTo(L[q] + 1, L[q + 1]); ctx.arc(L[q], L[q + 1], 1, 0, 6.2832); } ctx.fill(); }
+    ctx.lineCap = 'round';
+    for (let q = 0; q < pol.length; q += 6) {
+      const x = pol[q], y = pol[q + 1], ux = pol[q + 2], uy = pol[q + 3], p = pol[q + 4], bw = pol[q + 5], L = 5.6 * p, a0 = bw * 0.15, al = a0 + ((0.22 + 0.58 * p) * (0.45 + 0.55 * bw) - a0) * Math.min(1, p * 2.2), lw = 2 + 0.6 * p;
+      ctx.globalAlpha = al; ctx.fillStyle = ctx.strokeStyle = '#EDE4D9'; ctx.lineWidth = lw;
+      if (L < 0.5) { ctx.beginPath(); ctx.arc(x, y, lw / 2, 0, 6.2832); ctx.fill(); continue; }
+      ctx.beginPath(); ctx.moveTo(x - ux * L, y - uy * L); ctx.lineTo(x + ux * L * 0.15, y + uy * L * 0.15); ctx.stroke();
+      ctx.globalAlpha = al * Math.min(1, p * 2.4); ctx.strokeStyle = '#E0641C'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + ux * L, y + uy * L); ctx.stroke();
+    }
+    for (let q = 0; q < act.length; q += 4) {
+      const m = act[q + 2], bw = act[q + 3];
+      ctx.globalAlpha = (0.2 + 0.6 * m) * (0.4 + 0.6 * bw);
+      ctx.fillStyle = m > 0.45 ? '#E0641C' : '#B98A68';
+      ctx.beginPath(); ctx.arc(act[q], act[q + 1], 1.1 + m * 1.6, 0, 6.2832); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  loadFile(f) {
+    if (!f) return;
+    if (!f.type || !f.type.startsWith('image/')) { this.setState({ err: 'That file isn\u2019t an image. Choose a JPG, PNG or WebP.' }); return; }
+    if (f.size > MAX) { this.setState({ err: 'That image is over 20 MB. Try a smaller export.' }); return; }
+    if (this.state.file) URL.revokeObjectURL(this.state.file.url);
+    const url = URL.createObjectURL(f);
+    this.setState({ file: { url, name: f.name || 'pasted-image.png', size: (f.size / 1048576).toFixed(1) + ' MB', type: (f.type.split('/')[1] || '').toUpperCase().replace('JPEG', 'JPG'), dims: '' }, err: '', over: false, zh: false });
+    const im = new Image();
+    im.onload = () => { const cur = this.state.file; if (cur && cur.url === url) this.setState({ file: { ...cur, dims: im.naturalWidth + ' \u00d7 ' + im.naturalHeight } }); };
+    im.src = url;
+  }
+  pick = e => { if (e && e.stopPropagation) e.stopPropagation(); const i = this.inputRef.current; if (i) i.click(); };
+
+  renderVals() {
+    const st = this.state, f = st.file, over = st.over;
+    const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
+    return {
+      rootRef: this.rootRef, inputRef: this.inputRef,
+      showWord: !st.narrow,
+      noFile: !f, hasFile: !!f,
+      pick: this.pick,
+      zoneKey: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.pick(); } },
+      onFile: e => { this.loadFile(e.target.files && e.target.files[0]); e.target.value = ''; },
+      zEnter: () => this.setState({ zh: true }), zLeave: () => this.setState({ zh: false }),
+      zBorder: over ? '#E0641C' : st.zh ? '#6E665E' : '#3A342E',
+      zBg: over ? 'rgba(224,100,28,.07)' : 'rgba(26,22,18,.62)',
+      zScale: over ? 1.015 : 1,
+      iconBorder: over ? '#E0641C' : '#3A342E', iconY: over ? '-4px' : '0px',
+      zTitle: over ? 'Drop to insert' : 'Drag an X-ray here',
+      pasteKey: mac ? '\u2318V' : 'Ctrl+V',
+      hasErr: !!st.err, err: st.err,
+      fileBg: f ? 'url("' + f.url + '")' : 'none', fileName: f ? f.name : '',
+      fileMeta: f ? [f.size, f.type, f.dims].filter(Boolean).join(' \u00b7 ') : '',
+      remove: () => { if (f) URL.revokeObjectURL(f.url); this.setState({ file: null }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
