@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Radiant — AI-assisted review of animal X-rays</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<script src="./tiles.js"></script>
+<style>
+html{scroll-behavior:auto}
+body{margin:0;background:#FAF8F5;color:#1A1612;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#C9551A;text-decoration:none}
+a:hover{color:#A8440F}
+*:focus-visible{outline:2px solid #E0641C;outline-offset:2px;border-radius:6px}
+</style>
+</helmet>
+
+<div ref="{{ rootRef }}" style="min-height:100vh;background:#FAF8F5">
+
+<header data-h="header" style="position:sticky;top:0;z-index:50;background:#FAF8F5;border-bottom:1px solid {{ navBorder }};transition:border-color .2s ease,transform .4s cubic-bezier(.2,.7,.2,1);will-change:transform">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:32px">
+    <a href="#top" data-goto="top" style="display:flex;align-items:center;gap:10px;color:#1A1612" data-hx="1">
+      <span data-hx-icon="1" data-intro-icon="1" style="width:32px;height:32px;border-radius:9px;background:#E0641C;display:grid;place-items:center;transition:transform .18s ease">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><g transform="rotate(-45 12 12)"><rect x="7" y="10.2" width="10" height="3.6" rx="1"></rect><circle cx="7" cy="9.9" r="2.3"></circle><circle cx="7" cy="14.1" r="2.3"></circle><circle cx="17" cy="9.9" r="2.3"></circle><circle cx="17" cy="14.1" r="2.3"></circle></g></svg>
+      </span>
+      <span data-intro-target="1" style="font-size:19px;font-weight:700;letter-spacing:-0.02em">Radiant</span>
+    </a>
+    <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+      <nav style="display:flex;gap:4px;margin-left:auto">
+        <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="2">
+          <a href="#{{ n.id }}" data-goto="{{ n.id }}" data-hx="1" style="position:relative;padding:8px 14px;font-size:15px;font-weight:500;color:{{ n.color }};transition:color .15s ease" style-hover="color:#1A1612">
+            <span style="display:block;overflow:hidden;height:1.3em;line-height:1.3em"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .5s cubic-bezier(.7,0,.2,1)"><span>{{ n.label }}</span><span aria-hidden="true" style="color:#E0641C">{{ n.label }}</span></span></span>
+            <span data-hx-line="1" style="position:absolute;left:14px;right:14px;bottom:2px;height:1.5px;background:#CFC6BB;transform:scaleX(0);transform-origin:left;transition:transform .22s cubic-bezier(.2,.7,.2,1)"></span>
+            <span style="position:absolute;left:14px;right:14px;bottom:2px;height:1.5px;background:#E0641C;transform:scaleX({{ n.line }});transform-origin:left;transition:transform .3s cubic-bezier(.2,.7,.2,1)"></span>
+          </a>
+        </sc-for>
+      </nav>
+      <a href="Analyze.dc.html" data-analyze="1" data-hx="1" data-hx-var="radial" style="position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;gap:10px;height:38px;white-space:nowrap;flex:none;padding:0 16px;border-radius:9px;background:#E0641C;color:#fff;font-size:14px;font-weight:600;box-shadow:0 1px 2px rgba(26,22,18,.14);transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease,border-color .35s ease,color .35s ease" style-hover="color:#fff;transform:translateY(-2px);box-shadow:0 10px 20px -10px rgba(26,22,18,.55)" style-active="transform:translateY(0) scale(.97)"><span data-hx-fill="1" style="position:absolute;left:50%;top:50%;width:0;height:0;border-radius:50%;background:#1A1612;z-index:-1;pointer-events:none;transform:translate(-50%,-50%) scale(0);transition:transform .5s cubic-bezier(.2,.7,.2,1)"></span><span style="display:block;overflow:hidden;height:1.3em;line-height:1.3em"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .55s cubic-bezier(.7,0,.2,1)"><span>Analyze an X-ray</span><span aria-hidden="true">Analyze an X-ray</span></span></span><span data-hx-arrow="1" style="display:inline-block;transition:transform .3s cubic-bezier(.2,.7,.2,1)">→</span></a>
+      <div data-acct="1" style="position:relative;flex:none;margin-left:-14px">
+        <button type="button" onClick="{{ toggleAcct }}" aria-label="Account" aria-haspopup="menu" aria-expanded="{{ acctOpen }}" style="width:38px;height:38px;padding:0;border-radius:50%;border:none;background:#1A1612;color:#FAF8F5;display:grid;place-items:center;overflow:hidden;cursor:pointer;font-family:inherit;font-size:15px;font-weight:600;box-shadow:0 0 0 1px rgba(26,22,18,.08);transition:box-shadow .25s ease,transform .2s ease" style-hover="box-shadow:0 0 0 3px rgba(224,100,28,.3)" style-active="transform:scale(.95)">
+          <sc-if value="{{ acctPic }}" hint-placeholder-val="{{ false }}"><img data-pic="1" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+          <sc-if value="{{ acctNoPic }}" hint-placeholder-val="{{ true }}"><span>{{ acctInitial }}</span></sc-if>
+        </button>
+        <div role="menu" style="position:absolute;right:0;top:calc(100% + 12px);width:272px;box-sizing:border-box;padding:16px;border-radius:14px;background:#fff;border:1px solid #E9E3DB;box-shadow:0 28px 56px -28px rgba(26,22,18,.4);opacity:{{ acctOp }};transform:translateY({{ acctY }});visibility:{{ acctVis }};transition:opacity .18s ease,transform .3s cubic-bezier(.2,.7,.2,1),visibility .18s">
+          <div style="font-size:15px;font-weight:600;color:#1A1612;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ acctName }}</div>
+          <div style="margin-top:2px;font-size:13px;color:#6E665E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ acctEmail }}</div>
+          <div style="margin-top:12px;display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8A8178"><span style="width:6px;height:6px;border-radius:50%;background:#E0641C;flex:none"></span>{{ acctNote }}</div>
+          <button type="button" role="menuitem" onClick="{{ signOut }}" style="margin-top:14px;width:100%;height:40px;border-radius:9px;border:1px solid #E2DBD2;background:#fff;color:#1A1612;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s ease,border-color .2s ease,color .2s ease" style-hover="background:#1A1612;border-color:#1A1612;color:#fff">Sign out</button>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ toggleMenu }}" aria-label="Menu" aria-expanded="{{ menuOpen }}" style="margin-left:auto;width:44px;height:44px;border-radius:10px;border:1px solid #E9E3DB;background:#fff;display:grid;place-items:center;cursor:pointer;color:#1A1612" style-active="transform:scale(.96)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="{{ menuIcon }}"></path></svg>
+      </button>
+    </sc-if>
+  </div>
+  <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+    <div style="overflow:hidden;max-height:{{ menuH }};opacity:{{ menuOp }};transition:max-height .32s cubic-bezier(.2,.7,.2,1),opacity .2s ease;background:#FAF8F5;border-bottom:1px solid #E9E3DB">
+      <div style="padding:8px 24px 20px;display:flex;flex-direction:column;gap:2px">
+        <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="2">
+          <a href="#{{ n.id }}" data-goto="{{ n.id }}" style="padding:12px 0;font-size:17px;font-weight:500;color:{{ n.color }};border-bottom:1px solid #EFEAE3">{{ n.label }}</a>
+        </sc-for>
+        <a href="Analyze.dc.html" data-analyze="1" style="margin-top:14px;display:flex;justify-content:center;align-items:center;height:48px;border-radius:10px;background:#E0641C;color:#fff;font-weight:600">Analyze an X-ray</a>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #EFEAE3;display:flex;align-items:center;gap:12px">
+          <span style="width:40px;height:40px;flex:none;border-radius:50%;overflow:hidden;background:#1A1612;color:#FAF8F5;display:grid;place-items:center;font-size:15px;font-weight:600">
+            <sc-if value="{{ acctPic }}" hint-placeholder-val="{{ false }}"><img data-pic="1" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+            <sc-if value="{{ acctNoPic }}" hint-placeholder-val="{{ true }}"><span>{{ acctInitial }}</span></sc-if>
+          </span>
+          <div style="min-width:0;flex:1">
+            <div style="font-size:15px;font-weight:600;color:#1A1612;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ acctName }}</div>
+            <div style="font-size:13px;color:#6E665E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ acctEmail }}</div>
+          </div>
+          <button type="button" onClick="{{ signOut }}" style="flex:none;height:44px;padding:0 16px;border-radius:10px;border:1px solid #E2DBD2;background:#fff;color:#1A1612;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Sign out</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <div data-h="prog" style="position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#E0641C;transform:scaleX(0);transform-origin:left;pointer-events:none"></div>
+</header>
+
+<section id="top" style="position:relative;overflow:hidden;padding:clamp(48px,7vw,96px) 0 clamp(64px,8vw,112px)">
+  <canvas data-h="ripple" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas>
+  <div style="position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;align-items:center;gap:clamp(40px,6vw,80px)">
+    <div style="flex:1 1 420px;min-width:0;max-width:540px">
+      <h1 data-cursor="text" style="margin:0;font-size:clamp(40px,5.2vw,62px);line-height:1.04;letter-spacing:-0.035em;font-weight:700"><span style="display:block;overflow:hidden;padding-bottom:.06em"><span data-line="0" style="display:block">A clearer way to</span></span><span style="display:block;overflow:hidden;padding-bottom:.06em"><span data-line="1" style="display:block">review animal <span style="color:#E0641C">X-rays.</span></span></span></h1>
+      <p data-rv="160" style="margin:22px 0 0;font-size:19px;line-height:1.55;color:#4A433C;text-wrap:pretty">Upload a radiograph of a dog or cat. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.</p>
+      <div data-rv="240" style="margin-top:32px;display:flex;flex-wrap:wrap;gap:12px">
+        <span data-mag="1" style="display:inline-flex;transition:transform .45s cubic-bezier(.2,.7,.2,1)"><a href="Analyze.dc.html" data-analyze="1" data-hx="1" style="position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;gap:10px;height:50px;white-space:nowrap;flex:none;padding:0 22px;border-radius:11px;background:#E0641C;color:#fff;font-size:16px;font-weight:600;box-shadow:0 1px 2px rgba(26,22,18,.14);transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease,border-color .35s ease,color .35s ease" style-hover="color:#fff;transform:translateY(-2px);box-shadow:0 18px 34px -14px rgba(26,22,18,.55)" style-active="transform:translateY(0) scale(.97)"><span data-hx-fill="1" style="position:absolute;left:-10%;width:120%;top:100%;height:240%;border-radius:50%;background:#1A1612;z-index:-1;transform:translateY(0);transition:transform .6s cubic-bezier(.7,0,.2,1)"></span><span style="display:block;overflow:hidden;height:1.3em;line-height:1.3em"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .55s cubic-bezier(.7,0,.2,1)"><span>Analyze an X-ray</span><span aria-hidden="true">Analyze an X-ray</span></span></span><span data-hx-arrow="1" style="display:inline-block;transition:transform .3s cubic-bezier(.2,.7,.2,1)">→</span></a></span>
+        <span data-mag="1" style="display:inline-flex;transition:transform .45s cubic-bezier(.2,.7,.2,1)"><a href="#how" data-goto="how" data-hx="1" data-hx-var="wipe" style="position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;gap:10px;height:50px;white-space:nowrap;flex:none;padding:0 20px;border-radius:11px;background:#fff;color:#1A1612;border:1px solid #E2DBD2;font-size:16px;font-weight:600;box-shadow:none;transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease,border-color .35s ease,color .25s ease .1s" style-hover="color:#fff;border-color:#1A1612;transform:translateY(-2px);box-shadow:0 16px 30px -16px rgba(26,22,18,.5)" style-active="transform:translateY(0) scale(.97)"><span data-hx-fill="1" style="position:absolute;inset:0;background:#1A1612;z-index:-1;transform:scaleX(0);transform-origin:left center;transition:transform .45s cubic-bezier(.2,.7,.2,1)"></span><span style="display:block;overflow:hidden;height:1.3em;line-height:1.3em"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .55s cubic-bezier(.7,0,.2,1)"><span>See how it works</span><span aria-hidden="true">See how it works</span></span></span><span data-hx-arrow="down" style="display:inline-block;color:#E0641C;transition:transform .3s cubic-bezier(.2,.7,.2,1)">→</span></a></span>
+      </div>
+      <p data-rv="320" style="margin:28px 0 0;display:flex;gap:10px;font-size:13px;line-height:1.55;color:#6E665E;max-width:460px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9551A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"></path><path d="M12 8v5M12 16h.01"></path></svg>
+        <span>Radiant is an AI-assisted research prototype. It is not a veterinary diagnostic tool and does not replace evaluation by a qualified veterinarian.</span>
+      </p>
+    </div>
+
+    <div data-rv="360" style="flex:1 1 460px;min-width:0;max-width:600px;margin-left:auto">
+      <div data-h="wrap" style="will-change:transform">
+        <div data-h="card" onPointerMove="{{ heroMove }}" onPointerEnter="{{ heroEnter }}" onPointerLeave="{{ heroLeave }}" style="border-radius:18px;background:#161310;border:1px solid #2A251F;overflow:hidden;will-change:transform;box-shadow:0 24px 60px -28px rgba(22,16,10,.35)">
+          <div style="display:flex;align-items:center;gap:10px;height:44px;padding:0 16px;border-bottom:1px solid #26211C">
+            <div role="tablist" aria-label="Species" style="position:relative;display:flex;padding:3px;border-radius:9px;background:#0F0D0B;border:1px solid #2A251F">
+              <span style="position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:6px;background:#E0641C;transform:translateX({{ hSegX }});transition:transform .45s cubic-bezier(.2,.7,.2,1)"></span>
+              <button role="tab" aria-selected="{{ hIsDog }}" onClick="{{ hDog }}" style="position:relative;height:26px;min-width:52px;padding:0 10px;border:none;background:none;border-radius:6px;color:{{ hDogColor }};font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:color .3s ease">Dog</button>
+              <button role="tab" aria-selected="{{ hIsCat }}" onClick="{{ hCat }}" style="position:relative;height:26px;min-width:52px;padding:0 10px;border:none;background:none;border-radius:6px;color:{{ hCatColor }};font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:color .3s ease">Cat</button>
+            </div>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A8178;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ hFile }}</span>
+            <span style="margin-left:auto;font-size:12px;color:{{ heroStatusColor }};transition:color .3s ease;white-space:nowrap">{{ heroStatus }}</span>
+          </div>
+          <div data-cursor="hide" style="position:relative;aspect-ratio:4/3;overflow:hidden;background:#0B0A09">
+            <div data-h="img" style="position:absolute;inset:0;will-change:transform">
+              <div data-sp="dog" style="position:absolute;inset:0"><image-slot id="hero-xray" shape="rect" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_view_x-ray_of_large_struvite_stone_in_bladder_of_adult_female_bichon_frise.jpg?width=1400" credit="Wikimedia Commons" credit-href="https://commons.wikimedia.org/wiki/File:Side_view_x-ray_of_large_struvite_stone_in_bladder_of_adult_female_bichon_frise.jpg" placeholder="Radiograph: canine, lateral view"></image-slot></div>
+              <div data-sp="cat" style="position:absolute;inset:0;clip-path:{{ hCatClip }};transition:clip-path .9s cubic-bezier(.7,0,.2,1)"><image-slot id="hero-cat" shape="rect" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_stand%C2%B4s_cat_radiography.jpg?width=1400" credit="Wikimedia Commons" credit-href="https://commons.wikimedia.org/wiki/File:Side_stand%C2%B4s_cat_radiography.jpg" placeholder="Radiograph: feline, lateral view"></image-slot></div>
+              <div data-h="lens" style="position:absolute;left:0;top:0;width:136px;height:136px;border-radius:50%;opacity:0;pointer-events:none;border:1.5px solid rgba(255,255,255,.9);box-shadow:0 14px 34px -10px rgba(0,0,0,.7),inset 0 0 0 1px rgba(0,0,0,.35);background-color:#0B0A09;background-repeat:no-repeat;will-change:transform,opacity;z-index:2"><span style="position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-left:1px solid rgba(255,255,255,.6);border-top:1px solid rgba(255,255,255,.6);transform:rotate(45deg) translate(3px,3px)"></span><span style="position:absolute;left:50%;bottom:10px;transform:translateX(-50%);padding:1px 6px;border-radius:4px;background:rgba(14,12,10,.75);font-family:'IBM Plex Mono',monospace;font-size:10px;color:#E4DCD2">2.5×</span></div>
+            </div>
+            <div data-h="scan" style="position:absolute;left:0;right:0;top:-10%;height:64px;opacity:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.10) 70%,rgba(255,255,255,.55) 98%,rgba(255,255,255,0));z-index:1"></div>
+            <div data-h="hl" style="position:absolute;left:{{ hlL }};top:{{ hlT }};width:{{ hlW }};height:{{ hlH }};transition:left .7s cubic-bezier(.2,.7,.2,1),top .7s cubic-bezier(.2,.7,.2,1),width .7s cubic-bezier(.2,.7,.2,1),height .7s cubic-bezier(.2,.7,.2,1);opacity:0;pointer-events:none;transform-origin:50% 50%">
+              <div style="position:absolute;inset:0;border:1.5px solid #E8702A;border-radius:6px;background:rgba(232,112,42,.10)"></div>
+              <div style="position:absolute;left:-1px;bottom:calc(100% + 6px);white-space:nowrap;padding:4px 8px;border-radius:6px;background:#E0641C;color:#fff;font-size:12px;font-weight:600">Area for additional review</div>
+            </div>
+            <div style="position:absolute;right:14px;top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#BDB4AA;pointer-events:none">{{ hLabel }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;height:48px;padding:0 10px;border-top:1px solid #26211C;color:#A69D93">
+            <span style="width:32px;height:32px;display:grid;place-items:center;border-radius:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3M8 11h6"></path></svg></span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#D8D0C6;width:40px;text-align:center">100%</span>
+            <span style="width:32px;height:32px;display:grid;place-items:center;border-radius:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3M8 11h6M11 8v6"></path></svg></span>
+            <span style="width:1px;height:18px;background:#2F2A25;margin:0 6px"></span>
+            <span style="width:32px;height:32px;display:grid;place-items:center;border-radius:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></span>
+            <span style="width:32px;height:32px;display:grid;place-items:center;border-radius:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor"></path></svg></span>
+            <span style="margin-left:auto;width:32px;height:32px;display:grid;place-items:center;border-radius:8px;background:{{ heroEyeBg }};color:{{ heroEyeColor }};transition:background .3s ease,color .3s ease"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));background:#fff;border-top:1px solid #26211C">
+            <div style="padding:14px 16px;border-right:1px solid #EFEAE3">
+              <div style="font-size:12px;color:#6E665E">Result</div>
+              <div style="margin-top:4px;font-size:14px;font-weight:600;color:#1A1612">{{ heroResult }}</div>
+            </div>
+            <div style="padding:14px 16px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:#6E665E"><span>Model confidence</span><span style="font-family:'IBM Plex Mono',monospace;color:#1A1612">{{ heroConfText }}</span></div>
+              <div style="margin-top:9px;height:4px;border-radius:2px;background:#EFEAE3;overflow:hidden"><div style="height:100%;width:{{ heroConfW }};background:#E0641C;border-radius:2px;transition:width .7s cubic-bezier(.2,.7,.2,1)"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="margin:14px 2px 0;font-size:12px;color:#8A8178">Illustrative example. Hover the image to reveal the annotation layer.</p>
+    </div>
+  </div>
+</section>
+
+<section id="how" style="padding:clamp(72px,9vw,120px) 0;background:#fff;border-top:1px solid #EFEAE3">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px">
+    <div style="max-width:620px">
+      <h2 data-cursor="text" data-rv="0" style="margin:0;font-size:clamp(30px,3.4vw,42px);line-height:1.1;letter-spacing:-0.03em;font-weight:700">How it works</h2>
+      <p data-rv="80" style="margin:14px 0 0;font-size:18px;line-height:1.55;color:#4A433C;text-wrap:pretty">Three steps from an uploaded image to a highlighted region you can inspect, with the model's uncertainty shown alongside.</p>
+    </div>
+    <div style="margin-top:48px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
+      <div data-rv="0">
+        <div data-tilt="1" style="height:100%;box-sizing:border-box;padding:20px;border-radius:16px;background:#fff;border:1px solid #E9E3DB;transition:transform .25s ease-out,box-shadow .2s ease,border-color .2s ease" style-hover="border-color:#D9D0C5;box-shadow:0 18px 36px -24px rgba(26,22,18,.3)">
+          <div style="height:132px;border-radius:12px;background:#F6F2ED;display:flex;align-items:center;justify-content:center;padding:0 18px">
+            <div style="width:100%;max-width:260px;display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:#fff;border:1px solid #E9E3DB;box-shadow:0 4px 12px -8px rgba(26,22,18,.2)">
+              <div style="width:40px;height:40px;border-radius:7px;background:linear-gradient(135deg,#3a3430,#141210);flex:none"></div>
+              <div style="min-width:0;flex:1">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1A1612;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">bella_thorax_lat.jpg</div>
+                <div style="font-size:12px;color:#6E665E;margin-top:2px">2.4 MB · JPG</div>
+              </div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E0641C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+            </div>
+          </div>
+          <div style="margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A">01</div>
+          <h3 style="margin:6px 0 0;font-size:19px;font-weight:600;letter-spacing:-0.01em">Upload a radiograph</h3>
+          <p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:#4A433C">A JPG or PNG of a dog or cat X-ray. The image stays in your browser session.</p>
+        </div>
+      </div>
+      <div data-rv="90">
+        <div data-tilt="1" style="height:100%;box-sizing:border-box;padding:20px;border-radius:16px;background:#fff;border:1px solid #E9E3DB;transition:transform .25s ease-out,box-shadow .2s ease,border-color .2s ease" style-hover="border-color:#D9D0C5;box-shadow:0 18px 36px -24px rgba(26,22,18,.3)">
+          <div style="height:132px;border-radius:12px;background:#F6F2ED;display:flex;align-items:center;justify-content:center;padding:0 18px">
+            <div style="width:100%;max-width:260px;padding:12px 14px;border-radius:10px;background:#fff;border:1px solid #E9E3DB;box-shadow:0 4px 12px -8px rgba(26,22,18,.2);display:flex;flex-direction:column;gap:8px;font-size:13px">
+              <div style="display:flex;align-items:center;gap:8px;color:#4A433C"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E0641C" stroke-width="2.2" stroke-linecap="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Preparing image</div>
+              <div style="display:flex;align-items:center;gap:8px;color:#1A1612;font-weight:500"><span style="width:14px;height:14px;border-radius:50%;border:2px solid #F3D4BF;border-top-color:#E0641C;box-sizing:border-box"></span>Running model</div>
+              <div style="height:4px;border-radius:2px;background:#EFEAE3;overflow:hidden"><div style="width:58%;height:100%;background:#E0641C"></div></div>
+            </div>
+          </div>
+          <div style="margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A">02</div>
+          <h3 style="margin:6px 0 0;font-size:19px;font-weight:600;letter-spacing:-0.01em">The model reviews it</h3>
+          <p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:#4A433C">A trained model looks for regions whose patterns differ from what it learned as typical.</p>
+        </div>
+      </div>
+      <div data-rv="180">
+        <div data-tilt="1" style="height:100%;box-sizing:border-box;padding:20px;border-radius:16px;background:#fff;border:1px solid #E9E3DB;transition:transform .25s ease-out,box-shadow .2s ease,border-color .2s ease" style-hover="border-color:#D9D0C5;box-shadow:0 18px 36px -24px rgba(26,22,18,.3)">
+          <div style="height:132px;border-radius:12px;background:#F6F2ED;display:flex;align-items:center;justify-content:center;padding:0 18px">
+            <div style="width:100%;max-width:260px;padding:12px 14px;border-radius:10px;background:#fff;border:1px solid #E9E3DB;box-shadow:0 4px 12px -8px rgba(26,22,18,.2)">
+              <div style="font-size:13px;font-weight:600;color:#1A1612">Possible area for additional review</div>
+              <div style="margin-top:10px;display:flex;justify-content:space-between;font-size:12px;color:#6E665E"><span>Confidence</span><span style="font-family:'IBM Plex Mono',monospace;color:#1A1612">78%</span></div>
+              <div style="margin-top:6px;height:4px;border-radius:2px;background:#EFEAE3;overflow:hidden"><div style="width:78%;height:100%;background:#E0641C"></div></div>
+            </div>
+          </div>
+          <div style="margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A">03</div>
+          <h3 style="margin:6px 0 0;font-size:19px;font-weight:600;letter-spacing:-0.01em">Review the highlighted area</h3>
+          <p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:#4A433C">See the region on the image, the model's confidence, and a plain-language explanation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about" style="padding:clamp(72px,9vw,120px) 0;background:#FAF8F5;border-top:1px solid #EFEAE3">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;gap:clamp(40px,6vw,96px)">
+    <div style="flex:1 1 360px;min-width:0;max-width:500px">
+      <h2 data-cursor="text" data-rv="0" style="margin:0;font-size:clamp(30px,3.4vw,42px);line-height:1.1;letter-spacing:-0.03em;font-weight:700;text-wrap:balance">Why we built Radiant</h2>
+      <p data-rv="80" style="margin:16px 0 0;font-size:18px;line-height:1.6;color:#4A433C;text-wrap:pretty">Dogs and cats can't say where it hurts, so radiographs do much of the explaining. Radiant is a research prototype built by two students for the Congressional App Challenge. It explores how an AI model can point a reviewer toward areas worth a closer look while staying open about its uncertainty.</p>
+    </div>
+    <div style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column">
+      <div data-rv="0" style="padding:22px 0;border-top:1px solid #E2DBD2;display:grid;grid-template-columns:32px 1fr;gap:4px 12px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A;padding-top:4px">01</span>
+        <div><div style="font-size:18px;font-weight:600">Highlights, not diagnoses</div><p style="margin:6px 0 0;font-size:15px;line-height:1.55;color:#4A433C">Every result is framed as an area for additional review. Radiant never names a condition.</p></div>
+      </div>
+      <div data-rv="80" style="padding:22px 0;border-top:1px solid #E2DBD2;display:grid;grid-template-columns:32px 1fr;gap:4px 12px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A;padding-top:4px">02</span>
+        <div><div style="font-size:18px;font-weight:600">Uncertainty is always shown</div><p style="margin:6px 0 0;font-size:15px;line-height:1.55;color:#4A433C">Model confidence appears next to every highlight, with a note on what it does and doesn't mean.</p></div>
+      </div>
+      <div data-rv="160" style="padding:22px 0;border-top:1px solid #E2DBD2;border-bottom:1px solid #E2DBD2;display:grid;grid-template-columns:32px 1fr;gap:4px 12px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A;padding-top:4px">03</span>
+        <div><div style="font-size:18px;font-weight:600">Veterinarians make the call</div><p style="margin:6px 0 0;font-size:15px;line-height:1.55;color:#4A433C">Radiant is an educational tool for students and researchers. Clinical decisions belong to qualified professionals.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="padding:0 0 clamp(72px,9vw,120px);background:#FAF8F5">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;gap:clamp(32px,6vw,96px)">
+    <div style="flex:1 1 300px;min-width:0;max-width:420px">
+      <h2 data-cursor="text" data-rv="0" style="margin:0;font-size:clamp(30px,3.4vw,42px);line-height:1.1;letter-spacing:-0.03em;font-weight:700">Questions</h2>
+      <p data-rv="80" style="margin:14px 0 0;font-size:18px;line-height:1.55;color:#4A433C">What Radiant does, what it doesn't, and how to read its output.</p>
+    </div>
+    <div data-rv="0" style="flex:1 1 480px;min-width:0;border-top:1px solid #E2DBD2">
+      <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="5">
+        <div style="border-bottom:1px solid #E2DBD2">
+          <button onClick="{{ f.toggle }}" aria-expanded="{{ f.open }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0;border:none;background:none;cursor:pointer;text-align:left;font-family:inherit;font-size:18px;font-weight:600;color:#1A1612;transition:color .15s ease" style-hover="color:#C9551A">
+            {{ f.q }}
+            <span style="flex:none;width:28px;height:28px;border-radius:50%;border:1px solid {{ f.iconBorder }};background:{{ f.iconBg }};color:{{ f.iconColor }};display:grid;place-items:center;transform:rotate({{ f.rot }});transition:transform .3s cubic-bezier(.2,.7,.2,1),background .2s ease,border-color .2s ease,color .2s ease"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span>
+          </button>
+          <div style="display:grid;grid-template-rows:{{ f.rows }};transition:grid-template-rows .35s cubic-bezier(.2,.7,.2,1)">
+            <div style="overflow:hidden">
+              <p style="margin:0;padding:0 44px 22px 0;font-size:16px;line-height:1.6;color:#4A433C;opacity:{{ f.op }};transition:opacity .3s ease;text-wrap:pretty">{{ f.a }}</p>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<footer style="background:#fff;border-top:1px solid #EFEAE3;padding:56px 0 36px">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:40px">
+      <div style="max-width:380px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:28px;height:28px;border-radius:8px;background:#E0641C;display:grid;place-items:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><g transform="rotate(-45 12 12)"><rect x="7" y="10.2" width="10" height="3.6" rx="1"></rect><circle cx="7" cy="9.9" r="2.3"></circle><circle cx="7" cy="14.1" r="2.3"></circle><circle cx="17" cy="9.9" r="2.3"></circle><circle cx="17" cy="14.1" r="2.3"></circle></g></svg></span>
+          <span style="font-size:17px;font-weight:700;letter-spacing:-0.02em">Radiant</span>
+        </div>
+        <p style="margin:14px 0 0;font-size:15px;line-height:1.55;color:#6E665E">A student-built, AI-assisted X-ray research prototype for dogs and cats.</p>
+      </div>
+      <div style="display:flex;gap:64px;font-size:15px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-weight:600;color:#1A1612">Product</span>
+          <a href="Analyze.dc.html" data-analyze="1" style="color:#4A433C" style-hover="color:#C9551A">Analyze</a>
+          <a href="#how" data-goto="how" style="color:#4A433C" style-hover="color:#C9551A">How it works</a>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-weight:600;color:#1A1612">Project</span>
+          <a href="#about" data-goto="about" style="color:#4A433C" style-hover="color:#C9551A">About</a>
+          <a href="#faq" data-goto="faq" style="color:#4A433C" style-hover="color:#C9551A">Questions</a>
+          <a href="Login.dc.html" onClick="{{ signOut }}" style="color:#4A433C" style-hover="color:#C9551A">Sign out</a>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:44px;padding-top:22px;border-top:1px solid #EFEAE3;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13px;color:#6E665E">
+      <span>Not a veterinary diagnostic tool. Does not replace evaluation by a qualified veterinarian.</span>
+      <span>Sample radiographs: Wikimedia Commons contributors, used under their stated licenses. © 2026 Radiant</span>
+    </div>
+  </div>
+</footer>
+<div data-h="curtain" aria-hidden="true" style="position:fixed;inset:0;z-index:8000;pointer-events:none;visibility:hidden;overflow:hidden">
+  <div data-ct="a" style="position:absolute;inset:0;background:#E0641C;transform:translateY(100%)"></div>
+  <div data-ct="b" style="position:absolute;inset:0;background:#161310;transform:translateY(100%)"></div>
+  <div data-ct="label" style="position:absolute;inset:0;display:grid;place-items:center;opacity:0">
+    <div style="text-align:center;padding:0 24px">
+      <div style="overflow:hidden"><div data-ct="num" style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#F08A4B"></div></div>
+      <div style="overflow:hidden;margin-top:10px;padding-bottom:.08em"><div data-ct="title" style="font-size:clamp(44px,7vw,96px);line-height:1;font-weight:700;letter-spacing:-0.04em;color:#fff"></div></div>
+    </div>
+  </div>
+</div>
+<div data-h="loader" aria-hidden="true" style="position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:9500;background:#161310;display:grid;place-items:center">
+  <div data-ld="inner" style="opacity:0;display:flex;flex-direction:column;align-items:center;gap:26px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <span data-ld="mark" style="width:46px;height:46px;border-radius:13px;background:#E0641C;display:grid;place-items:center"><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><g transform="rotate(-45 12 12)"><rect x="7" y="10.2" width="10" height="3.6" rx="1"></rect><circle cx="7" cy="9.9" r="2.3"></circle><circle cx="7" cy="14.1" r="2.3"></circle><circle cx="17" cy="9.9" r="2.3"></circle><circle cx="17" cy="14.1" r="2.3"></circle></g></svg></span>
+      <span style="display:block;overflow:hidden;height:1.2em;font-size:32px;line-height:1.2em;font-weight:700;letter-spacing:-0.03em;color:#fff"><span data-ld="word" style="display:block">Radiant</span></span>
+    </div>
+    <div style="width:200px;height:2px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden"><div data-ld="bar" style="height:100%;background:#E0641C;transform:scaleX(0);transform-origin:left"></div></div>
+  </div>
+</div>
+<sc-if value="{{ introOn }}" hint-placeholder-val="{{ false }}">
+  <div data-intro-host="1" style="position:fixed;inset:0;z-index:10060;background:{{ ihBg }};color:{{ ihBg }}">
+    <dc-import name="Intro" reverse="{{ introRev }}" on-covered="{{ introCovered }}" on-open="{{ introOpen }}" on-done="{{ introDone }}" on-ready="{{ introReady }}" preview-reduced-motion="{{ prm }}" hint-size="100%,100%" style="position:absolute;inset:0"></dc-import>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;splash&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Intro&quot;},&quot;introLoader&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Intro&quot;},&quot;heroHighlight&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;hover&quot;,&quot;always&quot;],&quot;default&quot;:&quot;hover&quot;,&quot;tsType&quot;:&quot;'hover'|'always'&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;previewReducedMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Accessibility&quot;}}">
+const FAQ = [
+  ['Is Radiant a diagnostic tool?', 'No. Radiant is an educational research prototype. It highlights areas that may deserve additional review and shows the model\u2019s confidence, but it does not diagnose conditions. A qualified veterinarian should interpret every radiograph.'],
+  ['What images work best?', 'Clear JPG or PNG exports of dog or cat radiographs, one view per image, with the anatomy filling most of the frame. Photos taken of a screen or film can work, but they lower image quality.'],
+  ['What does the confidence score mean?', 'It reflects how strongly the image matches patterns the model learned during training. It is not the probability that a condition is present, and it can be wrong in either direction.'],
+  ['Why "areas for review" instead of findings?', 'Naming a condition would imply a certainty the model doesn\u2019t have. Framing results as areas to look at keeps the decision with the person reviewing the image.'],
+  ['Who built Radiant?', 'Our founders are George Tamas and Patrick Kim, fighting for a pay free pet X-ray world accommodating to your needs as a pet guardian.']
+];
+const HERO = {
+  dog: { file: 'canine_abdomen_lat.jpg', label: 'Dog · Lateral', hl: [56, 46, 22, 28], conf: 78 },
+  cat: { file: 'feline_lateral.jpg', label: 'Cat · Lateral', hl: [34, 40, 22, 26], conf: 64 }
+};
+const GOTO = { top: ['00', 'Radiant'], how: ['01', 'How it works'], about: ['02', 'About'], faq: ['03', 'Questions'] };
+const NAV = [['how', 'How it works'], ['about', 'About'], ['intro', 'Intro']];
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const whenT = (cb, fail) => { const t0 = performance.now(); const tick = () => { if (window.RadiantTiles) cb(window.RadiantTiles); else if (performance.now() - t0 > 1500) fail(); else setTimeout(tick, 16); }; tick(); };
+
+const EMBED = window.parent !== window && /[?&]embed=1/.test(location.search);
+const postUp = m => { try { window.parent.postMessage({ radiant: m }, '*'); } catch (e) {} };
+const KEY = 'radiant-account';
+const readAcct = () => { for (const s of ['localStorage', 'sessionStorage']) { try { const st = window[s], a = JSON.parse(st.getItem(KEY) || 'null'); if (a && (!a.exp || a.exp > Date.now())) return a; if (a) st.removeItem(KEY); } catch (e) {} } return null; };
+const ACCT = EMBED ? null : readAcct();
+const GATE = !EMBED && !ACCT;
+const wantIntro = () => {
+  if (EMBED || GATE) return false;
+  try {
+    if (sessionStorage.getItem('radiant-intro-skip')) return false;
+    const tx = JSON.parse(sessionStorage.getItem('radiant-tx') || 'null');
+    if (tx && tx.to === 'home' && Date.now() - tx.t < 10000) return false;
+  } catch (e) {}
+  return !/^#(how|about|faq)$/.test(location.hash);
+};
+class Component extends DCLogic {
+  state = { narrow: false, menuOpen: false, scrolled: false, active: '', heroOn: false, faq: 0, heroSp: 'dog', introOn: wantIntro(), acctOpen: false };
+  rootRef = React.createRef();
+
+  rm() { return !!this.props.previewReducedMotion || !!(this._mq && this._mq.matches); }
+  always() { return this.props.heroHighlight === 'always'; }
+  introActive() { return !!this.state.introOn && this.props.splash !== false; }
+  introShown() { return !!this.state.introOn && (this.props.splash !== false || !!this._introRev); }
+  introReady = () => { this._introReady = true; clearTimeout(this._introT); };
+  introOpen = (base = 0) => { if (this._introOpened) return; this._introOpened = true; document.documentElement.style.overflow = ''; if (this._io) this.heroReplay(base); else { this._revealDelay = 0; this.initReveal(); } clearTimeout(this._t2); clearTimeout(this._t3); this.initIntro(base); };
+  introCovered = () => { window.scrollTo(0, 0); document.documentElement.style.overflow = 'hidden'; this.readScroll(); };
+  openIntro() { if (this.state.introOn) return; this._introOpened = false; this._introRev = true; this._introReady = true; this.setState({ introOn: true, menuOpen: false }); }
+  heroReplay(base) {
+    if (this.rm()) return;
+    const top = document.getElementById('top'); if (!top) return;
+    top.querySelectorAll('[data-rv]').forEach(el => el.animate([{ opacity: 0, transform: 'translate3d(0,18px,0)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: base + (+el.dataset.rv || 0), easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' }));
+  }
+  introDone = () => { clearTimeout(this._introT); this.introOpen(0); this._introRev = false; if (this.state.introOn) this.setState({ introOn: false }); if (this._preFn && !this._pre) this._pre = setTimeout(this._preFn, 1200); };
+
+  componentDidMount() {
+    const root = this.rootRef.current; if (!root) return;
+    if (GATE) { try { window.location.replace('Login.dc.html?next=' + encodeURIComponent('Radiant.dc.html' + (/^#[\w-]+$/.test(location.hash) ? location.hash : ''))); } catch (e) {} return; }
+    this.root = root;
+    if (ACCT && ACCT.keep) { try { localStorage.setItem(KEY, JSON.stringify(Object.assign({}, ACCT, { exp: Date.now() + 30 * 864e5 }))); } catch (e) {} }
+    this._acctDoc = e => { if (this.state.acctOpen && !(e.target.closest && e.target.closest('[data-acct]'))) this.setState({ acctOpen: false }); };
+    this._acctKey = e => { if (e.key === 'Escape' && this.state.acctOpen) this.setState({ acctOpen: false }); };
+    document.addEventListener('pointerdown', this._acctDoc); document.addEventListener('keydown', this._acctKey); this.pics();
+    if (this.introActive()) { try { history.scrollRestoration = 'manual'; } catch (e) {} window.scrollTo(0, 0); document.documentElement.style.overflow = 'hidden'; this._introT = setTimeout(() => { if (!this._introReady) this.introDone(); }, 8000); }
+    this._mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    this._coarse = window.matchMedia('(hover: none)').matches;
+    const nq = window.matchMedia('(max-width: 860px)');
+    this._setN = () => this.setState({ narrow: nq.matches, menuOpen: false });
+    this._nq = nq; this._setN(); nq.addEventListener('change', this._setN);
+    this.h = {}; root.querySelectorAll('[data-h]').forEach(el => { this.h[el.dataset.h] = el; });
+    this.heroY = 0;
+    this.hc = { x: 0, y: 0, h: 0 }; this.ht = { x: 0, y: 0, h: 0 };
+    this.onScroll = () => { this.readScroll(); this.kick(); };
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('resize', this.onScroll);
+    this.readScroll(); this.applyHero();
+    this.initDelegates(); this.initSpy(); this.initRipple(); this.initLoader();
+    this._onShow = e => { if (!e.persisted) return; this._txBusy = false; const T = window.RadiantTiles, ov = this._txOv; this._txOv = null; if (ov && T) T.reveal(ov, { content: this.flow(), done: t => t.host.remove() }); else document.querySelectorAll('[data-radiant-tx]').forEach(n => n.remove()); };
+    window.addEventListener('pageshow', this._onShow);
+    if (EMBED) {
+      this._onMsg = e => { if (e.source === window.parent && e.data && e.data.radiant === 'enter') this.enterEmbed(); };
+      window.addEventListener('message', this._onMsg);
+      postUp('ready');
+    } else if (!this.rm()) {
+      const pre = () => whenT(T => { if (!this.tx && T.host) this.tx = T.host('Analyze.dc.html'); }, () => {});
+      this._preFn = pre; if (!this.introActive()) this._pre = setTimeout(pre, 1600);
+      this._txHover = e => { if (e.target.closest && e.target.closest('[data-analyze]')) { clearTimeout(this._pre); pre(); } };
+      window.addEventListener('pointerover', this._txHover, true);
+    }
+    this.armLinks();
+    this._txClick = e => { const a = e.target.closest && e.target.closest('[data-analyze]'); if (!a || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; e.preventDefault(); e.stopImmediatePropagation(); this.tileOut(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, a.dataset.to || a.getAttribute('href')); };
+    window.addEventListener('click', this._txClick, true);
+    if (this.always()) { this.ht.h = this.hc.h = 1; this.setState({ heroOn: true }); this.applyHero(); }
+    else if (this._coarse) this._t = setTimeout(() => { this.ht.h = 1; this.setState({ heroOn: true }); this.kick(); }, 1400);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.onScroll); window.removeEventListener('resize', this.onScroll);
+    if (this._nq) this._nq.removeEventListener('change', this._setN);
+    window.removeEventListener('pageshow', this._onShow); window.removeEventListener('click', this._txClick, true); if (this._io2) this._io2.disconnect(); if (this._onMsg) window.removeEventListener('message', this._onMsg); if (this._txHover) window.removeEventListener('pointerover', this._txHover, true); clearTimeout(this._pre); document.removeEventListener('mouseout', this._ripOut);
+    if (this._io) this._io.disconnect(); if (this._spy) this._spy.disconnect();
+    document.documentElement.classList.remove('rc-cursor'); if (this._cMove) { window.removeEventListener('pointermove', this._cMove); window.removeEventListener('pointerdown', this._cDown); window.removeEventListener('pointerup', this._cUp); document.removeEventListener('mouseout', this._cLeave); } if (this._ripMove) window.removeEventListener('pointermove', this._ripMove); if (this._ro) this._ro.disconnect(); this.rip = null; clearTimeout(this._ld1); clearTimeout(this._ld2); clearTimeout(this._ldSafety);
+    clearTimeout(this._t); clearTimeout(this._t2); clearTimeout(this._t3); cancelAnimationFrame(this._raf); document.removeEventListener('pointerdown', this._acctDoc); document.removeEventListener('keydown', this._acctKey);
+  }
+  componentDidUpdate(pp) {
+    this.armLinks(); this.pics();
+    if (pp.heroHighlight !== this.props.heroHighlight) { this.ht.h = this.always() ? 1 : 0; this.setState({ heroOn: this.always() }); this.kick(); }
+    if (pp.previewReducedMotion !== this.props.previewReducedMotion) this.onScroll();
+    if (pp.splash !== this.props.splash && this.props.splash === false && this.state.introOn && !this._introRev) this.introDone();
+  }
+
+  readScroll() {
+    const y = window.scrollY;
+    if ((y > 8) !== this.state.scrolled) this.setState({ scrolled: y > 8 });
+    this.heroY = this.rm() || this.state.narrow ? 0 : Math.min(y, 900) * -0.06;
+    this.heroS = this.rm() ? 1 : 1 - clamp(y / 800) * 0.05;
+    if (this.h && this.h.prog) { const max = document.documentElement.scrollHeight - window.innerHeight; this.h.prog.style.transform = 'scaleX(' + (max > 0 ? clamp(y / max) : 0).toFixed(4) + ')'; }
+    if (this.rip && this.rip.lx != null) this.magnet();
+  }
+  kick() { if (!this._raf) this._raf = requestAnimationFrame(this.tick); }
+  tick = () => {
+    this._raf = null;
+    const rm = this.rm();
+    const c = this.hc, t = this.ht, k = rm ? 1 : 0.11;
+    c.x += (t.x - c.x) * k; c.y += (t.y - c.y) * k; c.h += (t.h - c.h) * k;
+    this.applyHero();
+    const d = Math.abs(t.x - c.x) + Math.abs(t.y - c.y) + Math.abs(t.h - c.h);
+    if (d > 0.001) this.kick();
+  };
+
+  applyHero() {
+    const { card, img, hl, wrap } = this.h; if (!card) return;
+    const c = this.hc, rm = this.rm();
+    wrap.style.transform = `translate3d(0,${this.heroY.toFixed(1)}px,0) scale(${(this.heroS || 1).toFixed(4)})`;
+    hl.style.opacity = c.h.toFixed(3);
+    hl.style.transform = `scale(${(0.96 + 0.04 * c.h).toFixed(4)})`;
+    card.style.boxShadow = `0 ${24 + 18 * c.h}px ${60 + 30 * c.h}px -28px rgba(22,16,10,${(0.35 + 0.2 * c.h).toFixed(3)})`;
+    const mix = (a, b) => Math.round(a + (b - a) * c.h);
+    card.style.borderColor = `rgb(${mix(42, 120)},${mix(37, 72)},${mix(31, 44)})`;
+    const lens = this.h.lens;
+    if (lens) {
+      const slot = img.querySelector('[data-sp="' + this.state.heroSp + '"] image-slot'), im = slot && slot._img, lp = this._lens;
+      const show = !rm && !this._coarse && this._inHero && lp && im && im.naturalWidth;
+      if (show) {
+        const W = img.offsetWidth, H = img.offsetHeight, nw = im.naturalWidth, nh = im.naturalHeight, sc = Math.max(W / nw, H / nh), dw = nw * sc, dh = nh * sc, ox = (W - dw) / 2, oy = (H - dh) / 2, Z = 2.5, R = 68;
+        if (lens._src !== im.src) { lens.style.backgroundImage = 'url("' + im.src + '")'; lens._src = im.src; }
+        lens.style.backgroundSize = (dw * Z).toFixed(1) + 'px ' + (dh * Z).toFixed(1) + 'px';
+        lens.style.backgroundPosition = (-((lp.x - ox) * Z - R)).toFixed(1) + 'px ' + (-((lp.y - oy) * Z - R)).toFixed(1) + 'px';
+        lens.style.transform = 'translate3d(' + (lp.x - R).toFixed(1) + 'px,' + (lp.y - R).toFixed(1) + 'px,0)';
+        lens.style.opacity = Math.min(1, c.h * 1.4).toFixed(3);
+      } else lens.style.opacity = '0';
+    }
+    if (rm || this._coarse) { card.style.transform = ''; img.style.transform = ''; return; }
+    card.style.transform = `perspective(1400px) rotateX(${(-c.y * 3).toFixed(3)}deg) rotateY(${(c.x * 4).toFixed(3)}deg) translate3d(0,${(-4 * c.h).toFixed(2)}px,0)`;
+    img.style.transform = `scale(${(1 + 0.04 * c.h).toFixed(4)}) translate3d(${(-c.x * 8).toFixed(2)}px,${(-c.y * 8).toFixed(2)}px,0)`;
+  }
+
+  initIntro(base = 0) {
+    const lines = [...this.root.querySelectorAll('[data-line]')];
+    if (this.rm() || !lines[0].animate) return;
+    const ez = 'cubic-bezier(.2,.7,.2,1)';
+    lines.forEach((el, i) => el.animate([{ transform: 'translateY(108%)' }, { transform: 'translateY(0)' }], { duration: 1000, delay: base + 120 + i * 120, easing: ez, fill: 'backwards' }));
+    const { img, scan } = this.h;
+    if (img) img.animate([{ filter: 'brightness(.12) contrast(1.8) blur(10px)' }, { filter: 'brightness(1) contrast(1) blur(0px)' }], { duration: 1700, delay: base + 450, easing: ez, fill: 'backwards' });
+    if (scan) scan.animate([{ top: '-12%', opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.85 }, { top: '100%', opacity: 0 }], { duration: 1900, delay: base + 650, easing: 'cubic-bezier(.45,0,.25,1)' });
+    if (!this.always() && !this._coarse) {
+      this._t2 = setTimeout(() => { if (!this._inHero) { this.ht.h = 1; this.setState({ heroOn: true }); this.kick(); } }, base + 2500);
+      this._t3 = setTimeout(() => { if (!this._inHero) { this.ht.h = 0; this.setState({ heroOn: false }); this.kick(); } }, base + 4600);
+    }
+  }
+  initReveal() {
+    if (this.rm()) return;
+    const top = document.getElementById('top'), E = 'cubic-bezier(.2,.7,.2,1)', once = el => !!(top && top.contains(el));
+    const els = [...this.root.querySelectorAll('[data-rv]')];
+    const hide = el => {
+      clearTimeout(el._rvT); el._rvOn = false;
+      el.style.transition = 'none'; el.style.transitionDelay = ''; el.style.opacity = '0';
+      if (el.tagName === 'H2') { el.style.clipPath = 'inset(0 0 100% 0)'; el.style.transform = 'translate3d(0,34px,0)'; } else el.style.transform = 'translate3d(0,18px,0)';
+    };
+    const show = el => {
+      if (el._rvOn) return; el._rvOn = true; clearTimeout(el._rvT);
+      const h2 = el.tagName === 'H2', d = +el.dataset.rv || 0;
+      void el.offsetWidth;
+      el.style.transition = h2 ? 'clip-path 1.15s ' + E + ', transform 1.15s ' + E + ', opacity .5s ease' : 'opacity .7s ' + E + ', transform .8s ' + E;
+      el.style.transitionDelay = d + 'ms';
+      el.style.opacity = '1'; el.style.transform = 'none'; if (h2) el.style.clipPath = 'inset(0 0 -30% 0)';
+      el._rvT = setTimeout(() => { el.style.transition = ''; el.style.transitionDelay = ''; el.style.transform = ''; el.style.clipPath = ''; }, 1300 + d);
+    };
+    els.forEach(hide);
+    this._io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; show(e.target); if (once(e.target)) this._io.unobserve(e.target); }), { rootMargin: '0px 0px -8% 0px' });
+    this._io2 = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting && e.target._rvOn) hide(e.target); }), { rootMargin: '80px 0px' });
+    setTimeout(() => els.forEach(el => { this._io.observe(el); if (!once(el)) this._io2.observe(el); }), this._revealDelay || 0);
+  }
+
+  initDelegates() {
+    const root = this.root;
+    const set = (el, on, e) => {
+      const v = el.dataset.hxVar;
+      el.querySelectorAll('[data-hx-arrow]').forEach(a => {
+        const m = a.dataset.hxArrow;
+        if (m === 'loop') { if (on && a.animate && !this.rm()) a.animate([{ transform: 'translateX(0)', opacity: 1 }, { transform: 'translateX(14px)', opacity: 0, offset: .42 }, { transform: 'translateX(-14px)', opacity: 0, offset: .43 }, { transform: 'translateX(0)', opacity: 1 }], { duration: 560, easing: 'cubic-bezier(.6,0,.3,1)' }); }
+        else a.style.transform = !on ? 'none' : m === 'down' ? 'rotate(90deg)' : m === 'tilt' ? 'translateX(2px) rotate(-45deg)' : 'translateX(4px)';
+      });
+      el.querySelectorAll('[data-hx-line]').forEach(a => { a.style.transform = on ? 'scaleX(1)' : 'scaleX(0)'; });
+      el.querySelectorAll('[data-hx-img]').forEach(a => { a.style.transform = on ? 'scale(1.03)' : 'scale(1)'; });
+      el.querySelectorAll('[data-hx-icon]').forEach(a => { a.style.transform = on ? 'translateY(-2px)' : 'translateY(0)'; });
+      el.querySelectorAll('[data-hx-fill]').forEach(a => {
+        if (v === 'radial') {
+          const r = el.getBoundingClientRect();
+          a.style.width = a.style.height = (Math.hypot(r.width, r.height) * 2.1).toFixed(1) + 'px';
+          if (e) { a.style.left = (e.clientX - r.left).toFixed(1) + 'px'; a.style.top = (e.clientY - r.top).toFixed(1) + 'px'; }
+          a.style.transform = 'translate(-50%,-50%) scale(' + (on ? 1 : 0) + ')';
+        } else if (v === 'wipe') { a.style.transformOrigin = on ? 'left center' : 'right center'; a.style.transform = on ? 'scaleX(1)' : 'scaleX(0)'; }
+        else if (v === 'drop') a.style.transform = on ? 'translateY(70%)' : 'translateY(0)';
+        else if (v === 'skew') a.style.transform = (on ? 'translateX(0)' : 'translateX(-110%)') + ' skewX(-20deg)';
+        else a.style.transform = on ? 'translateY(-70%)' : 'translateY(0)';
+      });
+      el.querySelectorAll('[data-hx-roll]').forEach(a => { a.style.transform = on ? 'translateY(-50%)' : 'translateY(0)'; });
+    };
+    root.addEventListener('pointerover', e => { const el = e.target.closest('[data-hx]'); if (el && !el.contains(e.relatedTarget)) set(el, true, e); });
+    root.addEventListener('pointerout', e => { const el = e.target.closest('[data-hx]'); if (el && !el.contains(e.relatedTarget)) set(el, false, e); });
+    if (!this._coarse) {
+      root.addEventListener('pointermove', e => {
+        if (this.rm()) return;
+        const el = e.target.closest('[data-tilt]'); if (!el) return;
+        const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+        el.style.transform = `perspective(900px) rotateX(${(-y * 3).toFixed(2)}deg) rotateY(${(x * 3).toFixed(2)}deg) translateY(-3px)`;
+      });
+      root.addEventListener('pointerout', e => { const el = e.target.closest('[data-tilt]'); if (el && !el.contains(e.relatedTarget)) el.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0)'; });
+    }
+    if (!this._coarse) {
+      root.addEventListener('pointermove', e => {
+        if (this.rm()) return;
+        const m = e.target.closest('[data-mag]'); if (!m) return;
+        const r = m.getBoundingClientRect(), dx = (e.clientX - r.left) / r.width - .5, dy = (e.clientY - r.top) / r.height - .5;
+        m.style.transform = 'translate3d(' + (dx * 10).toFixed(1) + 'px,' + (dy * 7).toFixed(1) + 'px,0)';
+      });
+      root.addEventListener('pointerout', e => { const m = e.target.closest('[data-mag]'); if (m && !m.contains(e.relatedTarget)) m.style.transform = 'translate3d(0,0,0)'; });
+    }
+    root.addEventListener('click', e => {
+      const a = e.target.closest('[data-goto]'); if (!a) return;
+      e.preventDefault(); this.goto(a.dataset.goto);
+    });
+  }
+  tileOut(x, y, href) {
+    if (EMBED) { this._par = this.flow().map(el => el.animate([{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-6vh,0)' }], { duration: 960, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' })); postUp('back'); return; }
+    const T = window.RadiantTiles, nav = () => { window.location.href = href; };
+    if (this.rm() || !T) { nav(); return; }
+    if (this.state.menuOpen) this.setState({ menuOpen: false });
+    const fallback = () => { if (this._txBusy) return; this._txBusy = true; try { sessionStorage.setItem('radiant-tx', JSON.stringify({ to: 'analyze', t: Date.now() })); } catch (e) {} this._txOv = T.leave(x, y, nav, { content: this.flow() }); };
+    if (T.host) { if (!this.tx) this.tx = T.host('Analyze.dc.html'); this.tx.open({ content: this.flow(), fallback }); } else fallback();
+  }
+  enterEmbed() {
+    if (this._par) { this._par.forEach(a => a.cancel()); this._par = null; }
+    if (this.rm()) return;
+    this.flow().forEach(el => el.animate([{ transform: 'translate3d(0,7vh,0)' }, { transform: 'translate3d(0,0,0)' }], { duration: 1210, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
+    this.initIntro(120);
+  }
+  flow() { return this.root ? Array.from(this.root.children).filter(el => { const p = getComputedStyle(el).position; return p !== 'fixed' && p !== 'absolute'; }) : []; }
+  armLinks() { if (!this.root) return; this.root.querySelectorAll('[data-analyze]:not([data-to])').forEach(a => { a.dataset.to = a.getAttribute('href'); a.setAttribute('href', '#analyze'); }); }
+  goto(id) {
+    if (id === 'intro') { this.openIntro(); return; }
+    const el = document.getElementById(id); if (!el) return;
+    const target = () => id === 'top' ? 0 : el.getBoundingClientRect().top + window.scrollY - 64;
+    if (this.state.menuOpen) this.setState({ menuOpen: false });
+    const ct = this.h && this.h.curtain;
+    if (this.rm() || !ct || !ct.animate || this._ctBusy) { window.scrollTo({ top: target(), behavior: this.rm() ? 'auto' : 'smooth' }); return; }
+    this._ctBusy = true;
+    const q = k => ct.querySelector('[data-ct="' + k + '"]'), a = q('a'), b = q('b'), lab = q('label'), num = q('num'), title = q('title');
+    const L = GOTO[id] || ['', 'Radiant'];
+    num.textContent = L[0] + ' \u2014 Radiant'; title.textContent = L[1];
+    ct.style.visibility = 'visible'; ct.style.pointerEvents = 'auto'; lab.style.opacity = '1';
+    const E = 'cubic-bezier(.76,0,.24,1)', ez = 'cubic-bezier(.2,.7,.2,1)';
+    const up = [{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }], out = [{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }];
+    a.animate(up, { duration: 620, easing: E, fill: 'forwards' });
+    b.animate(up, { duration: 620, delay: 90, easing: E, fill: 'forwards' });
+    num.animate([{ transform: 'translateY(110%)' }, { transform: 'translateY(0)' }], { duration: 600, delay: 340, easing: ez, fill: 'both' });
+    title.animate([{ transform: 'translateY(110%)' }, { transform: 'translateY(0)' }], { duration: 750, delay: 380, easing: ez, fill: 'both' });
+    setTimeout(() => {
+      const t = target(); window.scrollTo({ top: t, behavior: 'auto' });
+      this.readScroll(); this.applyHero();
+    }, 740);
+    setTimeout(() => {
+      num.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-110%)' }], { duration: 420, easing: E, fill: 'forwards' });
+      title.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-110%)' }], { duration: 480, easing: E, fill: 'forwards' });
+      b.animate(out, { duration: 760, delay: 160, easing: E, fill: 'forwards' });
+      const fin = a.animate(out, { duration: 760, delay: 250, easing: E, fill: 'forwards' });
+      fin.onfinish = () => { ct.style.visibility = 'hidden'; ct.style.pointerEvents = 'none'; lab.style.opacity = '0'; this._ctBusy = false; };
+    }, 1180);
+  }
+  initLoader() {
+    const ld = this.h && this.h.loader;
+    if (EMBED) { if (ld) ld.style.display = 'none'; this._revealDelay = 0; this.initReveal(); return; }
+    let skipIntro = false; try { skipIntro = !!sessionStorage.getItem('radiant-intro-skip'); sessionStorage.removeItem('radiant-intro-skip'); } catch (e) {}
+    if (this.introActive()) { if (ld) ld.style.display = 'none'; return; }
+    let tx = null; try { tx = JSON.parse(sessionStorage.getItem('radiant-tx') || 'null'); if (tx && tx.to === 'home') sessionStorage.removeItem('radiant-tx'); } catch (e) {}
+    if (tx && tx.to === 'home' && Date.now() - tx.t < 10000 && ld && ld.animate && !this.rm()) {
+      this._revealDelay = 700; this.initReveal();
+      const fail = () => { ld.style.display = 'none'; this.initIntro(0); };
+      this._ldSafety = setTimeout(fail, 6000);
+      whenT(T => { T.arrive(ld, { content: this.flow(), start: base => { this.initIntro(base); }, done: t => { clearTimeout(this._ldSafety); ld.style.display = 'none'; t.layer.remove(); } }); }, () => { clearTimeout(this._ldSafety); fail(); });
+      return;
+    }
+    const skip = skipIntro || !ld || !ld.animate || this.rm() || this.props.introLoader === false;
+    if (skip) { if (ld) ld.style.display = 'none'; this._revealDelay = 0; this.initReveal(); this.initIntro(0); return; }
+    this._revealDelay = 1250; this.initReveal();
+    const q = k => ld.querySelector('[data-ld="' + k + '"]'), ez = 'cubic-bezier(.2,.7,.2,1)', E = 'cubic-bezier(.76,0,.24,1)';
+    q('inner').style.opacity = '1';
+    q('mark').animate([{ transform: 'scale(.55) rotate(-30deg)', opacity: 0 }, { transform: 'scale(1) rotate(0deg)', opacity: 1 }], { duration: 700, easing: ez, fill: 'both' });
+    q('word').animate([{ transform: 'translateY(105%)' }, { transform: 'translateY(0)' }], { duration: 750, delay: 140, easing: ez, fill: 'both' });
+    q('bar').animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 900, delay: 160, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'both' });
+    this._ld1 = setTimeout(() => {
+      q('inner').animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-48px)', opacity: 0 }], { duration: 520, easing: E, fill: 'forwards' });
+      const a = ld.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }], { duration: 900, delay: 80, easing: E, fill: 'forwards' });
+      a.onfinish = () => { ld.style.display = 'none'; };
+      this.initIntro(200);
+    }, 1120);
+    this._ldSafety = setTimeout(() => { ld.style.display = 'none'; }, 4500);
+  }
+  setHeroSp(sp) {
+    if (sp === this.state.heroSp) return;
+    this.setState({ heroSp: sp });
+    const { scan } = this.h;
+    if (!this.rm() && scan && scan.animate) scan.animate([{ top: '-12%', opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.85 }, { top: '100%', opacity: 0 }], { duration: 1100, easing: 'cubic-bezier(.45,0,.25,1)' });
+  }
+  initRipple() {
+    const cv = this.h && this.h.ripple, sec = document.getElementById('top');
+    if (!cv || !cv.getContext || !sec) return;
+    const ctx = cv.getContext('2d');
+    const R = this.rip = { cv, ctx, sec, S: 26, run: false, last: null, mx: 0, my: 0, cx: 0, cy: 0, mt: 0, ms: 0, wave: false, z: 1, zv: 0 };
+    const size = () => {
+      const w = sec.clientWidth, h = sec.clientHeight, d = Math.min(2, window.devicePixelRatio || 1);
+      if (!w || !h) return;
+      cv.width = Math.round(w * d); cv.height = Math.round(h * d); ctx.setTransform(d, 0, 0, d, 0, 0);
+      R.w = w; R.h = h; R.S = w < 700 ? 22 : 26;
+      R.cols = Math.ceil(w / R.S) + 2; R.rows = Math.ceil(h / R.S) + 2;
+      const n = R.cols * R.rows; R.a = new Float32Array(n); R.b = new Float32Array(n); R.base = new Float32Array(n);
+      const cx = w * 0.72, cy = h * 0.45, md = Math.hypot(w, h) * 0.62;
+      for (let j = 0; j < R.rows; j++) for (let i = 0; i < R.cols; i++) R.base[j * R.cols + i] = 0.12 + 0.88 * Math.max(0, 1 - Math.hypot(i * R.S - cx, j * R.S - cy) / md);
+      this.drawRipple();
+    };
+    size();
+    if (window.ResizeObserver) { this._ro = new ResizeObserver(size); this._ro.observe(sec); }
+    if (this.rm()) return;
+    this._ripMove = e => { if (this.state.introOn) return; if (e.pointerType && e.pointerType !== 'mouse') return; R.lx = e.clientX; R.ly = e.clientY; this.magnet(); };
+    this._ripDown = e => {
+      if (e.button > 0 || (e.target.closest && e.target.closest('[data-h="card"]'))) return;
+      const r = sec.getBoundingClientRect();
+      if (R.mt && R.ms > 0.3) R.zv = Math.max(-34, Math.min(R.zv, 0) - 26);
+      this.drop(e.clientX - r.left, e.clientY - r.top, 520, 2);
+    };
+    window.addEventListener('pointermove', this._ripMove, { passive: true });
+    sec.addEventListener('pointerdown', this._ripDown);
+    this._ripOut = e => { if (!e.relatedTarget && this.rip) { this.rip.lx = null; this.rip.mt = 0; this.kickRip(); } };
+    document.addEventListener('mouseout', this._ripOut);
+  }
+  magnet() {
+    const R = this.rip; if (!R || R.lx == null) return;
+    const r = R.sec.getBoundingClientRect(), x = R.lx - r.left, y = R.ly - r.top, inside = x >= 0 && y >= 0 && x <= r.width && y <= r.height && this.onBg(R.lx, R.ly);
+    if (inside) { if (!R.mt && R.ms < 0.01) { R.cx = x; R.cy = y; } R.mx = x; R.my = y; }
+    const mt = inside ? 1 : 0; if (mt !== R.mt || inside) { R.mt = mt; this.kickRip(); }
+  }
+  onBg(x, y) {
+    const el = document.elementFromPoint(x, y);
+    if (!el || el.closest('a,button,input,label,select,textarea,[role="button"],[role="tab"],[data-mag],[data-h="card"],svg,img,image-slot,header')) return false;
+    for (const n of el.childNodes) {
+      if (n.nodeType !== 3 || !n.textContent.trim()) continue;
+      const rg = document.createRange(); rg.selectNodeContents(n);
+      for (const r of rg.getClientRects()) if (x >= r.left - 6 && x <= r.right + 6 && y >= r.top - 5 && y <= r.bottom + 5) return false;
+    }
+    return true;
+  }
+  heroDrop(k = 1) {
+    const R = this.rip; if (!R || !R.a || this.rm()) return;
+    const card = this.h.card; if (!card) return;
+    const a = card.getBoundingClientRect(), b = R.sec.getBoundingClientRect();
+    this.drop(a.left - b.left + a.width / 2, a.top - b.top + a.height / 2, 1100 * k, 3);
+  }
+  drop(x, y, str, rad) {
+    const R = this.rip; if (!R || !R.a) return;
+    const i0 = Math.round(x / R.S), j0 = Math.round(y / R.S);
+    for (let j = j0 - rad; j <= j0 + rad; j++) for (let i = i0 - rad; i <= i0 + rad; i++) {
+      if (i < 1 || j < 1 || i >= R.cols - 1 || j >= R.rows - 1) continue;
+      const f = 1 - Math.hypot(i - i0, j - j0) / (rad + 1); if (f > 0) R.a[j * R.cols + i] += str * f;
+    }
+    R.wave = true; this.kickRip();
+  }
+  kickRip() { const R = this.rip; if (R && !R.run) { R.run = true; R.lt = performance.now(); requestAnimationFrame(this.ripTick); } }
+  ripTick = () => {
+    const R = this.rip; if (!R || !R.a) { if (R) R.run = false; return; }
+    const now = performance.now(), s = Math.min(3, (now - R.lt) / 16.7); R.lt = now;
+    if (R.z == null) { R.z = 1; R.zv = 0; }
+    if (R.wave) {
+      const a = R.a, b = R.b, cols = R.cols, rows = R.rows; let e = 0;
+      for (let j = 1; j < rows - 1; j++) for (let i = 1; i < cols - 1; i++) {
+        const k = j * cols + i, n = ((a[k - 1] + a[k + 1] + a[k - cols] + a[k + cols]) * 0.5 - b[k]) * 0.955;
+        b[k] = n; e += n < 0 ? -n : n;
+      }
+      R.a = b; R.b = a;
+      if (e <= 3) { R.a.fill(0); R.b.fill(0); R.wave = false; }
+    }
+    if (R.zv || R.z !== 1) {
+      for (let t = s * 0.0167; t > 0; t -= 1 / 240) { const h = Math.min(t, 1 / 240); R.zv += (-81 * (R.z - 1) - 9 * R.zv) * h; R.z += R.zv * h; }
+      if (Math.abs(R.z - 1) < 0.001 && Math.abs(R.zv) < 0.01) { R.z = 1; R.zv = 0; }
+    }
+    R.ms += (R.mt - R.ms) * (1 - Math.pow(0.92, s));
+    const kf = 1 - Math.pow(0.86, s); R.cx += (R.mx - R.cx) * kf; R.cy += (R.my - R.cy) * kf;
+    if (!R.mt && R.ms < 0.002) R.ms = 0;
+    this.drawRipple();
+    const busy = R.wave || R.zv !== 0 || Math.abs(R.mt - R.ms) > 0.002 || (R.ms > 0 && Math.abs(R.mx - R.cx) + Math.abs(R.my - R.cy) > 0.15);
+    if (busy) requestAnimationFrame(this.ripTick); else R.run = false;
+  };
+  drawRipple() {
+    const R = this.rip; if (!R || !R.a) return;
+    const { ctx, cols, rows, S, base } = R, a = R.a, ms = R.ms, z = R.z ?? 1, pf = ms * z, st = 1 + 0.35 * clamp(1 - z, 0, 1.6), wave = R.wave, INK = '#1A1612', OR = '#E0641C', nd = [];
+    const B = R.bk || (R.bk = Array.from({ length: 202 }, () => []));
+    for (let b = 0; b < 202; b++) B[b].length = 0;
+    ctx.clearRect(0, 0, R.w, R.h);
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+      const k = j * cols + i, bw = base[k], m = Math.min(1, Math.abs(a[k]) / 110), a0 = (Math.min(7, (bw * 8) | 0) + 0.5) * 0.02;
+      let x = i * S, y = j * S, p = 0, ux = 0, uy = 0;
+      if (wave && i > 0 && j > 0 && i < cols - 1 && j < rows - 1) { x += clamp((a[k + 1] - a[k - 1]) * 0.035, -6, 6); y += clamp((a[k + cols] - a[k - cols]) * 0.035, -6, 6); }
+      if (ms > 0) {
+        const dx = R.cx - x, dy = R.cy - y, d = Math.hypot(dx, dy);
+        if (d < 190 && d > 0.01) { const f = 1 - d / 190, sm = f * f * (3 - 2 * f); ux = dx / d; uy = dy / d; const pull = Math.min(d * 0.45, 18 * sm * pf); x += ux * pull; y += uy * pull; p = sm * ms * Math.min(1, d / 42); }
+      }
+      if (m < 0.004 && p < 0.003) { B[Math.round(a0 * 100)].push(x, y, 1); continue; }
+      const aM = a0 + ((0.22 + 0.58 * p) * (0.45 + 0.55 * bw) - a0) * Math.min(1, p * 2.2), aR = (0.14 + 0.5 * m) * (0.35 + 0.65 * bw);
+      const al = aM + Math.max(0, aR - aM) * Math.min(1, m / 0.12), u = clamp((m - 0.1) * 2, 0, 1), o = u * u * (3 - 2 * u);
+      const lw = 2 + 0.6 * p + 2.7 * m, L = 5.6 * p * (1 + 0.8 * m) * st;
+      if (L < 0.5) {
+        const ia = Math.round(al * (1 - 0.85 * o) * 100), oa = Math.round(al * o * 100);
+        if (ia > 0) B[Math.min(100, ia)].push(x, y, lw / 2);
+        if (oa > 0) B[101 + Math.min(100, oa)].push(x, y, lw / 2);
+        continue;
+      }
+      nd.push(x, y, ux, uy, L, lw, al, o, p);
+    }
+    for (let b = 1; b < 202; b++) {
+      const P = B[b]; if (!P.length) continue;
+      ctx.globalAlpha = (b > 101 ? b - 101 : b) / 100; ctx.fillStyle = b > 101 ? OR : INK; ctx.beginPath();
+      for (let q = 0; q < P.length; q += 3) { ctx.moveTo(P[q] + P[q + 2], P[q + 1]); ctx.arc(P[q], P[q + 1], P[q + 2], 0, 6.2832); }
+      ctx.fill();
+    }
+    ctx.lineCap = 'round';
+    for (let q = 0; q < nd.length; q += 9) {
+      const x = nd[q], y = nd[q + 1], ux = nd[q + 2], uy = nd[q + 3], L = nd[q + 4], al = nd[q + 6], o = nd[q + 7], p = nd[q + 8], bx = x - ux * L, by = y - uy * L;
+      const ot = Math.min(1, Math.min(1, p * 2.4) * Math.min(1, (L - 0.5) / 2) + o);
+      ctx.lineWidth = nd[q + 5];
+      ctx.globalAlpha = al * (1 - 0.85 * o); ctx.strokeStyle = INK; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(x + ux * L * 0.15, y + uy * L * 0.15); ctx.stroke();
+      ctx.strokeStyle = OR;
+      if (o > 0.004) { ctx.globalAlpha = al * o; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(x, y); ctx.stroke(); }
+      if (ot > 0.004) { ctx.globalAlpha = al * ot; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + ux * L, y + uy * L); ctx.stroke(); }
+    }
+    ctx.globalAlpha = 1;
+  }
+  initSpy() {
+    const ids = ['how', 'about'];
+    this._spy = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { const a = e.target.id; if (a !== this.state.active) this.setState({ active: a }); }
+    }), { rootMargin: '-45% 0px -50% 0px' });
+    ids.forEach(id => { const el = document.getElementById(id); if (el) this._spy.observe(el); });
+    this._spyTop = () => { if (window.scrollY < 200 && this.state.active) this.setState({ active: '' }); };
+    window.addEventListener('scroll', this._spyTop, { passive: true });
+  }
+
+  heroMove = e => {
+    if (this._coarse) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    this.ht.x = clamp(((e.clientX - r.left) / r.width - 0.5) * 2, -1, 1);
+    this.ht.y = clamp(((e.clientY - r.top) / r.height - 0.5) * 2, -1, 1);
+    const L = this.h.img; if (L) { const q = L.getBoundingClientRect(); this._lens = { x: (e.clientX - q.left) / q.width * L.offsetWidth, y: (e.clientY - q.top) / q.height * L.offsetHeight }; }
+    this.kick();
+  };
+  heroEnter = () => { this._inHero = true; this.ht.h = 1; if (!this.state.heroOn) this.setState({ heroOn: true }); this.kick(); };
+  heroLeave = () => { this._inHero = false; this.ht.x = 0; this.ht.y = 0; if (!this.always() && !this._coarse) { this.ht.h = 0; this.setState({ heroOn: false }); } this.kick(); };
+
+  pics() { const p = (ACCT && ACCT.picture) || ''; if (!p || !this.root) return; this.root.querySelectorAll('img[data-pic]').forEach(i => { if (i.getAttribute('src') !== p) i.setAttribute('src', p); }); }
+  signOut = e => {
+    if (e && e.preventDefault) e.preventDefault();
+    ['localStorage', 'sessionStorage'].forEach(s => { try { window[s].removeItem(KEY); } catch (x) {} });
+    if (this.state.acctOpen || this.state.menuOpen) this.setState({ acctOpen: false, menuOpen: false });
+    const go = () => { window.location.replace('Login.dc.html'); }, ld = this.h && this.h.loader;
+    if (!ld || !ld.animate || this.rm()) { go(); return; }
+    clearTimeout(this._ldSafety); clearTimeout(this._ld1);
+    ld.getAnimations().forEach(a => a.cancel());
+    const inner = ld.querySelector('[data-ld="inner"]'); if (inner) { inner.getAnimations().forEach(a => a.cancel()); inner.style.opacity = '0'; }
+    ld.style.display = 'grid';
+    ld.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, easing: 'ease', fill: 'forwards' }).onfinish = go;
+  };
+  renderVals() {
+    const st = this.state, narrow = st.narrow, on = st.heroOn;
+    return {
+      rootRef: this.rootRef,
+      acctPic: (ACCT && ACCT.picture) || '', acctNoPic: !(ACCT && ACCT.picture), acctInitial: (String((ACCT && (ACCT.given || ACCT.name)) || '?').trim()[0] || '?').toUpperCase(),
+      acctName: (ACCT && ACCT.name) || 'Signed in', acctEmail: (ACCT && ACCT.email) || '', acctNote: ACCT && ACCT.keep ? 'Saved login on this device' : 'Signed in for this session',
+      acctOpen: st.acctOpen ? 'true' : 'false', acctOp: st.acctOpen ? 1 : 0, acctY: st.acctOpen ? '0px' : '-6px', acctVis: st.acctOpen ? 'visible' : 'hidden',
+      toggleAcct: () => this.setState(s => ({ acctOpen: !s.acctOpen })), signOut: this.signOut,
+      introOn: this.introShown(), introRev: !!this._introRev, ihBg: this._introRev ? 'transparent' : '#161310', introCovered: this.introCovered, introOpen: this.introOpen, introDone: this.introDone, introReady: this.introReady, prm: !!this.props.previewReducedMotion,
+      narrow, wide: !narrow, menuOpen: st.menuOpen,
+      menuH: st.menuOpen ? '440px' : '0px', menuOp: st.menuOpen ? 1 : 0,
+      menuIcon: st.menuOpen ? 'M6 6l12 12M18 6L6 18' : 'M4 7h16M4 12h16M4 17h16',
+      toggleMenu: () => this.setState(s => ({ menuOpen: !s.menuOpen })),
+      navBorder: st.scrolled ? '#E9E3DB' : 'transparent',
+      navItems: NAV.map(([id, label]) => ({ id, label, color: st.active === id ? '#1A1612' : '#5A534B', line: st.active === id ? 1 : 0 })),
+      heroMove: this.heroMove, heroEnter: this.heroEnter, heroLeave: this.heroLeave,
+      hSegX: st.heroSp === 'cat' ? '100%' : '0%', hIsDog: st.heroSp === 'dog', hIsCat: st.heroSp === 'cat',
+      hDogColor: st.heroSp === 'dog' ? '#fff' : '#9C9389', hCatColor: st.heroSp === 'cat' ? '#fff' : '#9C9389',
+      hDog: () => this.setHeroSp('dog'), hCat: () => this.setHeroSp('cat'),
+      hCatClip: st.heroSp === 'cat' ? 'inset(0 0% 0 0)' : 'inset(0 100% 0 0)',
+      hFile: HERO[st.heroSp].file, hLabel: HERO[st.heroSp].label,
+      hlL: HERO[st.heroSp].hl[0] + '%', hlT: HERO[st.heroSp].hl[1] + '%', hlW: HERO[st.heroSp].hl[2] + '%', hlH: HERO[st.heroSp].hl[3] + '%',
+      heroStatus: on ? 'Analysis complete' : 'Ready', heroStatusColor: on ? '#F08A4B' : '#8A8178',
+      heroResult: on ? '1 area for additional review' : 'Hover the image to review',
+      heroConfText: on ? HERO[st.heroSp].conf + '%' : '—', heroConfW: on ? HERO[st.heroSp].conf + '%' : '0%',
+      heroEyeBg: on ? 'rgba(224,100,28,.18)' : 'transparent', heroEyeColor: on ? '#F08A4B' : '#A69D93',
+      faqs: FAQ.map(([q, a], i) => { const o = st.faq === i; return { q, a, open: o, toggle: () => this.setState({ faq: o ? -1 : i }), rows: o ? '1fr' : '0fr', op: o ? 1 : 0, rot: o ? '45deg' : '0deg', iconBg: o ? '#E0641C' : '#fff', iconBorder: o ? '#E0641C' : '#DDD5CB', iconColor: o ? '#fff' : '#4A433C' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>
