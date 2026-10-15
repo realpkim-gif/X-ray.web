@@ -120,6 +120,40 @@ file with **AES-256-GCM**. `radiant.js` decrypts them in memory with the browser
 files are useless on their own. The key has to ship in `radiant.js`, so this deters copying but can't make it
 impossible. The license below is what forbids it.
 
+### How a ~305 MB model fits on GitHub (100 MB per file limit)
+
+GitHub's limit is **per file**, not per repo, so each encrypted file is cut into pieces of 45 MB or less
+(45, not 99, because GitHub warns about files over 50 MB):
+
+| Model | Size | Pieces |
+|---|---|---|
+| config | tiny | `part0-0.bin` |
+| X-ray gate | 22.5 MB | `part1-0.bin` |
+| ConvNeXt | 100 MB | `part2-0.bin` ... `part2-2.bin` |
+| DINOv2 | 174 MB | `part3-0.bin` ... `part3-3.bin` |
+| heads | 8 MB | `part4-0.bin` |
+
+1. **Python, on the developer's computer** (`encrypt_models.py`, private ML repo): encrypt each model file, cut
+   the result every 45 MB, and write the key and the piece counts (`PIECES = [1, 1, 3, 4, 1]`) into `radiant.js`.
+   The pieces are normal files, so a normal `git push` uploads them.
+2. **JavaScript, in the visitor's browser** (`radiant.js`, `fetchAndDecrypt`): download every piece of a model,
+   glue them back into one file in memory, decrypt it, and hand it to onnxruntime:
+
+```js
+const pieces = [];
+for (let i = 0; i < PIECES[part]; i++) {                                   // e.g. part3-0.bin ... part3-3.bin
+    const response = await fetch(folder + "part" + part + "-" + i + ".bin");
+    pieces.push(await response.arrayBuffer());
+}
+const file = new Uint8Array(await new Blob(pieces).arrayBuffer());        // glue the pieces back together
+const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: file.subarray(0, 12) }, key, file.subarray(12));
+```
+
+The joined, decrypted model only ever exists in the browser's memory. It is never saved as a file.
+
+**Downside:** every retrain commits ~300 MB of new pieces into the repo history. If the repo gets too big, host
+`model/` on Hugging Face instead and change `MODEL_URL` in `Analyze.dc.html`.
+
 ## License
 
 - **Website code** (HTML, CSS, JavaScript, including `radiant.js`): MIT, see [`LICENSE`](LICENSE).
