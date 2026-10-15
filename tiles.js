@@ -1,5 +1,5 @@
 (function () {
-  if (window.RadiantTiles && window.RadiantTiles.v === 4) return;
+  if (window.RadiantTiles && window.RadiantTiles.v >= 5) return;
   var OUT = 'cubic-bezier(.16,1,.3,1)', IO = 'cubic-bezier(.76,0,.24,1)', SOFT = 'cubic-bezier(.22,1,.36,1)';
   var TAN = Math.tan(10 * Math.PI / 180), SIZE = 72, SPREAD = 480, DUR = 440, LAG = 40, TOTAL = SPREAD + LAG + DUR;
   function c01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
@@ -62,29 +62,64 @@
   }
   function rect(x, y, w, h) { return 'M' + x.toFixed(1) + ' ' + y.toFixed(1) + 'h' + w.toFixed(1) + 'v' + h.toFixed(1) + 'h' + (-w).toFixed(1) + 'z'; }
   function send(f, m) { try { f.contentWindow.postMessage({ radiant: m }, '*'); } catch (e) {} }
+  function sfx(n, o) { try { if (window.RadiantSfx) window.RadiantSfx.play(n, o); } catch (e) {} }
+  var idle = window.requestIdleCallback ? function (cb) { window.requestIdleCallback(cb, { timeout: 1200 }); } : function (cb) { setTimeout(cb, 80); };
+
+  // A parked frame is fully transparent but still painted, so revealing it never waits on a first paint.
+  function park(f) {
+    var s = f.style; s.clipPath = 'none'; s.visibility = 'visible'; s.opacity = '0'; s.willChange = 'opacity'; s.pointerEvents = 'none';
+    f.setAttribute('aria-hidden', 'true'); f.setAttribute('inert', ''); f.tabIndex = -1;
+  }
+  function unpark(f) { f.style.visibility = 'visible'; f.style.opacity = '1'; }
+  // While a hosted page fully covers this one, freeze this page's endless loops so they don't compete for frames.
+  function hush(H, on) {
+    if (!on) { (H.hushed || []).forEach(function (a) { try { a.play(); } catch (e) {} }); H.hushed = []; return; }
+    H.hushed = [];
+    try { document.getAnimations().forEach(function (a) { var t = a.effect && a.effect.getTiming && a.effect.getTiming(); if (t && t.iterations === Infinity && a.playState === 'running') { a.pause(); H.hushed.push(a); } }); } catch (e) {}
+  }
+  function shownUp(H, o) {
+    var f = H.frame;
+    H.busy = false; H.warm = true; f.style.clipPath = 'none'; unpark(f); f.style.pointerEvents = 'auto'; f.removeAttribute('aria-hidden'); f.removeAttribute('inert'); f.tabIndex = 0; H.isOpen = true; hush(H, true);
+    try { H.title = document.title; if (f.contentDocument && f.contentDocument.title) document.title = f.contentDocument.title; f.contentWindow.focus(); } catch (e) {}
+    if (o.done) o.done();
+  }
+  // Runs once, while nothing is moving: paints the parked frame and exercises the canvas path a sweep uses.
+  function warm(H) {
+    if (H.warm) return; H.warm = true;
+    if (H.busy || H.isOpen) return;
+    var f = H.frame; park(f);
+    if (reduced()) return;
+    var g = geo(), cv = canvas(g, 10044), ctx = cv.ctx, sp = sparks(g), n = 0;
+    cv.el.style.opacity = '0'; cv.el.style.willChange = 'opacity'; document.body.appendChild(cv.el);
+    var step = function () {
+      ctx.clearRect(0, 0, g.vw, g.vh); ctx.fillStyle = '#E0641C';
+      for (var i = 0; i < g.cols; i++) ctx.fillRect(i * g.tw - 0.3, g.th * 2, g.tw + 0.6, g.th * 0.4);
+      sp.step(ctx, SPREAD * 0.5, 16, n === 0);
+      if (++n < 4) { requestAnimationFrame(step); return; }
+      if (cv.el.parentNode) cv.el.parentNode.removeChild(cv.el);
+    };
+    requestAnimationFrame(step);
+  }
 
   // Seamless transition: the other page lives preloaded in an iframe and is revealed tile by tile.
   function sweep(H, opening, o) {
     var f = H.frame, cv = null;
     H.par.forEach(function (a) { a.cancel(); }); H.par = [];
     var finish = function () {
-      H.busy = false; if (cv) cv.el.style.pointerEvents = 'none';
-      if (opening) {
-        f.style.clipPath = 'none'; f.style.visibility = 'visible'; f.style.pointerEvents = 'auto'; f.removeAttribute('aria-hidden'); f.tabIndex = 0; H.isOpen = true;
-        try { H.title = document.title; if (f.contentDocument && f.contentDocument.title) document.title = f.contentDocument.title; f.contentWindow.focus(); } catch (e) {}
-      } else {
-        f.style.visibility = 'hidden'; f.style.pointerEvents = 'none'; f.style.clipPath = 'none'; f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1; H.isOpen = false;
-        if (H.title) document.title = H.title; try { window.focus(); } catch (e) {}
-      }
+      if (cv) cv.el.style.pointerEvents = 'none';
+      if (opening) { shownUp(H, o); return; }
+      H.busy = false; park(f); H.isOpen = false;
+      if (H.title) document.title = H.title; try { window.focus(); } catch (e) {}
       if (o.done) o.done();
     };
-    if (opening) send(f, 'enter');
+    if (opening) send(f, 'enter'); else hush(H, false);
     if (reduced()) { finish(); return; }
+    sfx(opening ? (o.sfx || 'tiles') : (o.sfxBack || 'tilesBack'));
     H.busy = true;
     var g = geo(), sp = sparks(g), t0 = 0, last = 0, done = false;
     cv = canvas(g, 10045); cv.el.style.pointerEvents = 'auto'; document.body.appendChild(cv.el);
     var ctx = cv.ctx;
-    if (opening) { f.style.clipPath = 'path("M0 0z")'; f.style.visibility = 'visible'; }
+    if (opening) { f.style.clipPath = 'path("M0 0z")'; unpark(f); }
     (o.content || []).forEach(function (el) {
       if (opening) H.par.push(el.animate([{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-6vh,0)' }], { duration: TOTAL, easing: IO, fill: 'forwards' }));
       else el.animate([{ transform: 'translate3d(0,7vh,0)' }, { transform: 'translate3d(0,0,0)' }], { duration: TOTAL + 250, easing: SOFT, fill: 'backwards' });
@@ -116,23 +151,50 @@
     };
     requestAnimationFrame(function () { requestAnimationFrame(frame); });
   }
-  function host(src) {
-    var H = { ready: false, isOpen: false, busy: false, par: [] }, f = document.createElement('iframe');
-    f.src = src + (src.indexOf('?') < 0 ? '?' : '&') + 'embed=1';
-    f.title = 'Radiant'; f.tabIndex = -1; f.setAttribute('aria-hidden', 'true');
+  // The frame wasn't ready when asked to open: the page is already covered, so lift the tiles onto it.
+  function uncover(H, t, o) {
+    var f = H.frame;
+    f.style.clipPath = 'none'; unpark(f); send(f, 'enter');
+    t.host.style.pointerEvents = 'none';
+    var total = run(t, false);
+    sfx('tilesTail');
+    setTimeout(function () { if (t.host.parentNode) t.host.parentNode.removeChild(t.host); shownUp(H, o); }, total + 60);
+  }
+  function host(src, opt) {
+    var H = { ready: false, isOpen: false, busy: false, warm: false, loading: false, par: [] }, f = document.createElement('iframe'), url = src + (src.indexOf('?') < 0 ? '?' : '&') + 'embed=1';
+    f.title = 'Radiant'; f.tabIndex = -1; f.setAttribute('aria-hidden', 'true'); f.setAttribute('inert', '');
     f.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;border:0;margin:0;padding:0;display:block;z-index:10040;visibility:hidden;pointer-events:none;background:transparent';
     document.body.appendChild(f);
     H.frame = f;
+    H.load = function () { if (H.loading) return; H.loading = true; f.src = url; };
+    if (!(opt && opt.defer)) H.load();
     window.addEventListener('message', function (e) {
       if (!f.contentWindow || e.source !== f.contentWindow || !e.data || !e.data.radiant) return;
-      if (e.data.radiant === 'ready') { H.ready = true; if (H.pending) { var p = H.pending; H.pending = null; clearTimeout(H.pt); H.opts = p; sweep(H, true, p); } }
+      if (e.data.radiant === 'ready') { H.ready = true; var p = H.pending; H.pending = null; if (p) p(); idle(function () { warm(H); }); }
       else if (e.data.radiant === 'back') H.close(H.opts);
     });
     H.open = function (o) {
       o = o || {}; if (H.busy || H.isOpen) return;
-      if (H.ready) { H.opts = o; sweep(H, true, o); return; }
-      H.pending = o; clearTimeout(H.pt);
-      H.pt = setTimeout(function () { if (H.pending) { var p = H.pending; H.pending = null; if (p.fallback) p.fallback(); } }, 3000);
+      H.opts = o;
+      if (H.ready) { sweep(H, true, o); return; }
+      if (!H.loading) { requestAnimationFrame(function () { requestAnimationFrame(H.load); }); setTimeout(H.load, 150); }
+      clearTimeout(H.pt);
+      if (reduced()) {
+        var w = H.pending = function () { clearTimeout(H.pt); sweep(H, true, o); };
+        H.pt = setTimeout(function () { if (H.pending !== w) return; H.pending = null; if (o.fallback) o.fallback(null); }, 3000);
+        return;
+      }
+      // Respond to the click immediately: these tiles animate on the compositor, so they stay smooth while the page boots.
+      H.busy = true;
+      var t = cover(o);
+      H.par = t.par; t.par = [];
+      var go = H.pending = function () { clearTimeout(H.pt); setTimeout(function () { uncover(H, t, o); }, Math.max(0, t.end - performance.now())); };
+      H.pt = setTimeout(function () {
+        if (H.pending !== go) return;
+        H.pending = null; H.busy = false; t.par = H.par; H.par = [];
+        if (o.fallback) o.fallback(t);
+        else reveal(t, { content: o.content, done: function (x) { if (x.host.parentNode) x.host.parentNode.removeChild(x.host); } });
+      }, 4500);
     };
     H.close = function (o) { if (H.busy || !H.isOpen) return; sweep(H, false, o || {}); };
     return H;
@@ -161,15 +223,20 @@
     });
     return TOTAL;
   }
-  function leave(x, y, go, o) {
-    o = o || {};
+  function cover(o) {
     var el = document.createElement('div');
     el.setAttribute('data-radiant-tx', ''); el.setAttribute('aria-hidden', 'true');
     el.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:10050;pointer-events:auto';
     document.body.appendChild(el);
     var t = build(el, false), total = run(t, true);
+    sfx(o.sfx || 'tiles', { cut: (total + 30) / 1000 });
     (o.content || []).forEach(function (c) { t.par.push(c.animate([{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-6vh,0)' }], { duration: total, easing: IO, fill: 'forwards' })); });
-    t.timer = setTimeout(go, total + 30);
+    t.end = performance.now() + total + 30;
+    return t;
+  }
+  function leave(x, y, go, o) {
+    var t = cover(o || {});
+    t.timer = setTimeout(go, Math.max(0, t.end - performance.now()));
     return t;
   }
   function reveal(t, o) {
@@ -177,11 +244,12 @@
     clearTimeout(t.timer); t.par.forEach(function (a) { a.cancel(); }); t.par = [];
     t.host.style.pointerEvents = 'none';
     var total = run(t, false);
+    sfx('tilesTail');
     (o.content || []).forEach(function (c) { c.animate([{ transform: 'translate3d(0,7vh,0)' }, { transform: 'translate3d(0,0,0)' }], { duration: total + 250, easing: SOFT, fill: 'backwards' }); });
     if (o.start) o.start(Math.round(SPREAD * 0.3));
     t.timer = setTimeout(function () { if (o.done) o.done(t); }, total + 60);
   }
   function arrive(hostEl, o) { var t = build(hostEl, true); hostEl.style.background = 'transparent'; requestAnimationFrame(function () { reveal(t, o); }); return t; }
   function prefetch(href) { try { var l = document.createElement('link'); l.rel = 'prefetch'; l.href = href; document.head.appendChild(l); } catch (e) {} }
-  window.RadiantTiles = { v: 4, host: host, leave: leave, arrive: arrive, reveal: reveal, prefetch: prefetch };
+  window.RadiantTiles = { v: 5, host: host, leave: leave, arrive: arrive, reveal: reveal, prefetch: prefetch };
 })();

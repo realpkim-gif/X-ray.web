@@ -13,7 +13,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <script src="./image-slot.js"></script>
+<script src="./sfx.js"></script>
 <script src="./tiles.js"></script>
+<script src="./waves.js"></script>
 <style>
 html{scroll-behavior:auto}
 body{margin:0;background:#FAF8F5;color:#1A1612;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -25,7 +27,7 @@ a:hover{color:#A8440F}
 
 <div ref="{{ rootRef }}" style="min-height:100vh;background:#FAF8F5">
 
-<header data-h="header" style="position:sticky;top:0;z-index:50;background:#FAF8F5;border-bottom:1px solid {{ navBorder }};transition:border-color .2s ease,transform .4s cubic-bezier(.2,.7,.2,1);will-change:transform">
+<header data-h="header" style="position:sticky;top:0;z-index:50;background:rgba(250,248,245,.84);-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid {{ navBorder }};transition:border-color .2s ease,transform .55s cubic-bezier(.2,.7,.2,1);will-change:transform">
   <div style="max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:32px">
     <a href="#top" data-goto="top" style="display:flex;align-items:center;gap:10px;color:#1A1612" data-hx="1">
       <span data-hx-icon="1" data-intro-icon="1" style="width:32px;height:32px;border-radius:9px;background:#E0641C;display:grid;place-items:center;transition:transform .18s ease">
@@ -36,7 +38,7 @@ a:hover{color:#A8440F}
     <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
       <nav style="display:flex;gap:4px;margin-left:auto">
         <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="2">
-          <a href="#{{ n.id }}" data-goto="{{ n.id }}" data-hx="1" style="position:relative;padding:8px 14px;font-size:15px;font-weight:500;color:{{ n.color }};transition:color .15s ease" style-hover="color:#1A1612">
+          <a href="{{ n.href }}" data-goto="{{ n.id }}" data-hx="1" style="position:relative;padding:8px 14px;font-size:15px;font-weight:500;color:{{ n.color }};transition:color .15s ease" style-hover="color:#1A1612">
             <span style="display:block;overflow:hidden;height:1.3em;line-height:1.3em"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .5s cubic-bezier(.7,0,.2,1)"><span>{{ n.label }}</span><span aria-hidden="true" style="color:#E0641C">{{ n.label }}</span></span></span>
             <span data-hx-line="1" style="position:absolute;left:14px;right:14px;bottom:2px;height:1.5px;background:#CFC6BB;transform:scaleX(0);transform-origin:left;transition:transform .22s cubic-bezier(.2,.7,.2,1)"></span>
             <span style="position:absolute;left:14px;right:14px;bottom:2px;height:1.5px;background:#E0641C;transform:scaleX({{ n.line }});transform-origin:left;transition:transform .3s cubic-bezier(.2,.7,.2,1)"></span>
@@ -67,7 +69,7 @@ a:hover{color:#A8440F}
     <div style="overflow:hidden;max-height:{{ menuH }};opacity:{{ menuOp }};transition:max-height .32s cubic-bezier(.2,.7,.2,1),opacity .2s ease;background:#FAF8F5;border-bottom:1px solid #E9E3DB">
       <div style="padding:8px 24px 20px;display:flex;flex-direction:column;gap:2px">
         <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="2">
-          <a href="#{{ n.id }}" data-goto="{{ n.id }}" style="padding:12px 0;font-size:17px;font-weight:500;color:{{ n.color }};border-bottom:1px solid #EFEAE3">{{ n.label }}</a>
+          <a href="{{ n.href }}" data-goto="{{ n.id }}" style="padding:12px 0;font-size:17px;font-weight:500;color:{{ n.color }};border-bottom:1px solid #EFEAE3">{{ n.label }}</a>
         </sc-for>
         <a href="Analyze.dc.html" data-analyze="1" style="margin-top:14px;display:flex;justify-content:center;align-items:center;height:48px;border-radius:10px;background:#E0641C;color:#fff;font-weight:600">Analyze an X-ray</a>
         <div style="margin-top:16px;padding-top:16px;border-top:1px solid #EFEAE3;display:flex;align-items:center;gap:12px">
@@ -87,20 +89,19 @@ a:hover{color:#A8440F}
   <div data-h="prog" style="position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#E0641C;transform:scaleX(0);transform-origin:left;pointer-events:none"></div>
 </header>
 
-<section id="top" style="position:relative;overflow:hidden;padding:clamp(48px,7vw,96px) 0 clamp(64px,8vw,112px)">
-  <canvas data-h="ripple" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas>
+<section id="top" style="position:relative;overflow:hidden;padding:clamp(48px,7vw,96px) 0 clamp(96px,10vw,136px)">
   <div style="position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;align-items:center;gap:clamp(40px,6vw,80px)">
     <div style="flex:1 1 420px;min-width:0;max-width:540px">
-      <h1 data-cursor="text" style="margin:0;font-size:clamp(40px,5.2vw,62px);line-height:1.04;letter-spacing:-0.035em;font-weight:700"><span style="display:block;overflow:hidden;padding-bottom:.06em"><span data-line="0" style="display:block">A clearer way to</span></span><span style="display:block;overflow:hidden;padding-bottom:.06em"><span data-line="1" style="display:block">review animal <span style="color:#E0641C">X-rays.</span></span></span></h1>
+      <div data-rv="0" style="display:flex;align-items:center;gap:10px;margin-bottom:22px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#C9551A"><span data-h="dot" style="width:7px;height:7px;border-radius:50%;background:#E0641C;flex:none"></span><span>For dog &amp; cat radiographs</span></div>
+      <h1 data-cursor="text" style="margin:0;font-size:clamp(40px,5.2vw,62px);line-height:1.04;letter-spacing:-0.035em;font-weight:700"><span style="display:block;overflow:hidden;padding-bottom:.06em"><span data-line="0" style="display:block">A clearer way to</span></span><span style="display:block;overflow:hidden;padding-bottom:.06em"><span data-line="1" style="display:block">review animal <span data-h="xr" style="position:relative;display:inline-block;color:#E0641C">X-rays.<span data-h="ul" aria-hidden="true" style="position:absolute;left:.02em;right:.24em;bottom:.08em;height:.065em;border-radius:.04em;background:#E0641C;transform-origin:left center;pointer-events:none"></span></span></span></span></h1>
       <p data-rv="160" style="margin:22px 0 0;font-size:19px;line-height:1.55;color:#4A433C;text-wrap:pretty">Upload a radiograph of a dog or cat. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.</p>
-      <div data-rv="240" style="margin-top:32px;display:flex;flex-wrap:wrap;gap:12px">
-        <span data-mag="1" style="display:inline-flex;transition:transform .45s cubic-bezier(.2,.7,.2,1)"><a href="Analyze.dc.html" data-analyze="1" data-hx="1" style="position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;gap:10px;height:50px;white-space:nowrap;flex:none;padding:0 22px;border-radius:11px;background:#E0641C;color:#fff;font-size:16px;font-weight:600;box-shadow:0 1px 2px rgba(26,22,18,.14);transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease,border-color .35s ease,color .35s ease" style-hover="color:#fff;transform:translateY(-2px);box-shadow:0 18px 34px -14px rgba(26,22,18,.55)" style-active="transform:translateY(0) scale(.97)"><span data-hx-fill="1" style="position:absolute;left:-10%;width:120%;top:100%;height:240%;border-radius:50%;background:#1A1612;z-index:-1;transform:translateY(0);transition:transform .6s cubic-bezier(.7,0,.2,1)"></span><span style="display:block;overflow:hidden;height:1.3em;line-height:1.3em"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .55s cubic-bezier(.7,0,.2,1)"><span>Analyze an X-ray</span><span aria-hidden="true">Analyze an X-ray</span></span></span><span data-hx-arrow="1" style="display:inline-block;transition:transform .3s cubic-bezier(.2,.7,.2,1)">→</span></a></span>
-        <span data-mag="1" style="display:inline-flex;transition:transform .45s cubic-bezier(.2,.7,.2,1)"><a href="#how" data-goto="how" data-hx="1" data-hx-var="wipe" style="position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;gap:10px;height:50px;white-space:nowrap;flex:none;padding:0 20px;border-radius:11px;background:#fff;color:#1A1612;border:1px solid #E2DBD2;font-size:16px;font-weight:600;box-shadow:none;transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease,border-color .35s ease,color .25s ease .1s" style-hover="color:#fff;border-color:#1A1612;transform:translateY(-2px);box-shadow:0 16px 30px -16px rgba(26,22,18,.5)" style-active="transform:translateY(0) scale(.97)"><span data-hx-fill="1" style="position:absolute;inset:0;background:#1A1612;z-index:-1;transform:scaleX(0);transform-origin:left center;transition:transform .45s cubic-bezier(.2,.7,.2,1)"></span><span style="display:block;overflow:hidden;height:1.3em;line-height:1.3em"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .55s cubic-bezier(.7,0,.2,1)"><span>See how it works</span><span aria-hidden="true">See how it works</span></span></span><span data-hx-arrow="down" style="display:inline-block;color:#E0641C;transition:transform .3s cubic-bezier(.2,.7,.2,1)">→</span></a></span>
+      <div data-rv="240" style="margin-top:36px;max-width:500px">
+        <span data-h="rule" aria-hidden="true" style="display:block;height:1px;background:#E2DBD2;transform-origin:left center"></span>
+        <p style="margin:18px 0 0;display:grid;grid-template-columns:32px minmax(0,1fr);gap:14px;align-items:start;font-size:13.5px;line-height:1.6;color:#6E665E;text-wrap:pretty">
+          <span aria-hidden="true" style="width:32px;height:32px;border-radius:50%;background:#F6E4D7;color:#C9551A;display:grid;place-items:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"></path><path d="M12 8v5M12 16h.01"></path></svg></span>
+          <span style="padding-top:5px">Radiant is an AI-assisted research prototype. It is not a veterinary diagnostic tool and does not replace evaluation by a qualified veterinarian.</span>
+        </p>
       </div>
-      <p data-rv="320" style="margin:28px 0 0;display:flex;gap:10px;font-size:13px;line-height:1.55;color:#6E665E;max-width:460px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9551A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"></path><path d="M12 8v5M12 16h.01"></path></svg>
-        <span>Radiant is an AI-assisted research prototype. It is not a veterinary diagnostic tool and does not replace evaluation by a qualified veterinarian.</span>
-      </p>
     </div>
 
     <div data-rv="360" style="flex:1 1 460px;min-width:0;max-width:600px;margin-left:auto">
@@ -152,57 +153,74 @@ a:hover{color:#A8440F}
       <p style="margin:14px 2px 0;font-size:12px;color:#8A8178">Illustrative example. Hover the image to reveal the annotation layer.</p>
     </div>
   </div>
+  <a href="#how" data-goto="how" data-h="cue" aria-label="Scroll to How it works" style="position:absolute;left:50%;bottom:clamp(14px,2.2vw,24px);z-index:2;transform:translateX(-50%);display:{{ cueDisp }};flex-direction:column;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:#8A8178;transition:color .25s ease" style-hover="color:#1A1612">
+    <span>Scroll</span>
+    <span style="position:relative;display:block;width:1px;height:34px;background:#E2DBD2;overflow:hidden"><span data-h="cuebar" style="position:absolute;left:0;top:0;width:1px;height:14px;background:#E0641C"></span></span>
+  </a>
 </section>
 
-<section id="how" style="padding:clamp(72px,9vw,120px) 0;background:#fff;border-top:1px solid #EFEAE3">
+<section id="how" style="padding:clamp(88px,10vw,144px) 0;background:#fff;border-top:1px solid #EFEAE3">
   <div style="max-width:1200px;margin:0 auto;padding:0 24px">
-    <div style="max-width:620px">
-      <h2 data-cursor="text" data-rv="0" style="margin:0;font-size:clamp(30px,3.4vw,42px);line-height:1.1;letter-spacing:-0.03em;font-weight:700">How it works</h2>
-      <p data-rv="80" style="margin:14px 0 0;font-size:18px;line-height:1.55;color:#4A433C;text-wrap:pretty">Three steps from an uploaded image to a highlighted region you can inspect, with the model's uncertainty shown alongside.</p>
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px 64px">
+      <div style="flex:1 1 420px;min-width:0;max-width:640px">
+        <div data-rv="0" style="display:flex;align-items:center;gap:12px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#C9551A"><span style="width:28px;height:1.5px;background:#E0641C;flex:none"></span><span>01 · Process</span></div>
+        <h2 data-cursor="text" data-rv="0" style="margin:18px 0 0;font-size:clamp(36px,4.6vw,60px);line-height:1.02;letter-spacing:-0.04em;font-weight:700">How it works</h2>
+      </div>
+      <p data-rv="80" style="flex:1 1 320px;min-width:0;max-width:440px;margin:0;font-size:18px;line-height:1.55;color:#4A433C;text-wrap:pretty">Three steps from an uploaded image to a highlighted region you can inspect, with the model's uncertainty shown alongside.</p>
     </div>
-    <div style="margin-top:48px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
+    <div data-h="howline" aria-hidden="true" style="display:{{ howLine }};position:relative;margin-top:64px;height:28px">
+      <span style="position:absolute;left:0;right:0;top:13px;height:1px;background:#E9E3DB"></span>
+      <span data-h="howfill" style="position:absolute;left:0;right:0;top:13px;height:1px;background:#E0641C;transform:scaleX(0);transform-origin:left center"></span>
+      <span data-hn="0" style="position:absolute;left:0px;top:7px;width:13px;height:13px;box-sizing:border-box;border-radius:50%;border:1.5px solid #D9D0C5;background-color:#fff;transition:background-color .35s ease,border-color .35s ease,transform .5s cubic-bezier(.34,1.56,.64,1)"></span>
+      <span data-hn="1" style="position:absolute;left:calc((100% - 40px) / 3 + 20px);top:7px;width:13px;height:13px;box-sizing:border-box;border-radius:50%;border:1.5px solid #D9D0C5;background-color:#fff;transition:background-color .35s ease,border-color .35s ease,transform .5s cubic-bezier(.34,1.56,.64,1)"></span>
+      <span data-hn="2" style="position:absolute;left:calc((100% - 40px) / 3 * 2 + 40px);top:7px;width:13px;height:13px;box-sizing:border-box;border-radius:50%;border:1.5px solid #D9D0C5;background-color:#fff;transition:background-color .35s ease,border-color .35s ease,transform .5s cubic-bezier(.34,1.56,.64,1)"></span>
+    </div>
+    <div style="margin-top:{{ howGap }};display:grid;grid-template-columns:{{ howCols }};gap:20px">
       <div data-rv="0">
-        <div data-tilt="1" style="height:100%;box-sizing:border-box;padding:20px;border-radius:16px;background:#fff;border:1px solid #E9E3DB;transition:transform .25s ease-out,box-shadow .2s ease,border-color .2s ease" style-hover="border-color:#D9D0C5;box-shadow:0 18px 36px -24px rgba(26,22,18,.3)">
-          <div style="height:132px;border-radius:12px;background:#F6F2ED;display:flex;align-items:center;justify-content:center;padding:0 18px">
-            <div style="width:100%;max-width:260px;display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:#fff;border:1px solid #E9E3DB;box-shadow:0 4px 12px -8px rgba(26,22,18,.2)">
+        <div data-tilt="1" data-hx="1" data-hc="0" style="position:relative;height:100%;box-sizing:border-box;padding:22px;border-radius:18px;background:#fff;border:1px solid #E9E3DB;transition:transform .25s ease-out,box-shadow .3s ease,border-color .3s ease" style-hover="border-color:#D9D0C5;box-shadow:0 24px 48px -30px rgba(26,22,18,.35)">
+          <span data-hx-line="1" aria-hidden="true" style="position:absolute;left:22px;right:22px;top:-1px;height:2px;border-radius:2px;background:#E0641C;transform:scaleX(0);transform-origin:left center;transition:transform .55s cubic-bezier(.2,.7,.2,1)"></span>
+          <div style="height:148px;border-radius:12px;background:#F6F2ED;display:flex;align-items:center;justify-content:center;padding:0 18px">
+            <div data-c="row" style="width:100%;max-width:260px;display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:#fff;border:1px solid #E9E3DB;box-shadow:0 4px 12px -8px rgba(26,22,18,.2);transition:transform .8s cubic-bezier(.16,1,.3,1),opacity .5s ease">
               <div style="width:40px;height:40px;border-radius:7px;background:linear-gradient(135deg,#3a3430,#141210);flex:none"></div>
               <div style="min-width:0;flex:1">
                 <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1A1612;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">bella_thorax_lat.jpg</div>
                 <div style="font-size:12px;color:#6E665E;margin-top:2px">2.4 MB · JPG</div>
               </div>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E0641C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E0641C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path data-c="check" d="M5 12.5l4.5 4.5L19 7.5" pathLength="1" stroke-dasharray="1" style="transition:stroke-dashoffset .6s cubic-bezier(.65,0,.35,1) .45s"></path></svg>
             </div>
           </div>
-          <div style="margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A">01</div>
-          <h3 style="margin:6px 0 0;font-size:19px;font-weight:600;letter-spacing:-0.01em">Upload a radiograph</h3>
+          <div style="margin-top:22px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A">01</div>
+          <h3 style="margin:6px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.015em">Upload a radiograph</h3>
           <p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:#4A433C">A JPG or PNG of a dog or cat X-ray. The image stays in your browser session.</p>
         </div>
       </div>
       <div data-rv="90">
-        <div data-tilt="1" style="height:100%;box-sizing:border-box;padding:20px;border-radius:16px;background:#fff;border:1px solid #E9E3DB;transition:transform .25s ease-out,box-shadow .2s ease,border-color .2s ease" style-hover="border-color:#D9D0C5;box-shadow:0 18px 36px -24px rgba(26,22,18,.3)">
-          <div style="height:132px;border-radius:12px;background:#F6F2ED;display:flex;align-items:center;justify-content:center;padding:0 18px">
+        <div data-tilt="1" data-hx="1" data-hc="1" style="position:relative;height:100%;box-sizing:border-box;padding:22px;border-radius:18px;background:#fff;border:1px solid #E9E3DB;transition:transform .25s ease-out,box-shadow .3s ease,border-color .3s ease" style-hover="border-color:#D9D0C5;box-shadow:0 24px 48px -30px rgba(26,22,18,.35)">
+          <span data-hx-line="1" aria-hidden="true" style="position:absolute;left:22px;right:22px;top:-1px;height:2px;border-radius:2px;background:#E0641C;transform:scaleX(0);transform-origin:left center;transition:transform .55s cubic-bezier(.2,.7,.2,1)"></span>
+          <div style="height:148px;border-radius:12px;background:#F6F2ED;display:flex;align-items:center;justify-content:center;padding:0 18px">
             <div style="width:100%;max-width:260px;padding:12px 14px;border-radius:10px;background:#fff;border:1px solid #E9E3DB;box-shadow:0 4px 12px -8px rgba(26,22,18,.2);display:flex;flex-direction:column;gap:8px;font-size:13px">
               <div style="display:flex;align-items:center;gap:8px;color:#4A433C"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E0641C" stroke-width="2.2" stroke-linecap="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Preparing image</div>
-              <div style="display:flex;align-items:center;gap:8px;color:#1A1612;font-weight:500"><span style="width:14px;height:14px;border-radius:50%;border:2px solid #F3D4BF;border-top-color:#E0641C;box-sizing:border-box"></span>Running model</div>
-              <div style="height:4px;border-radius:2px;background:#EFEAE3;overflow:hidden"><div style="width:58%;height:100%;background:#E0641C"></div></div>
+              <div style="display:flex;align-items:center;gap:8px;color:#1A1612;font-weight:500"><span data-c="spin" style="width:14px;height:14px;border-radius:50%;border:2px solid #F3D4BF;border-top-color:#E0641C;box-sizing:border-box"></span>Running model</div>
+              <div style="height:4px;border-radius:2px;background:#EFEAE3;overflow:hidden"><div data-c="bar" style="width:58%;height:100%;background:#E0641C;transform-origin:left center;transition:transform 1.4s cubic-bezier(.16,1,.3,1) .1s"></div></div>
             </div>
           </div>
-          <div style="margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A">02</div>
-          <h3 style="margin:6px 0 0;font-size:19px;font-weight:600;letter-spacing:-0.01em">The model reviews it</h3>
+          <div style="margin-top:22px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A">02</div>
+          <h3 style="margin:6px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.015em">The model reviews it</h3>
           <p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:#4A433C">A trained model looks for regions whose patterns differ from what it learned as typical.</p>
         </div>
       </div>
       <div data-rv="180">
-        <div data-tilt="1" style="height:100%;box-sizing:border-box;padding:20px;border-radius:16px;background:#fff;border:1px solid #E9E3DB;transition:transform .25s ease-out,box-shadow .2s ease,border-color .2s ease" style-hover="border-color:#D9D0C5;box-shadow:0 18px 36px -24px rgba(26,22,18,.3)">
-          <div style="height:132px;border-radius:12px;background:#F6F2ED;display:flex;align-items:center;justify-content:center;padding:0 18px">
+        <div data-tilt="1" data-hx="1" data-hc="2" style="position:relative;height:100%;box-sizing:border-box;padding:22px;border-radius:18px;background:#fff;border:1px solid #E9E3DB;transition:transform .25s ease-out,box-shadow .3s ease,border-color .3s ease" style-hover="border-color:#D9D0C5;box-shadow:0 24px 48px -30px rgba(26,22,18,.35)">
+          <span data-hx-line="1" aria-hidden="true" style="position:absolute;left:22px;right:22px;top:-1px;height:2px;border-radius:2px;background:#E0641C;transform:scaleX(0);transform-origin:left center;transition:transform .55s cubic-bezier(.2,.7,.2,1)"></span>
+          <div style="height:148px;border-radius:12px;background:#F6F2ED;display:flex;align-items:center;justify-content:center;padding:0 18px">
             <div style="width:100%;max-width:260px;padding:12px 14px;border-radius:10px;background:#fff;border:1px solid #E9E3DB;box-shadow:0 4px 12px -8px rgba(26,22,18,.2)">
               <div style="font-size:13px;font-weight:600;color:#1A1612">Possible area for additional review</div>
-              <div style="margin-top:10px;display:flex;justify-content:space-between;font-size:12px;color:#6E665E"><span>Confidence</span><span style="font-family:'IBM Plex Mono',monospace;color:#1A1612">78%</span></div>
-              <div style="margin-top:6px;height:4px;border-radius:2px;background:#EFEAE3;overflow:hidden"><div style="width:78%;height:100%;background:#E0641C"></div></div>
+              <div style="margin-top:10px;display:flex;justify-content:space-between;font-size:12px;color:#6E665E"><span>Confidence</span><span data-c="num" style="font-family:'IBM Plex Mono',monospace;color:#1A1612">78%</span></div>
+              <div style="margin-top:6px;height:4px;border-radius:2px;background:#EFEAE3;overflow:hidden"><div data-c="bar" style="width:78%;height:100%;background:#E0641C;transform-origin:left center;transition:transform 1.2s cubic-bezier(.16,1,.3,1)"></div></div>
             </div>
           </div>
-          <div style="margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A">03</div>
-          <h3 style="margin:6px 0 0;font-size:19px;font-weight:600;letter-spacing:-0.01em">Review the highlighted area</h3>
+          <div style="margin-top:22px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A">03</div>
+          <h3 style="margin:6px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.015em">Review the highlighted area</h3>
           <p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:#4A433C">See the region on the image, the model's confidence, and a plain-language explanation.</p>
         </div>
       </div>
@@ -210,24 +228,29 @@ a:hover{color:#A8440F}
   </div>
 </section>
 
-<section id="about" style="padding:clamp(72px,9vw,120px) 0;background:#FAF8F5;border-top:1px solid #EFEAE3">
+<section id="about" style="padding:clamp(88px,10vw,144px) 0;background:#FAF8F5;border-top:1px solid #EFEAE3">
   <div style="max-width:1200px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;gap:clamp(40px,6vw,96px)">
     <div style="flex:1 1 360px;min-width:0;max-width:500px">
-      <h2 data-cursor="text" data-rv="0" style="margin:0;font-size:clamp(30px,3.4vw,42px);line-height:1.1;letter-spacing:-0.03em;font-weight:700;text-wrap:balance">Why we built Radiant</h2>
-      <p data-rv="80" style="margin:16px 0 0;font-size:18px;line-height:1.6;color:#4A433C;text-wrap:pretty">Dogs and cats can't say where it hurts, so radiographs do much of the explaining. Radiant is a research prototype built by two students for the Congressional App Challenge. It explores how an AI model can point a reviewer toward areas worth a closer look while staying open about its uncertainty.</p>
+      <div data-rv="0" style="display:flex;align-items:center;gap:12px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#C9551A"><span style="width:28px;height:1.5px;background:#E0641C;flex:none"></span><span>02 · Principles</span></div>
+      <h2 data-cursor="text" data-rv="0" style="margin:18px 0 0;font-size:clamp(36px,4.6vw,60px);line-height:1.02;letter-spacing:-0.04em;font-weight:700;text-wrap:balance">Why we built Radiant</h2>
+      <p data-rv="80" style="margin:20px 0 0;font-size:18px;line-height:1.6;color:#4A433C;text-wrap:pretty">Dogs and cats can't say where it hurts, so radiographs do much of the explaining. Radiant is a research prototype built by two students for the Congressional App Challenge. It explores how an AI model can point a reviewer toward areas worth a closer look while staying open about its uncertainty.</p>
+      <div data-rv="140" style="margin-top:30px"><a href="Founders.dc.html" data-goto="founders" data-hx="1" style="display:inline-flex;align-items:center;gap:14px;color:#1A1612;font-size:16px;font-weight:600" style-hover="color:#1A1612"><span style="display:block;overflow:hidden;height:1.3em;line-height:1.3em"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .55s cubic-bezier(.7,0,.2,1)"><span>Meet the founders</span><span aria-hidden="true" style="color:#E0641C">Meet the founders</span></span></span><span data-hx-icon="1" style="width:38px;height:38px;flex:none;box-sizing:border-box;border-radius:50%;border:1px solid #DDD5CB;background:#fff;color:#E0641C;display:grid;place-items:center;font-size:15px;transition:transform .3s cubic-bezier(.2,.7,.2,1)"><span data-hx-arrow="loop" style="display:inline-block">→</span></span></a></div>
     </div>
     <div style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column">
-      <div data-rv="0" style="padding:22px 0;border-top:1px solid #E2DBD2;display:grid;grid-template-columns:32px 1fr;gap:4px 12px">
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A;padding-top:4px">01</span>
-        <div><div style="font-size:18px;font-weight:600">Highlights, not diagnoses</div><p style="margin:6px 0 0;font-size:15px;line-height:1.55;color:#4A433C">Every result is framed as an area for additional review. Radiant never names a condition.</p></div>
+      <div data-rv="0" data-hx="1" style="position:relative;padding:26px 0;border-top:1px solid #E2DBD2;display:grid;grid-template-columns:44px 1fr;gap:4px 12px">
+        <span data-hx-line="1" aria-hidden="true" style="position:absolute;left:0;right:0;top:-1px;height:1px;background:#E0641C;transform:scaleX(0);transform-origin:left center;transition:transform .6s cubic-bezier(.2,.7,.2,1)"></span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A;padding-top:5px">01</span>
+        <div><div data-hx-arrow="1" style="display:inline-block;font-size:19px;font-weight:600;letter-spacing:-0.01em;transition:transform .45s cubic-bezier(.2,.7,.2,1)">Highlights, not diagnoses</div><p style="margin:6px 0 0;font-size:15px;line-height:1.55;color:#4A433C">Every result is framed as an area for additional review. Radiant never names a condition.</p></div>
       </div>
-      <div data-rv="80" style="padding:22px 0;border-top:1px solid #E2DBD2;display:grid;grid-template-columns:32px 1fr;gap:4px 12px">
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A;padding-top:4px">02</span>
-        <div><div style="font-size:18px;font-weight:600">Uncertainty is always shown</div><p style="margin:6px 0 0;font-size:15px;line-height:1.55;color:#4A433C">Model confidence appears next to every highlight, with a note on what it does and doesn't mean.</p></div>
+      <div data-rv="80" data-hx="1" style="position:relative;padding:26px 0;border-top:1px solid #E2DBD2;display:grid;grid-template-columns:44px 1fr;gap:4px 12px">
+        <span data-hx-line="1" aria-hidden="true" style="position:absolute;left:0;right:0;top:-1px;height:1px;background:#E0641C;transform:scaleX(0);transform-origin:left center;transition:transform .6s cubic-bezier(.2,.7,.2,1)"></span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A;padding-top:5px">02</span>
+        <div><div data-hx-arrow="1" style="display:inline-block;font-size:19px;font-weight:600;letter-spacing:-0.01em;transition:transform .45s cubic-bezier(.2,.7,.2,1)">Uncertainty is always shown</div><p style="margin:6px 0 0;font-size:15px;line-height:1.55;color:#4A433C">Model confidence appears next to every highlight, with a note on what it does and doesn't mean.</p></div>
       </div>
-      <div data-rv="160" style="padding:22px 0;border-top:1px solid #E2DBD2;border-bottom:1px solid #E2DBD2;display:grid;grid-template-columns:32px 1fr;gap:4px 12px">
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A;padding-top:4px">03</span>
-        <div><div style="font-size:18px;font-weight:600">Veterinarians make the call</div><p style="margin:6px 0 0;font-size:15px;line-height:1.55;color:#4A433C">Radiant is an educational tool for students and researchers. Clinical decisions belong to qualified professionals.</p></div>
+      <div data-rv="160" data-hx="1" style="position:relative;padding:26px 0;border-top:1px solid #E2DBD2;border-bottom:1px solid #E2DBD2;display:grid;grid-template-columns:44px 1fr;gap:4px 12px">
+        <span data-hx-line="1" aria-hidden="true" style="position:absolute;left:0;right:0;top:-1px;height:1px;background:#E0641C;transform:scaleX(0);transform-origin:left center;transition:transform .6s cubic-bezier(.2,.7,.2,1)"></span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A;padding-top:5px">03</span>
+        <div><div data-hx-arrow="1" style="display:inline-block;font-size:19px;font-weight:600;letter-spacing:-0.01em;transition:transform .45s cubic-bezier(.2,.7,.2,1)">Veterinarians make the call</div><p style="margin:6px 0 0;font-size:15px;line-height:1.55;color:#4A433C">Radiant is an educational tool for students and researchers. Clinical decisions belong to qualified professionals.</p></div>
       </div>
     </div>
   </div>
@@ -236,19 +259,20 @@ a:hover{color:#A8440F}
 <section id="faq" style="padding:0 0 clamp(72px,9vw,120px);background:#FAF8F5">
   <div style="max-width:1200px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;gap:clamp(32px,6vw,96px)">
     <div style="flex:1 1 300px;min-width:0;max-width:420px">
-      <h2 data-cursor="text" data-rv="0" style="margin:0;font-size:clamp(30px,3.4vw,42px);line-height:1.1;letter-spacing:-0.03em;font-weight:700">Questions</h2>
-      <p data-rv="80" style="margin:14px 0 0;font-size:18px;line-height:1.55;color:#4A433C">What Radiant does, what it doesn't, and how to read its output.</p>
+      <div data-rv="0" style="display:flex;align-items:center;gap:12px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#C9551A"><span style="width:28px;height:1.5px;background:#E0641C;flex:none"></span><span>03 · FAQ</span></div>
+      <h2 data-cursor="text" data-rv="0" style="margin:18px 0 0;font-size:clamp(36px,4.6vw,60px);line-height:1.02;letter-spacing:-0.04em;font-weight:700">Questions</h2>
+      <p data-rv="80" style="margin:18px 0 0;font-size:18px;line-height:1.55;color:#4A433C">What Radiant does, what it doesn't, and how to read its output.</p>
     </div>
     <div data-rv="0" style="flex:1 1 480px;min-width:0;border-top:1px solid #E2DBD2">
-      <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="5">
+      <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="4">
         <div style="border-bottom:1px solid #E2DBD2">
-          <button onClick="{{ f.toggle }}" aria-expanded="{{ f.open }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0;border:none;background:none;cursor:pointer;text-align:left;font-family:inherit;font-size:18px;font-weight:600;color:#1A1612;transition:color .15s ease" style-hover="color:#C9551A">
-            {{ f.q }}
+          <button onClick="{{ f.toggle }}" aria-expanded="{{ f.open }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0;border:none;background:none;cursor:pointer;text-align:left;font-family:inherit;font-size:18px;font-weight:600;color:{{ f.qColor }};transition:color .2s ease" style-hover="color:#C9551A">
+            <span style="display:flex;align-items:baseline;gap:18px;min-width:0"><span style="flex:none;width:26px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:#C9551A">{{ f.n }}</span><span>{{ f.q }}</span></span>
             <span style="flex:none;width:28px;height:28px;border-radius:50%;border:1px solid {{ f.iconBorder }};background:{{ f.iconBg }};color:{{ f.iconColor }};display:grid;place-items:center;transform:rotate({{ f.rot }});transition:transform .3s cubic-bezier(.2,.7,.2,1),background .2s ease,border-color .2s ease,color .2s ease"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></span>
           </button>
           <div style="display:grid;grid-template-rows:{{ f.rows }};transition:grid-template-rows .35s cubic-bezier(.2,.7,.2,1)">
             <div style="overflow:hidden">
-              <p style="margin:0;padding:0 44px 22px 0;font-size:16px;line-height:1.6;color:#4A433C;opacity:{{ f.op }};transition:opacity .3s ease;text-wrap:pretty">{{ f.a }}</p>
+              <p style="margin:0;padding:0 44px 24px 44px;font-size:16px;line-height:1.6;color:#4A433C;opacity:{{ f.op }};transition:opacity .3s ease;text-wrap:pretty">{{ f.a }}</p>
             </div>
           </div>
         </div>
@@ -257,7 +281,7 @@ a:hover{color:#A8440F}
   </div>
 </section>
 
-<footer style="background:#fff;border-top:1px solid #EFEAE3;padding:56px 0 36px">
+<footer style="background:#fff;border-top:1px solid #EFEAE3;padding:64px 0 40px">
   <div style="max-width:1200px;margin:0 auto;padding:0 24px">
     <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:40px">
       <div style="max-width:380px">
@@ -269,19 +293,20 @@ a:hover{color:#A8440F}
       </div>
       <div style="display:flex;gap:64px;font-size:15px">
         <div style="display:flex;flex-direction:column;gap:10px">
-          <span style="font-weight:600;color:#1A1612">Product</span>
-          <a href="Analyze.dc.html" data-analyze="1" style="color:#4A433C" style-hover="color:#C9551A">Analyze</a>
-          <a href="#how" data-goto="how" style="color:#4A433C" style-hover="color:#C9551A">How it works</a>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#8A8178;margin-bottom:4px">Product</span>
+          <a href="Analyze.dc.html" data-analyze="1" style="align-self:flex-start;color:#4A433C;padding-bottom:2px;background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;background-position:0 100%;background-size:0% 1px;transition:background-size .4s cubic-bezier(.2,.7,.2,1),color .2s ease" style-hover="color:#C9551A;background-size:100% 1px">Analyze</a>
+          <a href="#how" data-goto="how" style="align-self:flex-start;color:#4A433C;padding-bottom:2px;background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;background-position:0 100%;background-size:0% 1px;transition:background-size .4s cubic-bezier(.2,.7,.2,1),color .2s ease" style-hover="color:#C9551A;background-size:100% 1px">How it works</a>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px">
-          <span style="font-weight:600;color:#1A1612">Project</span>
-          <a href="#about" data-goto="about" style="color:#4A433C" style-hover="color:#C9551A">About</a>
-          <a href="#faq" data-goto="faq" style="color:#4A433C" style-hover="color:#C9551A">Questions</a>
-          <a href="Login.dc.html" onClick="{{ signOut }}" style="color:#4A433C" style-hover="color:#C9551A">Sign out</a>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#8A8178;margin-bottom:4px">Project</span>
+          <a href="#about" data-goto="about" style="align-self:flex-start;color:#4A433C;padding-bottom:2px;background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;background-position:0 100%;background-size:0% 1px;transition:background-size .4s cubic-bezier(.2,.7,.2,1),color .2s ease" style-hover="color:#C9551A;background-size:100% 1px">About</a>
+          <a href="Founders.dc.html" data-goto="founders" style="align-self:flex-start;color:#4A433C;padding-bottom:2px;background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;background-position:0 100%;background-size:0% 1px;transition:background-size .4s cubic-bezier(.2,.7,.2,1),color .2s ease" style-hover="color:#C9551A;background-size:100% 1px">Founders</a>
+          <a href="#faq" data-goto="faq" style="align-self:flex-start;color:#4A433C;padding-bottom:2px;background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;background-position:0 100%;background-size:0% 1px;transition:background-size .4s cubic-bezier(.2,.7,.2,1),color .2s ease" style-hover="color:#C9551A;background-size:100% 1px">Questions</a>
+          <a href="Login.dc.html" onClick="{{ signOut }}" style="align-self:flex-start;color:#4A433C;padding-bottom:2px;background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;background-position:0 100%;background-size:0% 1px;transition:background-size .4s cubic-bezier(.2,.7,.2,1),color .2s ease" style-hover="color:#C9551A;background-size:100% 1px">Sign out</a>
         </div>
       </div>
     </div>
-    <div style="margin-top:44px;padding-top:22px;border-top:1px solid #EFEAE3;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13px;color:#6E665E">
+    <div style="margin-top:48px;padding-top:22px;border-top:1px solid #EFEAE3;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13px;color:#6E665E">
       <span>Not a veterinary diagnostic tool. Does not replace evaluation by a qualified veterinarian.</span>
       <span>Sample radiographs: Wikimedia Commons contributors, used under their stated licenses. © 2026 Radiant</span>
     </div>
@@ -306,9 +331,9 @@ a:hover{color:#A8440F}
     <div style="width:200px;height:2px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden"><div data-ld="bar" style="height:100%;background:#E0641C;transform:scaleX(0);transform-origin:left"></div></div>
   </div>
 </div>
-<sc-if value="{{ introOn }}" hint-placeholder-val="{{ false }}">
-  <div data-intro-host="1" style="position:fixed;inset:0;z-index:10060;background:{{ ihBg }};color:{{ ihBg }}">
-    <dc-import name="Intro" reverse="{{ introRev }}" on-covered="{{ introCovered }}" on-open="{{ introOpen }}" on-done="{{ introDone }}" on-ready="{{ introReady }}" preview-reduced-motion="{{ prm }}" hint-size="100%,100%" style="position:absolute;inset:0"></dc-import>
+<sc-if value="{{ introMount }}" hint-placeholder-val="{{ false }}">
+  <div data-intro-host="1" style="position:fixed;inset:0;z-index:10060;background:{{ ihBg }};color:{{ ihBg }};visibility:{{ ihVis }}">
+    <dc-import name="Intro" dormant="{{ introDormant }}" reverse="{{ introRev }}" on-covered="{{ introCovered }}" on-open="{{ introOpen }}" on-done="{{ introDone }}" on-ready="{{ introReady }}" preview-reduced-motion="{{ prm }}" hint-size="100%,100%" style="position:absolute;inset:0"></dc-import>
   </div>
 </sc-if>
 </div>
@@ -319,25 +344,28 @@ const FAQ = [
   ['What images work best?', 'Clear JPG or PNG exports of dog or cat radiographs, one view per image, with the anatomy filling most of the frame. Photos taken of a screen or film can work, but they lower image quality.'],
   ['What does the confidence score mean?', 'It reflects how strongly the image matches patterns the model learned during training. It is not the probability that a condition is present, and it can be wrong in either direction.'],
   ['Why "areas for review" instead of findings?', 'Naming a condition would imply a certainty the model doesn\u2019t have. Framing results as areas to look at keeps the decision with the person reviewing the image.'],
-  ['Who built Radiant?', 'Our founders are George Tamas and Patrick Kim, fighting for a pay free pet X-ray world accommodating to your needs as a pet guardian.']
 ];
 const HERO = {
   dog: { file: 'canine_abdomen_lat.jpg', label: 'Dog · Lateral', hl: [56, 46, 22, 28], conf: 78 },
   cat: { file: 'feline_lateral.jpg', label: 'Cat · Lateral', hl: [34, 40, 22, 26], conf: 64 }
 };
 const GOTO = { top: ['00', 'Radiant'], how: ['01', 'How it works'], about: ['02', 'About'], faq: ['03', 'Questions'] };
-const NAV = [['how', 'How it works'], ['about', 'About'], ['intro', 'Intro']];
+const NAV = [['founders', 'About the founders'], ['intro', 'Intro']];
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const whenT = (cb, fail) => { const t0 = performance.now(); const tick = () => { if (window.RadiantTiles) cb(window.RadiantTiles); else if (performance.now() - t0 > 1500) fail(); else setTimeout(tick, 16); }; tick(); };
+const whenW = (cb, fail) => { const t0 = performance.now(); const tick = () => { if (window.RadiantWaves) cb(window.RadiantWaves); else if (performance.now() - t0 > 1500) fail(); else setTimeout(tick, 16); }; tick(); };
 
+const watch = (cb, m) => { try { return new IntersectionObserver(cb, { root: document, rootMargin: m }); } catch (e) { return new IntersectionObserver(cb, { rootMargin: m }); } };
 const EMBED = window.parent !== window && /[?&]embed=1/.test(location.search);
 const postUp = m => { try { window.parent.postMessage({ radiant: m }, '*'); } catch (e) {} };
 const KEY = 'radiant-account';
 const readAcct = () => { for (const s of ['localStorage', 'sessionStorage']) { try { const st = window[s], a = JSON.parse(st.getItem(KEY) || 'null'); if (a && (!a.exp || a.exp > Date.now())) return a; if (a) st.removeItem(KEY); } catch (e) {} } return null; };
 const ACCT = EMBED ? null : readAcct();
 const GATE = !EMBED && !ACCT;
+// Intro plays only right after a fresh sign-in; a remembered account opens straight on the hero.
+const FRESH = (() => { try { return !!sessionStorage.getItem('radiant-fresh'); } catch (e) { return false; } })();
 const wantIntro = () => {
-  if (EMBED || GATE) return false;
+  if (EMBED || GATE || !FRESH) return false;
   try {
     if (sessionStorage.getItem('radiant-intro-skip')) return false;
     const tx = JSON.parse(sessionStorage.getItem('radiant-tx') || 'null');
@@ -346,7 +374,7 @@ const wantIntro = () => {
   return !/^#(how|about|faq)$/.test(location.hash);
 };
 class Component extends DCLogic {
-  state = { narrow: false, menuOpen: false, scrolled: false, active: '', heroOn: false, faq: 0, heroSp: 'dog', introOn: wantIntro(), acctOpen: false };
+  state = { narrow: false, menuOpen: false, scrolled: false, active: '', heroOn: false, faq: 0, heroSp: 'dog', introOn: wantIntro(), introWarm: false, acctOpen: false };
   rootRef = React.createRef();
 
   rm() { return !!this.props.previewReducedMotion || !!(this._mq && this._mq.matches); }
@@ -356,13 +384,41 @@ class Component extends DCLogic {
   introReady = () => { this._introReady = true; clearTimeout(this._introT); };
   introOpen = (base = 0) => { if (this._introOpened) return; this._introOpened = true; document.documentElement.style.overflow = ''; if (this._io) this.heroReplay(base); else { this._revealDelay = 0; this.initReveal(); } clearTimeout(this._t2); clearTimeout(this._t3); this.initIntro(base); };
   introCovered = () => { window.scrollTo(0, 0); document.documentElement.style.overflow = 'hidden'; this.readScroll(); };
-  openIntro() { if (this.state.introOn) return; this._introOpened = false; this._introRev = true; this._introReady = true; this.setState({ introOn: true, menuOpen: false }); }
+  openIntro() { if (this.state.introOn) return; try { const a = document.activeElement; if (a && a !== document.body && a.blur) a.blur(); } catch (e) {} this._introOpened = false; this._introRev = true; this._introReady = true; this.setState({ introOn: true, menuOpen: false }); }
   heroReplay(base) {
     if (this.rm()) return;
     const top = document.getElementById('top'); if (!top) return;
     top.querySelectorAll('[data-rv]').forEach(el => el.animate([{ opacity: 0, transform: 'translate3d(0,18px,0)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: base + (+el.dataset.rv || 0), easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' }));
   }
-  introDone = () => { clearTimeout(this._introT); this.introOpen(0); this._introRev = false; if (this.state.introOn) this.setState({ introOn: false }); if (this._preFn && !this._pre) this._pre = setTimeout(this._preFn, 1200); };
+  introDone = () => { clearTimeout(this._introT); try { const a = document.activeElement; if (a && a.closest && a.closest('header') && a.blur) a.blur(); } catch (e) {} this.introOpen(0); this._introRev = false; if (this.state.introOn || this.state.introWarm) this.setState({ introOn: false, introWarm: false }); if (!EMBED && this._preFn && this._chain !== 'done') this.warmChain(150); else this.warmIntro(1400); };
+  busyFx() { const b = h => !!(h && h.busy); return !!(this.state.introOn || this._ctBusy || this._txBusy || this._wvOv || b(this.tx) || b(this.wx)); }
+  // Boot the other pages one at a time, right after the intro, so each one's start-up work lands while nothing is animating.
+  warmChain(d) {
+    if (this._chain) return; this._chain = 'run';
+    const t0 = performance.now();
+    const step = () => {
+      this._chainT = 0; if (!this.root) return;
+      const T = window.RadiantTiles, W = window.RadiantWaves, el = performance.now() - t0;
+      if (!this.busyFx()) {
+        if (!this.tx && T && T.host && el < 4000) this.tx = T.host('Analyze.dc.html');
+        else if (this.tx && !this.tx.ready && el < 6000) {}
+        else if (!this.wx && W && W.host && el < 8000) this.preW();
+        else if (this.wx && !this.wx.ready && el < 10000) {}
+        else { this._chain = 'done'; this.warmIntro(400); return; }
+      }
+      this._chainT = setTimeout(step, 150);
+    };
+    this._chainT = setTimeout(step, d);
+  }
+  // Keep a dormant Intro mounted (hidden) so opening it is instant; each run gets a fresh instance.
+  warmIntro(d) {
+    clearTimeout(this._wiT);
+    this._wiT = setTimeout(() => {
+      this._wiT = 0; if (!this.root || this.state.introOn || this.state.introWarm) return;
+      if (this.busyFx()) { this.warmIntro(400); return; }
+      this.setState({ introWarm: true });
+    }, d);
+  }
 
   componentDidMount() {
     const root = this.rootRef.current; if (!root) return;
@@ -385,8 +441,8 @@ class Component extends DCLogic {
     window.addEventListener('scroll', this.onScroll, { passive: true });
     window.addEventListener('resize', this.onScroll);
     this.readScroll(); this.applyHero();
-    this.initDelegates(); this.initSpy(); this.initRipple(); this.initLoader();
-    this._onShow = e => { if (!e.persisted) return; this._txBusy = false; const T = window.RadiantTiles, ov = this._txOv; this._txOv = null; if (ov && T) T.reveal(ov, { content: this.flow(), done: t => t.host.remove() }); else document.querySelectorAll('[data-radiant-tx]').forEach(n => n.remove()); };
+    this.initDelegates(); this.initSpy(); this.initLoader(); this.initHeroFx(); this.initPolish();
+    this._onShow = e => { if (!e.persisted) return; this._txBusy = false; const wv = this._wvOv; this._wvOv = null; if (wv && wv.restore) wv.restore(); const T = window.RadiantTiles, ov = this._txOv; this._txOv = null; if (ov && T) T.reveal(ov, { content: this.flow(), done: t => t.host.remove() }); else document.querySelectorAll('[data-radiant-tx]').forEach(n => { if (!wv || n !== wv.layer) n.remove(); }); };
     window.addEventListener('pageshow', this._onShow);
     if (EMBED) {
       this._onMsg = e => { if (e.source === window.parent && e.data && e.data.radiant === 'enter') this.enterEmbed(); };
@@ -394,10 +450,10 @@ class Component extends DCLogic {
       postUp('ready');
     } else if (!this.rm()) {
       const pre = () => whenT(T => { if (!this.tx && T.host) this.tx = T.host('Analyze.dc.html'); }, () => {});
-      this._preFn = pre; if (!this.introActive()) this._pre = setTimeout(pre, 1600);
-      this._txHover = e => { if (e.target.closest && e.target.closest('[data-analyze]')) { clearTimeout(this._pre); pre(); } };
+      this._preFn = pre; if (!this.introActive()) this.warmChain(1300);
+      this._txHover = e => { if (!e.target.closest) return; if (e.target.closest('[data-analyze]')) pre(); if (e.target.closest('[data-goto="founders"]')) this.preW(); };
       window.addEventListener('pointerover', this._txHover, true);
-    }
+    } else if (!this.introActive()) this.warmIntro(2400);
     this.armLinks();
     this._txClick = e => { const a = e.target.closest && e.target.closest('[data-analyze]'); if (!a || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; e.preventDefault(); e.stopImmediatePropagation(); this.tileOut(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, a.dataset.to || a.getAttribute('href')); };
     window.addEventListener('click', this._txClick, true);
@@ -410,7 +466,7 @@ class Component extends DCLogic {
     window.removeEventListener('pageshow', this._onShow); window.removeEventListener('click', this._txClick, true); if (this._io2) this._io2.disconnect(); if (this._onMsg) window.removeEventListener('message', this._onMsg); if (this._txHover) window.removeEventListener('pointerover', this._txHover, true); clearTimeout(this._pre); document.removeEventListener('mouseout', this._ripOut);
     if (this._io) this._io.disconnect(); if (this._spy) this._spy.disconnect();
     document.documentElement.classList.remove('rc-cursor'); if (this._cMove) { window.removeEventListener('pointermove', this._cMove); window.removeEventListener('pointerdown', this._cDown); window.removeEventListener('pointerup', this._cUp); document.removeEventListener('mouseout', this._cLeave); } if (this._ripMove) window.removeEventListener('pointermove', this._ripMove); if (this._ro) this._ro.disconnect(); this.rip = null; clearTimeout(this._ld1); clearTimeout(this._ld2); clearTimeout(this._ldSafety);
-    clearTimeout(this._t); clearTimeout(this._t2); clearTimeout(this._t3); cancelAnimationFrame(this._raf); document.removeEventListener('pointerdown', this._acctDoc); document.removeEventListener('keydown', this._acctKey);
+    clearTimeout(this._t); clearTimeout(this._t2); clearTimeout(this._t3); clearTimeout(this._preW); clearTimeout(this._chainT); clearTimeout(this._wiT); cancelAnimationFrame(this._raf); document.removeEventListener('pointerdown', this._acctDoc); document.removeEventListener('keydown', this._acctKey);
   }
   componentDidUpdate(pp) {
     this.armLinks(); this.pics();
@@ -426,6 +482,8 @@ class Component extends DCLogic {
     this.heroS = this.rm() ? 1 : 1 - clamp(y / 800) * 0.05;
     if (this.h && this.h.prog) { const max = document.documentElement.scrollHeight - window.innerHeight; this.h.prog.style.transform = 'scaleX(' + (max > 0 ? clamp(y / max) : 0).toFixed(4) + ')'; }
     if (this.rip && this.rip.lx != null) this.magnet();
+    const cue = this.h && this.h.cue; if (cue) cue.style.opacity = Math.max(0, 1 - y / 240).toFixed(3);
+    this.howTick();
   }
   kick() { if (!this._raf) this._raf = requestAnimationFrame(this.tick); }
   tick = () => {
@@ -470,13 +528,62 @@ class Component extends DCLogic {
     if (this.rm() || !lines[0].animate) return;
     const ez = 'cubic-bezier(.2,.7,.2,1)';
     lines.forEach((el, i) => el.animate([{ transform: 'translateY(108%)' }, { transform: 'translateY(0)' }], { duration: 1000, delay: base + 120 + i * 120, easing: ez, fill: 'backwards' }));
+    const { rule, ul } = this.h || {};
+    if (rule) rule.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 1200, delay: base + 520, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'backwards' });
+    if (ul) ul.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 900, delay: base + 780, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'backwards' });
     const { img, scan } = this.h;
     if (img) img.animate([{ filter: 'brightness(.12) contrast(1.8) blur(10px)' }, { filter: 'brightness(1) contrast(1) blur(0px)' }], { duration: 1700, delay: base + 450, easing: ez, fill: 'backwards' });
-    if (scan) scan.animate([{ top: '-12%', opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.85 }, { top: '100%', opacity: 0 }], { duration: 1900, delay: base + 650, easing: 'cubic-bezier(.45,0,.25,1)' });
+    if (scan) scan.animate(this.scanKf(0.12), { duration: 1900, delay: base + 650, easing: 'cubic-bezier(.45,0,.25,1)' });
     if (!this.always() && !this._coarse) {
       this._t2 = setTimeout(() => { if (!this._inHero) { this.ht.h = 1; this.setState({ heroOn: true }); this.kick(); } }, base + 2500);
       this._t3 = setTimeout(() => { if (!this._inHero) { this.ht.h = 0; this.setState({ heroOn: false }); this.kick(); } }, base + 4600);
     }
+  }
+  initHeroFx() {
+    if (this.rm()) return;
+    const { dot, cuebar, xr, ul } = this.h || {};
+    if (dot && dot.animate) dot.animate([{ boxShadow: '0 0 0 0 rgba(224,100,28,.45)' }, { boxShadow: '0 0 0 7px rgba(224,100,28,0)' }], { duration: 1800, iterations: Infinity, easing: 'ease-out' });
+    if (cuebar && cuebar.animate) cuebar.animate([{ transform: 'translateY(-14px)' }, { transform: 'translateY(34px)' }], { duration: 1700, iterations: Infinity, easing: 'cubic-bezier(.65,0,.35,1)' });
+    if (xr && ul && ul.animate) xr.addEventListener('pointerenter', () => {
+      if (this._ulA && this._ulA.playState === 'running') return;
+      this._ulA = ul.animate([{ transform: 'scaleX(1)', transformOrigin: 'right center', easing: 'cubic-bezier(.6,0,.4,1)' }, { transform: 'scaleX(0)', transformOrigin: 'right center', offset: .42 }, { transform: 'scaleX(0)', transformOrigin: 'left center', offset: .5, easing: 'cubic-bezier(.16,1,.3,1)' }, { transform: 'scaleX(1)', transformOrigin: 'left center' }], { duration: 1250, easing: 'linear' });
+    });
+  }
+  sty(el, p, v) { if (!el) return; const s = el._s0 || (el._s0 = {}); if (!(p in s)) s[p] = el.style[p]; el.style[p] = v == null ? s[p] : v; }
+  initPolish() {
+    const root = this.root; if (!root) return;
+    this._hn = Array.from(root.querySelectorAll('[data-hn]'));
+    this._hc = Array.from(root.querySelectorAll('[data-hc]'));
+    this._hcOn = this._hc.map(() => true);
+    if (this.rm()) return;
+    this._hc.forEach((c, i) => this.howAct(i, false, true));
+    const sp = root.querySelector('[data-c="spin"]'); if (sp && sp.animate) sp.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], { duration: 900, iterations: Infinity });
+    this.howTick();
+  }
+  howAct(i, on, instant) {
+    const c = this._hc && this._hc[i]; if (!c || this._hcOn[i] === on) return; this._hcOn[i] = on;
+    const q = k => c.querySelector('[data-c="' + k + '"]'), all = Array.from(c.querySelectorAll('[data-c]'));
+    if (instant) all.forEach(el => this.sty(el, 'transition', 'none'));
+    if (i === 0) { this.sty(q('row'), 'transform', on ? null : 'translate3d(-18px,0,0)'); this.sty(q('row'), 'opacity', on ? null : '0'); this.sty(q('check'), 'strokeDashoffset', on ? null : '1'); }
+    else this.sty(q('bar'), 'transform', on ? null : 'scaleX(0)');
+    if (i === 2) { const n = q('num'); if (n) { if (on && !instant) this.count(n, 78); else n.textContent = on ? '78%' : '0%'; } }
+    if (instant) { void c.offsetWidth; all.forEach(el => this.sty(el, 'transition', null)); }
+  }
+  count(n, to) {
+    const t0 = performance.now(), d = 1150;
+    const step = () => { if (!this._hcOn[2]) return; const p = Math.min(1, (performance.now() - t0) / d), e = 1 - Math.pow(1 - p, 3); n.textContent = Math.round(to * e) + '%'; if (p < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }
+  howTick() {
+    if (!this._hc || !this._hc.length || this.rm() || !this.h) return;
+    const vh = window.innerHeight;
+    if (!this.state.narrow) {
+      const fl = this.h.howfill, ln = this.h.howline; if (!fl || !ln) return;
+      const r = ln.getBoundingClientRect(); if (r.top > vh + 240 || r.bottom < -900) return;
+      const p = clamp((vh * 0.84 - r.top) / (vh * 0.42)), W = r.width || 1;
+      fl.style.transform = 'scaleX(' + p.toFixed(4) + ')';
+      this._hn.forEach((nd, i) => { const on = i === 0 ? p > 0.02 : p >= nd.offsetLeft / W; this.sty(nd, 'borderColor', on ? '#E0641C' : null); this.sty(nd, 'backgroundColor', on ? '#E0641C' : null); this.sty(nd, 'transform', on ? 'scale(1.18)' : null); this.howAct(i, on); });
+    } else this._hc.forEach((c, i) => { this.howAct(i, c.getBoundingClientRect().top < vh * 0.8); });
   }
   initReveal() {
     if (this.rm()) return;
@@ -497,8 +604,8 @@ class Component extends DCLogic {
       el._rvT = setTimeout(() => { el.style.transition = ''; el.style.transitionDelay = ''; el.style.transform = ''; el.style.clipPath = ''; }, 1300 + d);
     };
     els.forEach(hide);
-    this._io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; show(e.target); if (once(e.target)) this._io.unobserve(e.target); }), { rootMargin: '0px 0px -8% 0px' });
-    this._io2 = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting && e.target._rvOn) hide(e.target); }), { rootMargin: '80px 0px' });
+    this._io = watch(es => es.forEach(e => { if (!e.isIntersecting) return; show(e.target); if (once(e.target)) this._io.unobserve(e.target); }), '0px 0px -8% 0px');
+    this._io2 = watch(es => es.forEach(e => { if (!e.isIntersecting && e.target._rvOn) hide(e.target); }), '80px 0px');
     setTimeout(() => els.forEach(el => { this._io.observe(el); if (!once(el)) this._io2.observe(el); }), this._revealDelay || 0);
   }
 
@@ -549,27 +656,48 @@ class Component extends DCLogic {
     }
     root.addEventListener('click', e => {
       const a = e.target.closest('[data-goto]'); if (!a) return;
+      if (a.dataset.goto === 'founders' && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button > 0)) return;
       e.preventDefault(); this.goto(a.dataset.goto);
     });
   }
-  tileOut(x, y, href) {
+  tileOut(x, y, href, done) {
     if (EMBED) { this._par = this.flow().map(el => el.animate([{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-6vh,0)' }], { duration: 960, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' })); postUp('back'); return; }
     const T = window.RadiantTiles, nav = () => { window.location.href = href; };
     if (this.rm() || !T) { nav(); return; }
     if (this.state.menuOpen) this.setState({ menuOpen: false });
-    const fallback = () => { if (this._txBusy) return; this._txBusy = true; try { sessionStorage.setItem('radiant-tx', JSON.stringify({ to: 'analyze', t: Date.now() })); } catch (e) {} this._txOv = T.leave(x, y, nav, { content: this.flow() }); };
-    if (T.host) { if (!this.tx) this.tx = T.host('Analyze.dc.html'); this.tx.open({ content: this.flow(), fallback }); } else fallback();
+    const fallback = cv => { if (this._txBusy) return; this._txBusy = true; try { sessionStorage.setItem('radiant-tx', JSON.stringify({ to: 'analyze', t: Date.now() })); } catch (e) {} if (cv) { this._txOv = cv; nav(); return; } this._txOv = T.leave(x, y, nav, { content: this.flow() }); };
+    if (T.host) { if (!this.tx) this.tx = T.host('Analyze.dc.html', { defer: true }); this.tx.open({ content: this.flow(), fallback, done }); } else fallback();
+  }
+  preW(defer) {
+    if (this.wx || EMBED || this.rm()) return;
+    const W = window.RadiantWaves; if (!W || !W.host) return;
+    const h = this.wx = W.host('Founders.dc.html', defer ? { defer: true } : null);
+    h.onMessage = m => {
+      if (m !== 'analyze') return;
+      this.tileOut(window.innerWidth / 2, window.innerHeight / 2, 'Analyze.dc.html', () => { const cur = document.title, home = h.title; if (h.hide()) { document.title = cur; if (this.tx && home) this.tx.title = home; } });
+    };
+  }
+  foundersOut() {
+    const href = 'Founders.dc.html', W = window.RadiantWaves;
+    if (this.state.menuOpen || this.state.acctOpen) this.setState({ menuOpen: false, acctOpen: false });
+    const nav = () => { try { (EMBED ? window.parent : window).location.href = href; } catch (e) { window.location.href = href; } };
+    if (this.rm() || !W) { nav(); return; }
+    if (this._wvOv) return;
+    if (!EMBED) this.preW(true);
+    if (EMBED || !this.wx) { this._wvOv = W.leave(nav, { content: this.flow() }); return; }
+    this.wx.open({ content: this.flow(), fallback: ov => { this._wvOv = ov; nav(); } });
   }
   enterEmbed() {
     if (this._par) { this._par.forEach(a => a.cancel()); this._par = null; }
     if (this.rm()) return;
     this.flow().forEach(el => el.animate([{ transform: 'translate3d(0,7vh,0)' }, { transform: 'translate3d(0,0,0)' }], { duration: 1210, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
-    this.initIntro(120);
+    this.initIntro(120); this.warmIntro(2400);
   }
   flow() { return this.root ? Array.from(this.root.children).filter(el => { const p = getComputedStyle(el).position; return p !== 'fixed' && p !== 'absolute'; }) : []; }
   armLinks() { if (!this.root) return; this.root.querySelectorAll('[data-analyze]:not([data-to])').forEach(a => { a.dataset.to = a.getAttribute('href'); a.setAttribute('href', '#analyze'); }); }
   goto(id) {
     if (id === 'intro') { this.openIntro(); return; }
+    if (id === 'founders') { this.foundersOut(); return; }
     const el = document.getElementById(id); if (!el) return;
     const target = () => id === 'top' ? 0 : el.getBoundingClientRect().top + window.scrollY - 64;
     if (this.state.menuOpen) this.setState({ menuOpen: false });
@@ -608,10 +736,13 @@ class Component extends DCLogic {
       this._revealDelay = 700; this.initReveal();
       const fail = () => { ld.style.display = 'none'; this.initIntro(0); };
       this._ldSafety = setTimeout(fail, 6000);
-      whenT(T => { T.arrive(ld, { content: this.flow(), start: base => { this.initIntro(base); }, done: t => { clearTimeout(this._ldSafety); ld.style.display = 'none'; t.layer.remove(); } }); }, () => { clearTimeout(this._ldSafety); fail(); });
+      const arr = X => { X.arrive(ld, { content: this.flow(), start: base => { this.initIntro(base); }, done: t => { clearTimeout(this._ldSafety); ld.style.display = 'none'; t.layer.remove(); } }); }, no = () => { clearTimeout(this._ldSafety); fail(); };
+      if (tx.fx === 'waves') whenW(arr, no); else whenT(arr, no);
       return;
     }
-    const skip = skipIntro || !ld || !ld.animate || this.rm() || this.props.introLoader === false;
+    const home = !FRESH && !location.hash;
+    if (home) { try { history.scrollRestoration = 'manual'; } catch (e) {} window.scrollTo(0, 0); this.readScroll(); }
+    const skip = skipIntro || home || !ld || !ld.animate || this.rm() || this.props.introLoader === false;
     if (skip) { if (ld) ld.style.display = 'none'; this._revealDelay = 0; this.initReveal(); this.initIntro(0); return; }
     this._revealDelay = 1250; this.initReveal();
     const q = k => ld.querySelector('[data-ld="' + k + '"]'), ez = 'cubic-bezier(.2,.7,.2,1)', E = 'cubic-bezier(.76,0,.24,1)';
@@ -631,7 +762,12 @@ class Component extends DCLogic {
     if (sp === this.state.heroSp) return;
     this.setState({ heroSp: sp });
     const { scan } = this.h;
-    if (!this.rm() && scan && scan.animate) scan.animate([{ top: '-12%', opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.85 }, { top: '100%', opacity: 0 }], { duration: 1100, easing: 'cubic-bezier(.45,0,.25,1)' });
+    if (!this.rm() && scan && scan.animate) scan.animate(this.scanKf(0.15), { duration: 1100, easing: 'cubic-bezier(.45,0,.25,1)' });
+  }
+  // The scan line moves with transforms (from top -12% to 100% of the image) so it runs on the compositor.
+  scanKf(o) {
+    const s = this.h && this.h.scan, H = (s && s.parentNode && s.parentNode.offsetHeight) || 0, y = v => 'translate3d(0,' + (v * H).toFixed(1) + 'px,0)';
+    return [{ transform: y(-0.02), opacity: 0 }, { opacity: 1, offset: o }, { opacity: 1, offset: 0.85 }, { transform: y(1.1), opacity: 0 }];
   }
   initRipple() {
     const cv = this.h && this.h.ripple, sec = document.getElementById('top');
@@ -766,9 +902,9 @@ class Component extends DCLogic {
   }
   initSpy() {
     const ids = ['how', 'about'];
-    this._spy = new IntersectionObserver(es => es.forEach(e => {
+    this._spy = watch(es => es.forEach(e => {
       if (e.isIntersecting) { const a = e.target.id; if (a !== this.state.active) this.setState({ active: a }); }
-    }), { rootMargin: '-45% 0px -50% 0px' });
+    }), '-45% 0px -50% 0px');
     ids.forEach(id => { const el = document.getElementById(id); if (el) this._spy.observe(el); });
     this._spyTop = () => { if (window.scrollY < 200 && this.state.active) this.setState({ active: '' }); };
     window.addEventListener('scroll', this._spyTop, { passive: true });
@@ -806,13 +942,13 @@ class Component extends DCLogic {
       acctName: (ACCT && ACCT.name) || 'Signed in', acctEmail: (ACCT && ACCT.email) || '', acctNote: ACCT && ACCT.keep ? 'Saved login on this device' : 'Signed in for this session',
       acctOpen: st.acctOpen ? 'true' : 'false', acctOp: st.acctOpen ? 1 : 0, acctY: st.acctOpen ? '0px' : '-6px', acctVis: st.acctOpen ? 'visible' : 'hidden',
       toggleAcct: () => this.setState(s => ({ acctOpen: !s.acctOpen })), signOut: this.signOut,
-      introOn: this.introShown(), introRev: !!this._introRev, ihBg: this._introRev ? 'transparent' : '#161310', introCovered: this.introCovered, introOpen: this.introOpen, introDone: this.introDone, introReady: this.introReady, prm: !!this.props.previewReducedMotion,
-      narrow, wide: !narrow, menuOpen: st.menuOpen,
+      introMount: this.introShown() || (!!st.introWarm && !st.introOn), introDormant: !this.introShown(), ihVis: this.introShown() ? 'visible' : 'hidden', introRev: !!this._introRev, ihBg: this._introRev || !this.introShown() ? 'transparent' : '#161310', introCovered: this.introCovered, introOpen: this.introOpen, introDone: this.introDone, introReady: this.introReady, prm: !!this.props.previewReducedMotion,
+      narrow, wide: !narrow, cueDisp: narrow ? 'none' : 'flex', howLine: narrow ? 'none' : 'block', howCols: narrow ? 'minmax(0,1fr)' : 'repeat(3,minmax(0,1fr))', howGap: narrow ? '48px' : '20px', menuOpen: st.menuOpen,
       menuH: st.menuOpen ? '440px' : '0px', menuOp: st.menuOpen ? 1 : 0,
       menuIcon: st.menuOpen ? 'M6 6l12 12M18 6L6 18' : 'M4 7h16M4 12h16M4 17h16',
       toggleMenu: () => this.setState(s => ({ menuOpen: !s.menuOpen })),
       navBorder: st.scrolled ? '#E9E3DB' : 'transparent',
-      navItems: NAV.map(([id, label]) => ({ id, label, color: st.active === id ? '#1A1612' : '#5A534B', line: st.active === id ? 1 : 0 })),
+      navItems: NAV.map(([id, label]) => ({ id, label, href: id === 'founders' ? 'Founders.dc.html' : '#' + id, color: st.active === id ? '#1A1612' : '#5A534B', line: st.active === id ? 1 : 0 })),
       heroMove: this.heroMove, heroEnter: this.heroEnter, heroLeave: this.heroLeave,
       hSegX: st.heroSp === 'cat' ? '100%' : '0%', hIsDog: st.heroSp === 'dog', hIsCat: st.heroSp === 'cat',
       hDogColor: st.heroSp === 'dog' ? '#fff' : '#9C9389', hCatColor: st.heroSp === 'cat' ? '#fff' : '#9C9389',
@@ -824,7 +960,7 @@ class Component extends DCLogic {
       heroResult: on ? '1 area for additional review' : 'Hover the image to review',
       heroConfText: on ? HERO[st.heroSp].conf + '%' : '—', heroConfW: on ? HERO[st.heroSp].conf + '%' : '0%',
       heroEyeBg: on ? 'rgba(224,100,28,.18)' : 'transparent', heroEyeColor: on ? '#F08A4B' : '#A69D93',
-      faqs: FAQ.map(([q, a], i) => { const o = st.faq === i; return { q, a, open: o, toggle: () => this.setState({ faq: o ? -1 : i }), rows: o ? '1fr' : '0fr', op: o ? 1 : 0, rot: o ? '45deg' : '0deg', iconBg: o ? '#E0641C' : '#fff', iconBorder: o ? '#E0641C' : '#DDD5CB', iconColor: o ? '#fff' : '#4A433C' }; })
+      faqs: FAQ.map(([q, a], i) => { const o = st.faq === i; return { q, a, n: String(i + 1).padStart(2, '0'), qColor: o ? '#C9551A' : '#1A1612', open: o, toggle: () => this.setState({ faq: o ? -1 : i }), rows: o ? '1fr' : '0fr', op: o ? 1 : 0, rot: o ? '45deg' : '0deg', iconBg: o ? '#E0641C' : '#fff', iconBorder: o ? '#E0641C' : '#DDD5CB', iconColor: o ? '#fff' : '#4A433C' }; })
     };
   }
 }

@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@100..900&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<script>(function () { try { var k = 'radiant-account', ok = function (s) { try { var a = JSON.parse(window[s].getItem(k) || 'null'); if (!a) return false; return !a.exp || a.exp > Date.now(); } catch (e) { return false; } }; if (!ok('localStorage')) if (!ok('sessionStorage')) return; var n = ''; try { n = new URLSearchParams(location.search).get('next') || ''; } catch (e) { } if (!/^(Radiant|Intro|Analyze|Founders)\.dc\.html(#[\w-]+)?$/.test(n)) n = 'Radiant.dc.html'; document.documentElement.style.visibility = 'hidden'; setTimeout(function () { document.documentElement.style.visibility = ''; }, 1500); location.replace(n); } catch (e) { } })();</script>
 <style>
 html,body{margin:0;background:#161310}
 body{color:#F3EDE6;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
@@ -136,7 +137,7 @@ const saveAcct = (a, keep) => {
 };
 const clearAcct = () => ['localStorage', 'sessionStorage'].forEach(s => { try { window[s].removeItem(KEY); } catch (e) {} });
 const jwt = t => { const p = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'), b = atob(p + '='.repeat((4 - p.length % 4) % 4)); return JSON.parse(new TextDecoder().decode(Uint8Array.from(b, c => c.charCodeAt(0)))); };
-const NEXT = (() => { try { const n = new URLSearchParams(location.search).get('next') || ''; return /^(Radiant|Intro|Analyze)\.dc\.html(#[\w-]+)?$/.test(n) ? n : 'Radiant.dc.html'; } catch (e) { return 'Radiant.dc.html'; } })();
+const NEXT = (() => { try { const n = new URLSearchParams(location.search).get('next') || ''; return /^(Radiant|Intro|Analyze|Founders)\.dc\.html(#[\w-]+)?$/.test(n) ? n : 'Radiant.dc.html'; } catch (e) { return 'Radiant.dc.html'; } })();
 const MODE0 = /[?&]mode=signup(&|$)/.test(location.search) ? 'signup' : 'login';
 const DEMO = { id: 'demo', name: 'Guest', given: 'Guest', email: 'Demo account', picture: '', provider: 'demo' };
 const EZ = 'cubic-bezier(.2,.7,.2,1)';
