@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@100..900&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<script src="./sfx.js"></script>
 <style>
 [data-intro] a{color:#F08A4B;text-decoration:none}
 [data-intro] a:hover{color:#F3EDE6}
@@ -101,7 +102,7 @@
 <div data-i="flash" aria-hidden="true" style="position:absolute;inset:0;opacity:0;pointer-events:none;background:radial-gradient(circle at 50% 46%,#FFFFFF 0%,#FFF7F0 34%,#FBE7D6 72%,#F5D6BD 100%)"></div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;beamTint&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;bone&quot;,&quot;amber&quot;],&quot;default&quot;:&quot;bone&quot;,&quot;tsType&quot;:&quot;'bone'|'amber'&quot;,&quot;section&quot;:&quot;Beam&quot;},&quot;ambience&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;calm&quot;,&quot;lively&quot;],&quot;default&quot;:&quot;calm&quot;,&quot;tsType&quot;:&quot;'calm'|'lively'&quot;,&quot;section&quot;:&quot;Ambient&quot;},&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Cursor&quot;},&quot;previewReducedMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Accessibility&quot;},&quot;reverse&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;boolean&quot;},&quot;onOpen&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(base: number) =&gt; void&quot;},&quot;onDone&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onReady&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onCovered&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;beamTint&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;bone&quot;,&quot;amber&quot;],&quot;default&quot;:&quot;bone&quot;,&quot;tsType&quot;:&quot;'bone'|'amber'&quot;,&quot;section&quot;:&quot;Beam&quot;},&quot;ambience&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;calm&quot;,&quot;lively&quot;],&quot;default&quot;:&quot;calm&quot;,&quot;tsType&quot;:&quot;'calm'|'lively'&quot;,&quot;section&quot;:&quot;Ambient&quot;},&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Cursor&quot;},&quot;previewReducedMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Accessibility&quot;},&quot;reverse&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;boolean&quot;},&quot;dormant&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;boolean&quot;},&quot;onOpen&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(base: number) =&gt; void&quot;},&quot;onDone&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onReady&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onCovered&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
 const CH = 640, SWAP = CH + 120, AP0 = CH + 500, APD = 1000, MOR0 = AP0 - 40, MORD = 1000, END = AP0 + APD + 40;
 const RAP = 950, RSW = RAP + 60, UC = 800, REND = RSW + UC;
 const FLASH = [{ opacity: 0, easing: 'cubic-bezier(.5,0,1,1)' }, { opacity: 1, offset: 0.16 }, { opacity: 1, offset: 0.32, easing: 'cubic-bezier(.2,.6,.3,1)' }, { opacity: 0 }];
@@ -144,7 +145,6 @@ class Component extends DCLogic {
     const acct = readAcct();
     if (!this.hosted && !acct) { this.root = null; try { window.location.replace('Login.dc.html?next=Intro.dc.html'); } catch (e) {} return; }
     if (acct) { let fresh = false; try { fresh = !!sessionStorage.getItem('radiant-fresh'); sessionStorage.removeItem('radiant-fresh'); } catch (e) {} this.setState({ hello: (fresh ? 'Welcome, ' : 'Welcome back, ') + String(acct.given || acct.name || 'there').trim() }); }
-    const hostEl = root.closest('[data-intro-host]'); if (hostEl) hostEl.style.background = 'transparent';
     if (!this.hosted) root.style.background = '#FAF8F5';
     const el = this.el = {}; root.querySelectorAll('[data-i]').forEach(n => { el[n.dataset.i] = n; });
     this.L = Array.from(el.solid.querySelectorAll('[data-l]'));
@@ -152,12 +152,23 @@ class Component extends DCLogic {
     this._mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     this.touch = window.matchMedia('(hover: none)').matches;
     if (this.touch) this.setState({ touch: true });
-    const w = window.innerWidth, h = window.innerHeight;
-    this.P = { x: w / 2, y: h * 0.46, t: -1e9, on: false };
-    this.B = { x: w / 2, y: h * 0.46, r: 0, v: 0 };
-    this.C = { x: w / 2, y: h / 2 }; this.G = { x: w / 2, y: h / 2 }; this.par = { x: 0, y: 0 };
+    this.par = { x: 0, y: 0 };
     this.xrx = 0; this.xry = 0; this.idle = 1; this.roi = 0; this.rings = []; this.sc = []; this.lw = [700, 700, 700, 700, 700, 700, 700];
     this.resize(); window.addEventListener('resize', this.resize);
+    this.applyTint(); this.makeGrain();
+    if (this.hosted && this.props.dormant) { this.prewarm(); return; }
+    this.activate();
+  }
+  // Mounted ahead of time by the host page: built, laid out and decoded, but idle until `dormant` turns off.
+  prewarm() { Object.values(this.gimg).forEach(i => { try { if (i && i.decode) i.decode().catch(() => {}); } catch (e) {} }); }
+  activate() {
+    if (this._live || !this.root) return; this._live = true;
+    const root = this.root, hostEl = root.closest('[data-intro-host]'); if (hostEl) hostEl.style.background = 'transparent';
+    const w = window.innerWidth, h = window.innerHeight;
+    if (w !== this.vw || h !== this.vh) this.resize();
+    this.P = { x: w / 2, y: h * 0.46, t: -1e9, on: false };
+    this.B = { x: w / 2, y: h * 0.46, r: 0, v: 0 };
+    this.C = { x: w / 2, y: h / 2 }; this.G = { x: w / 2, y: h / 2 };
     this._move = e => {
       const P = this.P; P.x = e.clientX; P.y = e.clientY; P.t = performance.now(); P.on = true;
       const t = e.target && e.target.closest ? e.target : null;
@@ -179,14 +190,16 @@ class Component extends DCLogic {
     window.addEventListener('keydown', this._key);
     root.addEventListener('pointerdown', this._down);
     root.addEventListener('wheel', this._wheel, { passive: false });
-    this.applyTint(); this.applyCursor(); this.makeGrain(); if (this.props.reverse && this.hosted) this.reverseIn(); else this.intro();
+    try { window.focus(); } catch (e) {} try { root.tabIndex = -1; root.style.outline = 'none'; root.focus({ preventScroll: true }); } catch (e) {}
+    this.applyCursor(); if (this.props.reverse && this.hosted) this.reverseIn(); else this.intro();
     if (typeof this.props.onReady === 'function') this.props.onReady();
     this._raf = requestAnimationFrame(this.tick);
   }
   componentDidUpdate(pp) {
     if (!this.root) return;
+    if (!this._live && !this.props.dormant) this.activate();
     if (pp.beamTint !== this.props.beamTint) this.applyTint();
-    if (pp.customCursor !== this.props.customCursor || pp.previewReducedMotion !== this.props.previewReducedMotion) this.applyCursor();
+    if (this._live && (pp.customCursor !== this.props.customCursor || pp.previewReducedMotion !== this.props.previewReducedMotion)) this.applyCursor();
   }
   componentWillUnmount() {
     cancelAnimationFrame(this._raf); cancelAnimationFrame(this._fw);
@@ -317,6 +330,7 @@ class Component extends DCLogic {
       a.onfinish = () => this.finish();
       return;
     }
+    if (window.RadiantSfx) window.RadiantSfx.play('introOut');
     const wr = el.word.getBoundingClientRect(), vw = this.vw, vh = this.vh, ax = wr.left + wr.width / 2, ay = wr.top + wr.height / 2;
     this._tx = { t0: now, cx: ax, cy: ay, ax, ay, diag: Math.hypot(Math.max(ax, vw - ax), Math.max(ay, vh - ay)) + 40 };
     el.status.textContent = 'Exposing';
@@ -371,6 +385,7 @@ class Component extends DCLogic {
       a.onfinish = () => { this._rv = null; if (typeof this.props.onCovered === 'function') this.props.onCovered(); };
       return;
     }
+    if (window.RadiantSfx) window.RadiantSfx.play('introIn');
     this._neg = true;
     el.neg.style.opacity = '1';
     ['ghost', 'litm', 'vig', 'glowA', 'glowB', 'bg'].forEach(k => { el[k].style.visibility = 'hidden'; });
