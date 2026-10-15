@@ -32,3 +32,6 @@ __pycache__/
 data/
 *.pt
 *.npy
+
+# never commit unencrypted model files (model/ holds the encrypted pieces, those ARE committed)
+*.onnx

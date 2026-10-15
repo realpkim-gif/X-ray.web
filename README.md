@@ -104,6 +104,36 @@ triggered on push to `main`. It builds with `GITHUB_PAGES=true` so Vite serves a
 from the `/X-ray.web/` base path. To enable it, turn on GitHub Pages for this repository
 (Settings → Pages → Source: GitHub Actions).
 
+## The fracture model (runs in the browser)
+
+The Analyze page (`Analyze.dc.html`) runs the real fracture model **inside the visitor's browser** with
+onnxruntime-web, so X-rays never leave the visitor's computer and no server is needed:
+
+- `radiant.js`: the whole pipeline: "is this an X-ray?" gate, ConvNeXt + DINOv2 features, both trained heads with
+  10 Monte Carlo dropout votes, then the answer, confidence, heatmap and box. The Box + heatmap / Box / Heatmap
+  buttons switch the overlay instantly without running the model again.
+- `model/part*-*.bin` (~305 MB): the **encrypted** model files, cut into 45 MB pieces so GitHub (100 MB per file
+  limit) and GitHub Pages can host them. `radiant.js` downloads the pieces once (then the browser caches them).
+
+The model files are made in the private ML repo (`export_onnx.py`, then `encrypt_models.py`), which encrypts each
+file with **AES-256-GCM**. `radiant.js` decrypts them in memory with the browser's Web Crypto, so the downloaded
+files are useless on their own. The key has to ship in `radiant.js`, so this deters copying but can't make it
+impossible. The license below is what forbids it.
+
+## License
+
+- **Website code** (HTML, CSS, JavaScript, including `radiant.js`): MIT, see [`LICENSE`](LICENSE).
+- **Model files** (`model/*.bin` and the trained weights inside them): **Copyright (c) 2026 Patrick Kim. All rights
+  reserved.** They are **not** covered by the MIT license. You may not download them for reuse, redistribute,
+  decrypt, extract, reverse-engineer, or train other models on them or their outputs without written permission.
+- The model is built on third-party work whose terms still apply:
+  - the "Fratura de membro" dataset by RodrigoDoutorado on
+    [Roboflow Universe](https://universe.roboflow.com/rodrigodoutorado/fratura-de-membro/dataset/5) (CC BY 4.0);
+  - DINOv2 by Meta (Apache-2.0);
+  - ConvNeXt-V2 pretrained weights by Meta (**CC BY-NC 4.0, non-commercial only**, so the model may only be used
+    non-commercially);
+  - ResNet18 from torchvision (BSD-3-Clause).
+
 ## Disclaimer
 
 This tool is an AI-assisted research prototype and is not intended to diagnose medical

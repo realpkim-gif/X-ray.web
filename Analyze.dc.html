@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
+<!-- the fracture model runs in the browser: onnxruntime-web runs the .onnx files, radiant.js is the pipeline -->
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+<script src="./radiant.js"></script>
 </head>
 <body>
 <x-dc>
@@ -76,6 +79,8 @@ a:hover{color:#FFB07F}
       </div>
       <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#0B0A09">
         <div data-a="img" role="img" aria-label="Inserted radiograph" style="position:absolute;inset:0;background-image:{{ fileBg }};background-size:contain;background-position:center;background-repeat:no-repeat"></div>
+        <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background-image:{{ heatBg }};background-size:contain;background-position:center;background-repeat:no-repeat"></div>
+        <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background-image:{{ boxBg }};background-size:contain;background-position:center;background-repeat:no-repeat"></div>
         <div data-a="scan" style="position:absolute;left:0;right:0;top:-12%;height:64px;opacity:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.10) 70%,rgba(255,255,255,.55) 98%,rgba(255,255,255,0))"></div>
       </div>
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid #26211C">
@@ -84,6 +89,33 @@ a:hover{color:#FFB07F}
           <button type="button" onClick="{{ pick }}" style="height:38px;padding:0 14px;border-radius:9px;border:1px solid #3A342E;background:transparent;color:#F3EDE6;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background-color .2s ease,border-color .2s ease" style-hover="background-color:#221D19;border-color:#6E665E">Replace</button>
           <button type="button" onClick="{{ remove }}" style="height:38px;padding:0 14px;border-radius:9px;border:1px solid #3A342E;background:transparent;color:#F3EDE6;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background-color .2s ease,border-color .2s ease" style-hover="background-color:#221D19;border-color:#6E665E">Remove</button>
         </div>
+      </div>
+      <!-- the model: analyze button, status, answer, and the view toggles -->
+      <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-top:1px solid #26211C">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px">
+          <button type="button" onClick="{{ analyse }}" disabled="{{ cantAnalyse }}" style="height:42px;padding:0 20px;border:none;border-radius:10px;background:{{ analyseBg }};color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:{{ analyseCursor }};transition:background-color .2s ease">{{ analyseLabel }}</button>
+          <span role="status" aria-live="polite" style="font-size:13px;line-height:1.5;color:#A69D93">{{ status }}</span>
+        </div>
+        <sc-if value="{{ hasGate }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:rgba(224,100,28,.08);border:1px solid #4A3424">
+            <span style="font-size:14px;color:#F3EDE6">{{ gateMsg }}</span>
+            <button type="button" onClick="{{ stillRun }}" style="margin-left:auto;height:36px;padding:0 14px;border-radius:9px;border:1px solid #E0641C;background:transparent;color:#F08A4B;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer" style-hover="background-color:rgba(224,100,28,.12)">Still run</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hasResult }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div>
+              <div style="font-size:20px;font-weight:700;letter-spacing:-0.01em;color:{{ answerColor }}">{{ answer }}</div>
+              <div style="margin-top:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#A69D93">{{ answerMeta }}</div>
+            </div>
+            <div role="group" aria-label="What to show on the X-ray" style="display:flex;flex-wrap:wrap;gap:8px">
+              <button type="button" onClick="{{ viewBoth }}" aria-pressed="{{ bothOn }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid {{ bothBorder }};background:{{ bothBg }};color:#F3EDE6;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Box + heatmap</button>
+              <button type="button" onClick="{{ viewBox }}" aria-pressed="{{ boxOn }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid {{ boxBorder }};background:{{ boxBtnBg }};color:#F3EDE6;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Box</button>
+              <button type="button" onClick="{{ viewHeat }}" aria-pressed="{{ heatOn }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid {{ heatBorder }};background:{{ heatBtnBg }};color:#F3EDE6;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Heatmap</button>
+            </div>
+            <div style="font-size:13px;line-height:1.5;color:#8A8178">{{ disclaimer }}</div>
+          </div>
+        </sc-if>
       </div>
     </div>
   </sc-if>
@@ -113,6 +145,15 @@ a:hover{color:#FFB07F}
 <script type="text/x-dc" data-dc-script data-props="{&quot;previewReducedMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Accessibility&quot;}}">
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const MAX = 20 * 1048576;
+// The model: encrypted pieces (part*-*.bin, ~300 MB) in this repo's model/ folder, see radiant.js
+const MODEL_URL = './model/';
+const loadModel = () => {
+  // start downloading once per page; every caller gets the same promise
+  if (!window.radiantReady) window.radiantReady = typeof Radiant === 'undefined'
+    ? Promise.reject(new Error('radiant.js did not load'))
+    : Radiant.load(MODEL_URL);
+  return window.radiantReady;
+};
 const whenT = (cb, fail) => { const t0 = performance.now(); const tick = () => { if (window.RadiantTiles) cb(window.RadiantTiles); else if (performance.now() - t0 > 1500) fail(); else setTimeout(tick, 16); }; tick(); };
 
 const EMBED = window.parent !== window && /[?&]embed=1/.test(location.search);
@@ -120,7 +161,8 @@ const postUp = m => { try { window.parent.postMessage({ radiant: m }, '*'); } ca
 const KEY = 'radiant-account';
 const readAcct = () => { for (const s of ['localStorage', 'sessionStorage']) { try { const st = window[s], a = JSON.parse(st.getItem(KEY) || 'null'); if (a && (!a.exp || a.exp > Date.now())) return a; if (a) st.removeItem(KEY); } catch (e) {} } return null; };
 class Component extends DCLogic {
-  state = { file: null, over: false, zh: false, err: '', narrow: false };
+  state = { file: null, over: false, zh: false, err: '', narrow: false,
+            model: 'loading', modelErr: '', busy: false, res: null, gate: null, view: 'both', secs: '' };
   rootRef = React.createRef();
   inputRef = React.createRef();
 
@@ -131,6 +173,9 @@ class Component extends DCLogic {
     const root = this.rootRef.current; if (!root) return;
     if (!EMBED && !readAcct()) { try { window.location.replace('Login.dc.html?next=Analyze.dc.html'); } catch (e) {} return; }
     this.root = root;
+    // start downloading the model right away, so it's ready by the time an X-ray is picked
+    loadModel().then(() => { if (!this._dead) this.setState({ model: 'ready' }); })
+               .catch(e => { if (!this._dead) this.setState({ model: 'error', modelErr: String(e && e.message || e) }); });
     this._mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const nq = window.matchMedia('(max-width: 520px)');
     this._nq = nq; this._setN = () => this.setState({ narrow: nq.matches }); this._setN(); nq.addEventListener('change', this._setN);
@@ -162,6 +207,8 @@ class Component extends DCLogic {
     window.addEventListener('dragover', this._dOver); window.addEventListener('drop', this._dDrop); window.addEventListener('paste', this._paste);
   }
   componentWillUnmount() {
+    this._dead = true;
+    this.dropLayers();
     window.removeEventListener('pageshow', this._onShow); if (this._onMsg) window.removeEventListener('message', this._onMsg); if (this._txHover) window.removeEventListener('pointerover', this._txHover, true); clearTimeout(this._pre);  window.removeEventListener('click', this._onClick, true);
     window.removeEventListener('dragover', this._dOver); window.removeEventListener('drop', this._dDrop); window.removeEventListener('paste', this._paste);
     if (this._nq) this._nq.removeEventListener('change', this._setN);
@@ -331,12 +378,46 @@ class Component extends DCLogic {
     if (f.size > MAX) { this.setState({ err: 'That image is over 20 MB. Try a smaller export.' }); return; }
     if (this.state.file) URL.revokeObjectURL(this.state.file.url);
     const url = URL.createObjectURL(f);
-    this.setState({ file: { url, name: f.name || 'pasted-image.png', size: (f.size / 1048576).toFixed(1) + ' MB', type: (f.type.split('/')[1] || '').toUpperCase().replace('JPEG', 'JPG'), dims: '' }, err: '', over: false, zh: false });
+    this._raw = f;   // the File itself, for the model
+    this.dropLayers();
+    this.setState({ file: { url, name: f.name || 'pasted-image.png', size: (f.size / 1048576).toFixed(1) + ' MB', type: (f.type.split('/')[1] || '').toUpperCase().replace('JPEG', 'JPG'), dims: '' }, err: '', over: false, zh: false,
+                    res: null, gate: null, view: 'both', secs: '' });
     const im = new Image();
     im.onload = () => { const cur = this.state.file; if (cur && cur.url === url) this.setState({ file: { ...cur, dims: im.naturalWidth + ' \u00d7 ' + im.naturalHeight } }); };
     im.src = url;
   }
   pick = e => { if (e && e.stopPropagation) e.stopPropagation(); const i = this.inputRef.current; if (i) i.click(); };
+
+  dropLayers() {
+    // free the overlay pictures of the previous result
+    if (!this._layers) return;
+    if (this._layers.heatmap) URL.revokeObjectURL(this._layers.heatmap);
+    if (this._layers.box) URL.revokeObjectURL(this._layers.box);
+    this._layers = null;
+  }
+
+  // runs the fracture model on the current X-ray. stillRun = true skips the "is this an X-ray?" gate
+  runModel = async stillRun => {
+    const f = this._raw;
+    if (!f || this.state.busy || this.state.model !== 'ready') return;
+    this.dropLayers();
+    this.setState({ busy: true, res: null, gate: null, err: '' });
+    const started = performance.now();
+    try {
+      const out = await Radiant.analyse(f, 'both', stillRun);
+      if (this._dead || this._raw !== f) return;   // the image was replaced while the model ran
+      const secs = ((performance.now() - started) / 1000).toFixed(1);
+      if (out.gate === 'not_xray') { this.setState({ busy: false, gate: out, secs }); return; }
+      // the template's style="" splits on ';', which breaks "data:image/png;base64,..." URLs,
+      // so the layers are turned into blob: URLs (same as the uploaded picture)
+      const toBlobUrl = async dataUrl => dataUrl ? URL.createObjectURL(await (await fetch(dataUrl)).blob()) : null;
+      this.dropLayers();
+      this._layers = { heatmap: await toBlobUrl(out.layers.heatmap), box: await toBlobUrl(out.layers.box) };
+      this.setState({ busy: false, res: out, view: 'both', secs });
+    } catch (e) {
+      if (!this._dead) this.setState({ busy: false, err: 'The model failed on this image: ' + (e && e.message || e) });
+    }
+  };
 
   renderVals() {
     const st = this.state, f = st.file, over = st.over;
@@ -358,7 +439,53 @@ class Component extends DCLogic {
       hasErr: !!st.err, err: st.err,
       fileBg: f ? 'url("' + f.url + '")' : 'none', fileName: f ? f.name : '',
       fileMeta: f ? [f.size, f.type, f.dims].filter(Boolean).join(' \u00b7 ') : '',
-      remove: () => { if (f) URL.revokeObjectURL(f.url); this.setState({ file: null }); }
+      remove: () => { if (f) URL.revokeObjectURL(f.url); this._raw = null; this.dropLayers(); this.setState({ file: null, res: null, gate: null, err: '' }); },
+      ...this.modelVals()
+    };
+  }
+
+  modelVals() {
+    const st = this.state, res = st.res, view = st.view;
+    const cant = st.model !== 'ready' || st.busy;
+
+    let status = '';
+    if (st.model === 'loading') status = 'Loading the model (about 300 MB the first time, then cached)…';
+    else if (st.model === 'error') status = 'Could not load the model: ' + st.modelErr;
+    else if (st.busy) status = 'Analyzing… this runs on your computer and can take 10–30 seconds.';
+    else if (st.err && st.file) status = st.err;
+    else if (st.secs) status = 'Done in ' + st.secs + ' s.';
+    else status = 'Model ready. Your X-ray never leaves this browser.';
+
+    // the overlay layers are only shown for the chosen view
+    const L = res && this._layers;
+    const showHeat = !!L && view !== 'box';
+    const showBox = !!L && view !== 'heatmap' && !!L.box;
+    const btn = on => ({ border: on ? '#E0641C' : '#3A342E', bg: on ? 'rgba(224,100,28,.14)' : 'transparent' });
+    const both = btn(view === 'both'), box = btn(view === 'box'), heat = btn(view === 'heatmap');
+
+    return {
+      analyse: () => this.runModel(false),
+      stillRun: () => this.runModel(true),
+      cantAnalyse: cant,
+      analyseBg: cant ? '#4A423B' : '#E0641C',
+      analyseCursor: cant ? 'default' : 'pointer',
+      analyseLabel: st.busy ? 'Analyzing…' : res ? 'Analyze again' : 'Analyze',
+      status,
+
+      hasGate: !!st.gate,
+      gateMsg: st.gate ? 'We believe this isn’t an X-ray (X-ray chance ' + Math.round(st.gate.xray_chance * 100) + '%). Still run?' : '',
+
+      hasResult: !!res,
+      answer: res ? (res.answer === 'fracture' ? 'Possible fracture' : 'No fracture found') : '',
+      answerColor: res && res.answer === 'fracture' ? '#F08A4B' : '#F3EDE6',
+      answerMeta: res ? Math.round(res.confidence * 100) + '% confident · ' + res.fracture_votes + ' votes for fracture' + (res.gate === 'skipped' ? ' · X-ray check skipped' : '') : '',
+      disclaimer: res ? res.disclaimer : '',
+      heatBg: showHeat ? 'url("' + L.heatmap + '")' : 'none',
+      boxBg: showBox ? 'url("' + L.box + '")' : 'none',
+
+      viewBoth: () => this.setState({ view: 'both' }), bothOn: view === 'both' ? 'true' : 'false', bothBorder: both.border, bothBg: both.bg,
+      viewBox: () => this.setState({ view: 'box' }), boxOn: view === 'box' ? 'true' : 'false', boxBorder: box.border, boxBtnBg: box.bg,
+      viewHeat: () => this.setState({ view: 'heatmap' }), heatOn: view === 'heatmap' ? 'true' : 'false', heatBorder: heat.border, heatBtnBg: heat.bg
     };
   }
 }
