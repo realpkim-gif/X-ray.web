@@ -127,7 +127,7 @@ button:focus-visible{outline:2px solid #E0641C;outline-offset:3px}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;googleClientId&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Google sign-in&quot;},&quot;keepDefault&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Saved login&quot;},&quot;previewReducedMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Accessibility&quot;}}">
 // Paste your Google OAuth 2.0 Web client ID here (or set it in Tweaks → Google sign-in).
-const GOOGLE_CLIENT_ID = '';
+const GOOGLE_CLIENT_ID = '1075348249061-9e4jmgf1fipop4rueka76otbf84el340.apps.googleusercontent.com';
 const KEY = 'radiant-account', KEEP = 30 * 864e5;
 const readAcct = () => { for (const s of ['localStorage', 'sessionStorage']) { try { const st = window[s], a = JSON.parse(st.getItem(KEY) || 'null'); if (a && (!a.exp || a.exp > Date.now())) return a; if (a) st.removeItem(KEY); } catch (e) {} } return null; };
 const saveAcct = (a, keep) => {
@@ -225,10 +225,12 @@ class Component extends DCLogic {
   initGis() {
     if (!this.root || this._gisOk || !this.cid) return;
     try {
-      google.accounts.id.initialize({ client_id: this.cid, callback: this.onCred, ux_mode: 'popup', itp_support: true });
-      this._gisOk = true; this.setState({ gis: 'ready' }, () => this.renderG());
+      google.accounts.id.initialize({ client_id: this.cid, callback: this.onCred, ux_mode: 'popup', itp_support: true, use_fedcm_for_prompt: true });
+      this._gisOk = true; this.setState({ gis: 'ready' }, () => { this.renderG(); this.oneTap(); });
     } catch (e) { this.setState({ gis: 'error', notice: 'error' }); }
   }
+  // Google's "Continue as <name>" card with the Gmail profile photo, for people already signed in to Google
+  oneTap() { if (this._gisOk && this.state.view === 'form') try { google.accounts.id.prompt(); } catch (e) {} }
   renderG() {
     const el = this.gRef.current; if (!el || !this._gisOk || this.state.view !== 'form') return;
     const w = Math.round(Math.max(200, Math.min(400, el.offsetWidth || 380))), key = this.state.mode + w;
@@ -243,7 +245,7 @@ class Component extends DCLogic {
       const p = jwt(r.credential);
       if (p.aud !== this.cid || p.exp * 1000 < Date.now() - 60000) throw new Error('token');
       const name = p.name || p.email || 'there';
-      this.signIn({ id: p.sub, name, given: p.given_name || name.split(' ')[0], email: p.email || '', picture: p.picture || '', provider: 'google' });
+      this.signIn({ id: p.sub, name, given: p.given_name || name.split(' ')[0], email: p.email || '', picture: p.picture || '', provider: 'google', cid: this.cid });
     } catch (e) { this.setState({ notice: 'fail' }); }
   };
   signIn(a) {
@@ -252,7 +254,7 @@ class Component extends DCLogic {
     this._barD = 1200; this.setState({ acct: v, fresh: true, view: 'done', notice: '' }); this.leave(1200);
   }
   cont = () => { const a = this.state.acct; if (a && a.keep) saveAcct(a, true); this._barD = 800; this.setState({ fresh: false, view: 'done' }); this.leave(800); };
-  forget = () => { clearAcct(); this._gEl = null; this.setState({ view: 'form', acct: null, notice: '' }); };
+  forget = () => { clearAcct(); this._gEl = null; this.setState({ view: 'form', acct: null, notice: '' }, () => this.oneTap()); };
   leave(d) {
     clearTimeout(this._lv);
     const go = () => { try { window.location.replace(NEXT); } catch (e) { window.location.href = NEXT; } };

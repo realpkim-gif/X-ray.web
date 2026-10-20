@@ -171,6 +171,15 @@ input::placeholder{color:#7D746B}
 
   <sc-if value="{{ tabScans }}" hint-placeholder-val="{{ false }}">
   <div data-tabc="scans" data-in="260" style="margin-top:40px">
+    <sc-if value="{{ canDrive }}" hint-placeholder-val="{{ false }}">
+      <div data-ti="1" style="margin-bottom:18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 18px;padding:14px 16px;border-radius:14px;border:1px solid #2A251F;background:rgba(26,22,18,.72)">
+        <div style="min-width:0;flex:1 1 260px">
+          <div style="font-size:14.5px;line-height:1.5;color:#C9C1B8;text-wrap:pretty">{{ driveNote }}</div>
+          <sc-if value="{{ hasDriveErr }}" hint-placeholder-val="{{ false }}"><div role="status" style="margin-top:4px;font-size:13px;color:#F08A4B;overflow-wrap:anywhere">{{ driveErr }}</div></sc-if>
+        </div>
+        <button type="button" onClick="{{ driveClick }}" style="flex:none;height:42px;padding:0 16px;border-radius:11px;border:1px solid #3A342E;background:transparent;color:#F3EDE6;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;transition:border-color .2s ease,color .2s ease" style-hover="border-color:#F08A4B;color:#F08A4B">{{ driveLabel }}</button>
+      </div>
+    </sc-if>
     <sc-if value="{{ hNoAcct }}" hint-placeholder-val="{{ false }}">
       <div data-ti="1" style="border-radius:22px;border:1.5px dashed #3A342E;background:rgba(26,22,18,.62);display:flex;flex-direction:column;align-items:center;gap:18px;padding:clamp(44px,8vh,72px) 24px;text-align:center">
         <div>
@@ -327,14 +336,54 @@ const SCANS = (() => {
   const M = () => mem || (mem = { s: new Map(), f: new Map() });
   const go = (fn, alt) => open().then(fn, () => { api.mem = true; return alt(M()); });
   api.list = acct => go(d => run(d, ['scans'], 'readonly', (t, b) => { const q = t.objectStore('scans').index('acct').getAll(acct); q.onsuccess = () => { b.v = q.result; }; }), m => Array.from(m.s.values()).filter(x => x.acct === acct));
-  api.put = (rec, blob) => go(d => run(d, ['scans', 'files'], 'readwrite', t => { t.objectStore('scans').put(rec); if (blob) t.objectStore('files').put(blob, rec.id); }), m => { m.s.set(rec.id, rec); if (blob) m.f.set(rec.id, blob); });
+  // extra = { '#hm': blob, '#box': blob }: the result overlays, stored under rec.id + key
+  api.put = (rec, blob, extra) => go(d => run(d, ['scans', 'files'], 'readwrite', t => { t.objectStore('scans').put(rec); if (blob) t.objectStore('files').put(blob, rec.id); for (const k in extra || {}) if (extra[k]) t.objectStore('files').put(extra[k], rec.id + k); }), m => { m.s.set(rec.id, rec); if (blob) m.f.set(rec.id, blob); for (const k in extra || {}) if (extra[k]) m.f.set(rec.id + k, extra[k]); });
   api.file = id => go(d => run(d, ['files'], 'readonly', (t, b) => { const q = t.objectStore('files').get(id); q.onsuccess = () => { b.v = q.result; }; }), m => m.f.get(id));
-  api.del = id => go(d => run(d, ['scans', 'files'], 'readwrite', t => { t.objectStore('scans').delete(id); t.objectStore('files').delete(id); }), m => { m.s.delete(id); m.f.delete(id); });
+  api.del = id => go(d => run(d, ['scans', 'files'], 'readwrite', t => { t.objectStore('scans').delete(id); ['', '#hm', '#box'].forEach(k => t.objectStore('files').delete(id + k)); }), m => { m.s.delete(id); ['', '#hm', '#box'].forEach(k => m.f.delete(id + k)); });
+  return api;
+})();
+const b64 = b => b ? new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(b); }) : Promise.resolve(null);
+const unb64 = u => u ? fetch(u).then(r => r.blob()) : Promise.resolve(null);
+// Backup to the user's own Google Drive: each scan is one JSON file in the hidden app folder
+// (only this app can see it), so a user's scans follow them to any device they sign in on.
+const DRIVE = (() => {
+  const TK = 'radiant-drive', GONE = 'radiant-drive-gone', API = 'https://www.googleapis.com/drive/v3/files', UP = 'https://www.googleapis.com/upload/drive/v3/files';
+  let lib = null;
+  const tok = () => { try { const t = JSON.parse(sessionStorage.getItem(TK) || 'null'); return t && t.exp > Date.now() + 60000 ? t.v : ''; } catch (e) { return ''; } };
+  const req = (url, o) => fetch(url, Object.assign({}, o, { headers: { Authorization: 'Bearer ' + tok() } })).then(r => { if (r.status === 401) try { sessionStorage.removeItem(TK); } catch (e) {} if (!r.ok && r.status !== 404) throw new Error('Drive ' + r.status); return r; });
+  const api = { ready: () => !!tok() };
+  api.load = () => lib || (lib = new Promise((res, rej) => { if (window.google && google.accounts && google.accounts.oauth2) return res(); const s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.async = true; s.onload = res; s.onerror = rej; document.head.appendChild(s); }));
+  // call straight from a click (the library must already be loaded): Google opens a consent popup.
+  // ponytail: tokens last 1 hour and aren't refreshed silently; after that the user clicks the button again
+  api.connect = (cid, email) => new Promise((res, rej) => {
+    if (!(window.google && google.accounts && google.accounts.oauth2)) return rej(new Error('Still loading, try again.'));
+    google.accounts.oauth2.initTokenClient({ client_id: cid, scope: 'https://www.googleapis.com/auth/drive.appdata', login_hint: email, error_callback: rej, callback: r => {
+      if (r.error || !r.access_token) return rej(new Error(r.error || 'denied'));
+      try { sessionStorage.setItem(TK, JSON.stringify({ v: r.access_token, exp: Date.now() + r.expires_in * 1000 })); } catch (e) {}
+      // the popup lets people pick any Google account; only back up to the one they signed in with
+      req('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)').then(x => x.json()).then(j => {
+        if (email && j.user && String(j.user.emailAddress).toLowerCase() !== String(email).toLowerCase()) { try { sessionStorage.removeItem(TK); } catch (e) {} throw new Error('Pick ' + email + ' in the Google popup.'); }
+        res();
+      }).catch(rej);
+    } }).requestAccessToken();
+  });
+  // ponytail: one page of 1000 files, add nextPageToken paging if someone keeps more scans than that
+  api.list = () => req(API + '?spaces=appDataFolder&pageSize=1000&fields=files(id,name)').then(r => r.json()).then(j => j.files || []);
+  api.get = id => req(API + '/' + id + '?alt=media').then(r => r.json());
+  api.put = (name, data, id) => {
+    const fd = new FormData();
+    fd.append('meta', new Blob([JSON.stringify(id ? {} : { name, parents: ['appDataFolder'] })], { type: 'application/json' }));
+    fd.append('file', new Blob([JSON.stringify(data)], { type: 'application/json' }));
+    return req(UP + (id ? '/' + id : '') + '?uploadType=multipart&fields=id', { method: id ? 'PATCH' : 'POST', body: fd }).then(r => r.json()).then(j => j.id);
+  };
+  api.del = id => req(API + '/' + id, { method: 'DELETE' });
+  // Drive files deleted while not connected; removed on the next sync so they don't come back
+  api.gone = add => { let a = []; try { a = JSON.parse(localStorage.getItem(GONE) || '[]'); if (add !== undefined) localStorage.setItem(GONE, JSON.stringify(add === null ? [] : a.concat(add))); } catch (e) {} return a; };
   return api;
 })();
 class Component extends DCLogic {
   state = { file: null, over: false, zh: false, err: '', narrow: false, mid: false, tab: /^#scans$/.test(location.hash) ? 'scans' : 'new', scans: [], hist: 'loading', hq: '', sort: 'new', view: null, vUrl: '', conf: false,
-            model: 'loading', modelErr: '', busy: false, res: null, gate: null, layer: 'both', secs: '' };
+            drive: 'off', driveErr: '', model: 'loading', modelErr: '', busy: false, res: null, gate: null, layer: 'both', secs: '' };
   rootRef = React.createRef();
   inputRef = React.createRef();
 
@@ -355,6 +404,7 @@ class Component extends DCLogic {
     const mq2 = window.matchMedia('(max-width: 860px)'); this._mq2 = mq2; this._setM = () => this.setState({ mid: mq2.matches }); this._setM(); mq2.addEventListener('change', this._setM);
     const mq3 = window.matchMedia('(max-height: 640px)'); this._mq3 = mq3; this._setS = () => this.setState({ short: mq3.matches }); this._setS(); mq3.addEventListener('change', this._setS);
     this._rec = new Map(); this._turl = new Map(); this.setAcct(); this.loadScans();
+    if (this.cid) { DRIVE.load().catch(() => {}); if (DRIVE.ready()) this.runSync(); }
     this._key = e => this.viewKey(e); window.addEventListener('keydown', this._key);
     this.initRipple(); this.initHx(); this.initBack(); this.unveil();
     root.querySelectorAll('a[href="Radiant.dc.html"]').forEach(a => { a.dataset.to = 'Radiant.dc.html'; a.setAttribute('href', '#home'); });
@@ -577,7 +627,7 @@ class Component extends DCLogic {
     im.onload = () => { const cur = this.state.file; if (cur && cur.url === url) { this.setState({ file: { ...cur, dims: im.naturalWidth + ' \u00d7 ' + im.naturalHeight } }); this.saveScan(f, im); } };
     im.src = url;
   }
-  setAcct() { this.acct = readAcct(); this.acctId = this.acct ? String(this.acct.id || this.acct.email || 'guest') : ''; }
+  setAcct() { this.acct = readAcct(); this.acctId = this.acct ? String(this.acct.id || this.acct.email || 'guest') : ''; this.cid = this.acct && this.acct.provider === 'google' ? this.acct.cid || '' : ''; }
   setTab(t, extra) {
     if (t === this.state.tab && !extra) return;
     if (t !== this.state.tab && !EMBED) { try { history.replaceState(history.state, '', t === 'scans' ? '#scans' : location.pathname + location.search); } catch (e) {} }
@@ -602,7 +652,7 @@ class Component extends DCLogic {
     const ex = this.state.scans.find(s => s.sig === sig), old = ex && this._rec.get(ex.id);
     if (old) {
       old.t = Date.now();
-      SCANS.put(old, null).then(() => { if (!this._dead) this.setState(s => ({ ...mark(old.id)(s), scans: s.scans.map(x => x.id === old.id ? { ...x, t: old.t } : x) })); }, () => {});
+      SCANS.put(old, null).then(() => { if (!this._dead) this.setState(s => ({ ...mark(old.id)(s), scans: s.scans.map(x => x.id === old.id ? { ...x, t: old.t } : x) })); this.settle(old, f, false); }, () => {});
       return;
     }
     const W = im.naturalWidth || 1, H = im.naturalHeight || 1, k = Math.min(1, 560 / Math.max(W, H));
@@ -617,10 +667,61 @@ class Component extends DCLogic {
         if (this._dead) return;
         this._rec.set(id, rec); this._turl.set(id, URL.createObjectURL(thumb));
         this.setState(s => ({ ...mark(id)(s), scans: [this.slim(rec), ...s.scans], hist: SCANS.mem ? 'mem' : 'ready' }));
+        this.settle(rec, f, true);
       }, () => {});
     };
     try { c.toBlob(keep, 'image/jpeg', 0.84); } catch (e) {}
   }
+  settle(rec, f, isNew) {
+    const p = this._pend;
+    if (p && p.f === f) { this._pend = null; this.attachRes(rec, p); } else if (isNew) this.push(rec);
+  }
+  // remembers the result + overlays with the saved scan, so reopening it (here or on another device) shows them again
+  keepRes(f, out, hm, box) {
+    const p = { f, hm, box, res: { answer: out.answer, confidence: out.confidence, fracture_votes: out.fracture_votes, gate: out.gate, disclaimer: out.disclaimer } };
+    const id = this.state.file && this.state.file.savedId, rec = id && this._rec.get(id);
+    if (rec) this.attachRes(rec, p); else this._pend = p;   // not stored yet: saveScan picks it up
+  }
+  attachRes(rec, p) {
+    rec.res = p.res; rec.dirty = 1;
+    SCANS.put(rec, null, { '#hm': p.hm, '#box': p.box }).then(() => this.push(rec), () => {});
+  }
+  push(rec) {
+    if (!this.cid || !DRIVE.ready()) return Promise.resolve();   // goes up on the next sync
+    return Promise.all([SCANS.file(rec.id), SCANS.file(rec.id + '#hm'), SCANS.file(rec.id + '#box'), Promise.resolve(rec.thumb)].map(p => p.then(b64)))
+      .then(([file, hm, box, thumb]) => {
+        const { thumb: _t, acct: _a, drive: _d, dirty: _x, ...meta } = rec;
+        return DRIVE.put(rec.id + '.json', { rec: meta, thumb, file, hm, box }, rec.drive);
+      })
+      .then(did => { rec.drive = did; rec.dirty = 0; return SCANS.put(rec, null); })
+      .catch(() => {});
+  }
+  async sync() {
+    const acct = this.acctId;
+    for (const id of DRIVE.gone()) await DRIVE.del(id);
+    DRIVE.gone(null);
+    const remote = await DRIVE.list(), rIds = new Set(remote.map(d => d.id)), rows = await SCANS.list(acct) || [], have = new Set();
+    for (const r of rows) {
+      if (r.drive && !rIds.has(r.drive)) { await SCANS.del(r.id); continue; }   // deleted on another device
+      have.add(r.id);
+      if (!r.drive || r.dirty) await this.push(r);
+    }
+    for (const d of remote) {
+      const id = d.name.replace(/\.json$/, ''); if (have.has(id) || this._dead || acct !== this.acctId) continue;
+      const j = await DRIVE.get(d.id), [thumb, file, hm, box] = await Promise.all([j.thumb, j.file, j.hm, j.box].map(unb64));
+      await SCANS.put(Object.assign(j.rec, { id, acct, drive: d.id, dirty: 0, thumb }), file, { '#hm': hm, '#box': box });
+    }
+    if (!this._dead) this.loadScans();
+  }
+  runSync = () => {
+    this.setState({ drive: 'busy', driveErr: '' });
+    this.sync().then(() => { if (!this._dead) this.setState({ drive: 'on' }); }, e => { if (!this._dead) this.setState({ drive: DRIVE.ready() ? 'on' : 'off', driveErr: 'Sync failed: ' + (e && e.message || e) }); });
+  };
+  driveClick = () => {
+    if (this.state.drive === 'busy') return;
+    if (DRIVE.ready()) { this.runSync(); return; }
+    DRIVE.connect(this.cid, this.acct && this.acct.email).then(this.runSync, e => { if (!this._dead) this.setState({ drive: 'off', driveErr: 'Couldn\u2019t connect Google Drive. ' + (e && (e.message || e.type) || '') }); });
+  };
   visible() {
     const q = this.state.hq.trim().toLowerCase(), old = this.state.sort === 'old';
     return this.state.scans.filter(s => !q || s.name.toLowerCase().indexOf(q) >= 0).sort((x, y) => old ? x.t - y.t : y.t - x.t);
@@ -668,18 +769,23 @@ class Component extends DCLogic {
   }
   reopen = () => {
     const id = this.state.view, s = this.state.scans.find(x => x.id === id); if (!s) return;
-    SCANS.file(id).then(b => {
+    const rec = this._rec.get(id);
+    Promise.all([SCANS.file(id), SCANS.file(id + '#hm'), SCANS.file(id + '#box')]).then(([b, hm, bx]) => {
       if (!b || this._dead) return;
       if (this.state.file) URL.revokeObjectURL(this.state.file.url);
       if (this.state.vUrl) URL.revokeObjectURL(this.state.vUrl);
       document.documentElement.style.overflow = ''; this._opener = null;
       this._raw = b; this.dropLayers();
-      this.setTab('new', { view: null, vUrl: '', conf: false, err: '', res: null, gate: null, layer: 'both', secs: '', file: { url: URL.createObjectURL(b), sig: s.sig, savedId: id, name: s.name, size: mb(s.size), type: s.type, dims: s.w + ' × ' + s.h } });
+      const res = rec && rec.res && hm ? rec.res : null;
+      if (res) this._layers = { heatmap: URL.createObjectURL(hm), box: bx ? URL.createObjectURL(bx) : null };
+      this.setTab('new', { view: null, vUrl: '', conf: false, err: '', res, gate: null, layer: 'both', secs: '', file: { url: URL.createObjectURL(b), sig: s.sig, savedId: id, name: s.name, size: mb(s.size), type: s.type, dims: s.w + ' × ' + s.h } });
       try { window.scrollTo({ top: 0, behavior: this.rm() ? 'auto' : 'smooth' }); } catch (e) {}
     }, () => {});
   };
   doDel = () => {
     const id = this.state.view; if (!id) return;
+    const did = (this._rec.get(id) || {}).drive;
+    if (did) { if (DRIVE.ready()) DRIVE.del(did).catch(() => DRIVE.gone(did)); else DRIVE.gone(did); }
     SCANS.del(id).then(() => {
       if (this._dead) return;
       const u = this._turl.get(id); if (u) URL.revokeObjectURL(u); this._turl.delete(id); this._rec.delete(id);
@@ -741,9 +847,10 @@ class Component extends DCLogic {
       if (out.gate === 'not_xray') { this.setState({ busy: false, gate: out, secs }); return; }
       // the template's style="" splits on ';', which breaks "data:image/png;base64,..." URLs,
       // so the layers are turned into blob: URLs (same as the uploaded picture)
-      const toBlobUrl = async dataUrl => dataUrl ? URL.createObjectURL(await (await fetch(dataUrl)).blob()) : null;
+      const hm = await unb64(out.layers.heatmap), bx = await unb64(out.layers.box);
       this.dropLayers();
-      this._layers = { heatmap: await toBlobUrl(out.layers.heatmap), box: await toBlobUrl(out.layers.box) };
+      this._layers = { heatmap: hm && URL.createObjectURL(hm), box: bx && URL.createObjectURL(bx) };
+      this.keepRes(f, out, hm, bx);
       this.setState({ busy: false, res: out, layer: 'both', secs });
     } catch (e) {
       if (!this._dead) this.setState({ busy: false, err: 'The model failed on this image: ' + (e && e.message || e) });
@@ -794,7 +901,10 @@ class Component extends DCLogic {
       sortLabel: st.sort === 'old' ? 'Oldest first' : 'Newest first', sortRot: st.sort === 'old' ? '180deg' : '0deg',
       toggleSort: () => this.setState(s => ({ sort: s.sort === 'old' ? 'new' : 'old' }), () => this.animCards(0)),
       countLabel: q ? vis.length + ' of ' + n + ' scans' : n + (n === 1 ? ' scan' : ' scans'),
-      privNote: st.hist === 'mem' ? 'Saved for this visit only. This browser is blocking storage.' : 'Private to ' + who + ' on this device',
+      privNote: st.hist === 'mem' ? 'Saved for this visit only. This browser is blocking storage.' : 'Private to ' + who + (st.drive === 'on' ? ' \u00b7 backed up to your Google Drive' : ' on this device'),
+      canDrive: !!this.cid && st.hist !== 'noacct', driveClick: this.driveClick, driveErr: st.driveErr || '', hasDriveErr: !!st.driveErr,
+      driveLabel: st.drive === 'busy' ? 'Syncing\u2026' : st.drive === 'on' ? 'Sync now' : 'Back up to Google Drive',
+      driveNote: st.drive === 'on' ? 'Your scans are saved to your Google Drive and show up on any device you sign in on.' : 'Save your scans to your own Google Drive so they show up on any device you sign in on.',
       groups, cardMin: st.narrow ? '140px' : '188px',
       isSaved: !!(f && f.savedId),
       viewing: !!v, vBg: v ? 'url("' + (st.vUrl || v.turl) + '")' : 'none', vDl: v ? (st.vUrl || v.turl) : '', vName: v ? v.name : '', vAria: v ? 'Scan ' + v.name : 'Scan',
