@@ -3,6 +3,45 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Radiant">
+<meta property="og:title" content="Radiant — AI-assisted review of animal X-rays">
+<meta property="og:description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta property="og:url" content="https://realpkim-gif.github.io/X-ray.web/">
+<meta property="og:image" content="https://realpkim-gif.github.io/X-ray.web/images/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with an area marked for review">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<script>
+// Runs before the page boots: sends signed-out visitors straight to the login, paints the right background
+// for whatever shows first (no white flash), and starts the fonts early so text never swaps mid-animation.
+(function () {
+  try {
+    var d = document.documentElement, emb = window.parent !== window && /[?&]embed=1/.test(location.search);
+    var ok = function (s) { try { var a = JSON.parse(window[s].getItem('radiant-account') || 'null'); return !!a && (!a.exp || a.exp > Date.now()); } catch (e) { return false; } };
+    var hide = function (bg) { d.style.background = bg; d.style.visibility = 'hidden'; };
+    if (emb) { d.style.overscrollBehavior = 'contain'; return; }
+    if (!ok('localStorage') && !ok('sessionStorage')) { hide('#161310'); location.replace('Login.dc.html?next=' + encodeURIComponent('Radiant.dc.html' + (/^#[\w-]+$/.test(location.hash) ? location.hash : ''))); return; }
+    var rh = history.state && history.state.rh;
+    if (rh === 'analyze' || rh === 'founders') { hide('#161310'); location.replace(rh === 'analyze' ? 'Analyze.dc.html' : 'Founders.dc.html'); return; }
+    var dark = false;
+    try { var t = JSON.parse(sessionStorage.getItem('radiant-tx') || 'null'); dark = !!sessionStorage.getItem('radiant-fresh') || !!(t && t.to === 'home' && Date.now() - t.t < 10000); } catch (e) {}
+    d.style.background = dark ? '#161310' : '#FAF8F5';
+    var n = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    if (!location.hash && !(n && n.type === 'back_forward')) history.scrollRestoration = 'manual';
+    var l = document.createElement('link'); l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap';
+    l.onload = function () { try { var s = document.fonts; ['400', '500', '600', '700'].forEach(function (w) { s.load(w + ' 1em "Hanken Grotesk"'); }); s.load('400 1em "IBM Plex Mono"'); s.load('500 1em "IBM Plex Mono"'); } catch (e) {} };
+    document.head.appendChild(l);
+  } catch (e) {}
+})();
+</script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -92,9 +131,9 @@ a:hover{color:#A8440F}
 <section id="top" style="position:relative;overflow:hidden;padding:clamp(48px,7vw,96px) 0 clamp(96px,10vw,136px)">
   <div style="position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;align-items:center;gap:clamp(40px,6vw,80px)">
     <div style="flex:1 1 420px;min-width:0;max-width:540px">
-      <div data-rv="0" style="display:flex;align-items:center;gap:10px;margin-bottom:22px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#C9551A"><span data-h="dot" style="width:7px;height:7px;border-radius:50%;background:#E0641C;flex:none"></span><span>For dog &amp; cat radiographs</span></div>
+      <div data-rv="0" style="display:flex;align-items:center;gap:10px;margin-bottom:22px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#C9551A"><span data-h="dot" style="width:7px;height:7px;border-radius:50%;background:#E0641C;flex:none"></span><span>For dog radiographs</span></div>
       <h1 data-cursor="text" style="margin:0;font-size:clamp(40px,5.2vw,62px);line-height:1.04;letter-spacing:-0.035em;font-weight:700"><span style="display:block;overflow:hidden;padding-bottom:.06em"><span data-line="0" style="display:block">A clearer way to</span></span><span style="display:block;overflow:hidden;padding-bottom:.06em"><span data-line="1" style="display:block">review animal <span data-h="xr" style="position:relative;display:inline-block;color:#E0641C">X-rays.<span data-h="ul" aria-hidden="true" style="position:absolute;left:.02em;right:.24em;bottom:.08em;height:.065em;border-radius:.04em;background:#E0641C;transform-origin:left center;pointer-events:none"></span></span></span></span></h1>
-      <p data-rv="160" style="margin:22px 0 0;font-size:19px;line-height:1.55;color:#4A433C;text-wrap:pretty">Upload a radiograph of a dog or cat. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.</p>
+      <p data-rv="160" style="margin:22px 0 0;font-size:19px;line-height:1.55;color:#4A433C;text-wrap:pretty">Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.</p>
       <div data-rv="240" style="margin-top:36px;max-width:500px">
         <span data-h="rule" aria-hidden="true" style="display:block;height:1px;background:#E2DBD2;transform-origin:left center"></span>
         <p style="margin:18px 0 0;display:grid;grid-template-columns:32px minmax(0,1fr);gap:14px;align-items:start;font-size:13.5px;line-height:1.6;color:#6E665E;text-wrap:pretty">
@@ -108,24 +147,17 @@ a:hover{color:#A8440F}
       <div data-h="wrap" style="will-change:transform">
         <div data-h="card" onPointerMove="{{ heroMove }}" onPointerEnter="{{ heroEnter }}" onPointerLeave="{{ heroLeave }}" style="border-radius:18px;background:#161310;border:1px solid #2A251F;overflow:hidden;will-change:transform;box-shadow:0 24px 60px -28px rgba(22,16,10,.35)">
           <div style="display:flex;align-items:center;gap:10px;height:44px;padding:0 16px;border-bottom:1px solid #26211C">
-            <div role="tablist" aria-label="Species" style="position:relative;display:flex;padding:3px;border-radius:9px;background:#0F0D0B;border:1px solid #2A251F">
-              <span style="position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:6px;background:#E0641C;transform:translateX({{ hSegX }});transition:transform .45s cubic-bezier(.2,.7,.2,1)"></span>
-              <button role="tab" aria-selected="{{ hIsDog }}" onClick="{{ hDog }}" style="position:relative;height:26px;min-width:52px;padding:0 10px;border:none;background:none;border-radius:6px;color:{{ hDogColor }};font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:color .3s ease">Dog</button>
-              <button role="tab" aria-selected="{{ hIsCat }}" onClick="{{ hCat }}" style="position:relative;height:26px;min-width:52px;padding:0 10px;border:none;background:none;border-radius:6px;color:{{ hCatColor }};font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:color .3s ease">Cat</button>
-            </div>
             <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A8178;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ hFile }}</span>
             <span style="margin-left:auto;font-size:12px;color:{{ heroStatusColor }};transition:color .3s ease;white-space:nowrap">{{ heroStatus }}</span>
           </div>
           <div data-cursor="hide" style="position:relative;aspect-ratio:4/3;overflow:hidden;background:#0B0A09">
             <div data-h="img" style="position:absolute;inset:0;will-change:transform">
-              <div data-sp="dog" style="position:absolute;inset:0"><image-slot id="hero-xray" shape="rect" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_view_x-ray_of_large_struvite_stone_in_bladder_of_adult_female_bichon_frise.jpg?width=1400" credit="Wikimedia Commons" credit-href="https://commons.wikimedia.org/wiki/File:Side_view_x-ray_of_large_struvite_stone_in_bladder_of_adult_female_bichon_frise.jpg" placeholder="Radiograph: canine, lateral view"></image-slot></div>
-              <div data-sp="cat" style="position:absolute;inset:0;clip-path:{{ hCatClip }};transition:clip-path .9s cubic-bezier(.7,0,.2,1)"><image-slot id="hero-cat" shape="rect" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_stand%C2%B4s_cat_radiography.jpg?width=1400" credit="Wikimedia Commons" credit-href="https://commons.wikimedia.org/wiki/File:Side_stand%C2%B4s_cat_radiography.jpg" placeholder="Radiograph: feline, lateral view"></image-slot></div>
+              <div data-sp="dog" style="position:absolute;inset:0"><image-slot id="hero-xray" shape="rect" src="images/hero-xray.png" placeholder="Radiograph: canine forelimb, lateral view"></image-slot></div>
               <div data-h="lens" style="position:absolute;left:0;top:0;width:136px;height:136px;border-radius:50%;opacity:0;pointer-events:none;border:1.5px solid rgba(255,255,255,.9);box-shadow:0 14px 34px -10px rgba(0,0,0,.7),inset 0 0 0 1px rgba(0,0,0,.35);background-color:#0B0A09;background-repeat:no-repeat;will-change:transform,opacity;z-index:2"><span style="position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-left:1px solid rgba(255,255,255,.6);border-top:1px solid rgba(255,255,255,.6);transform:rotate(45deg) translate(3px,3px)"></span><span style="position:absolute;left:50%;bottom:10px;transform:translateX(-50%);padding:1px 6px;border-radius:4px;background:rgba(14,12,10,.75);font-family:'IBM Plex Mono',monospace;font-size:10px;color:#E4DCD2">2.5×</span></div>
             </div>
             <div data-h="scan" style="position:absolute;left:0;right:0;top:-10%;height:64px;opacity:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.10) 70%,rgba(255,255,255,.55) 98%,rgba(255,255,255,0));z-index:1"></div>
             <div data-h="hl" style="position:absolute;left:{{ hlL }};top:{{ hlT }};width:{{ hlW }};height:{{ hlH }};transition:left .7s cubic-bezier(.2,.7,.2,1),top .7s cubic-bezier(.2,.7,.2,1),width .7s cubic-bezier(.2,.7,.2,1),height .7s cubic-bezier(.2,.7,.2,1);opacity:0;pointer-events:none;transform-origin:50% 50%">
-              <div style="position:absolute;inset:0;border:1.5px solid #E8702A;border-radius:6px;background:rgba(232,112,42,.10)"></div>
-              <div style="position:absolute;left:-1px;bottom:calc(100% + 6px);white-space:nowrap;padding:4px 8px;border-radius:6px;background:#E0641C;color:#fff;font-size:12px;font-weight:600">Area for additional review</div>
+              <div style="position:absolute;inset:0;border:3px solid #E0641C;border-radius:3px"></div>
             </div>
             <div style="position:absolute;right:14px;top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#BDB4AA;pointer-events:none">{{ hLabel }}</div>
           </div>
@@ -191,7 +223,7 @@ a:hover{color:#A8440F}
           </div>
           <div style="margin-top:22px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C9551A">01</div>
           <h3 style="margin:6px 0 0;font-size:20px;font-weight:600;letter-spacing:-0.015em">Upload a radiograph</h3>
-          <p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:#4A433C">A JPG or PNG of a dog or cat X-ray. The image stays in your browser session.</p>
+          <p style="margin:8px 0 0;font-size:15px;line-height:1.55;color:#4A433C">A JPG or PNG of a dog X-ray. The image stays in your browser session.</p>
         </div>
       </div>
       <div data-rv="90">
@@ -233,7 +265,7 @@ a:hover{color:#A8440F}
     <div style="flex:1 1 360px;min-width:0;max-width:500px">
       <div data-rv="0" style="display:flex;align-items:center;gap:12px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#C9551A"><span style="width:28px;height:1.5px;background:#E0641C;flex:none"></span><span>02 · Principles</span></div>
       <h2 data-cursor="text" data-rv="0" style="margin:18px 0 0;font-size:clamp(36px,4.6vw,60px);line-height:1.02;letter-spacing:-0.04em;font-weight:700;text-wrap:balance">Why we built Radiant</h2>
-      <p data-rv="80" style="margin:20px 0 0;font-size:18px;line-height:1.6;color:#4A433C;text-wrap:pretty">Dogs and cats can't say where it hurts, so radiographs do much of the explaining. Radiant is a research prototype built by two students for the Congressional App Challenge. It explores how an AI model can point a reviewer toward areas worth a closer look while staying open about its uncertainty.</p>
+      <p data-rv="80" style="margin:20px 0 0;font-size:18px;line-height:1.6;color:#4A433C;text-wrap:pretty">Dogs can't say where it hurts, so radiographs do much of the explaining. Radiant is a research prototype built by two students for the Congressional App Challenge. It explores how an AI model can point a reviewer toward areas worth a closer look while staying open about its uncertainty.</p>
       <div data-rv="140" style="margin-top:30px"><a href="Founders.dc.html" data-goto="founders" data-hx="1" style="display:inline-flex;align-items:center;gap:14px;color:#1A1612;font-size:16px;font-weight:600" style-hover="color:#1A1612"><span style="display:block;overflow:hidden;height:1.3em;line-height:1.3em"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .55s cubic-bezier(.7,0,.2,1)"><span>Meet the founders</span><span aria-hidden="true" style="color:#E0641C">Meet the founders</span></span></span><span data-hx-icon="1" style="width:38px;height:38px;flex:none;box-sizing:border-box;border-radius:50%;border:1px solid #DDD5CB;background:#fff;color:#E0641C;display:grid;place-items:center;font-size:15px;transition:transform .3s cubic-bezier(.2,.7,.2,1)"><span data-hx-arrow="loop" style="display:inline-block">→</span></span></a></div>
     </div>
     <div style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column">
@@ -285,11 +317,7 @@ a:hover{color:#A8440F}
   <div style="max-width:1200px;margin:0 auto;padding:0 24px">
     <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:40px">
       <div style="max-width:380px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="width:28px;height:28px;border-radius:8px;background:#E0641C;display:grid;place-items:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><g transform="rotate(-45 12 12)"><rect x="7" y="10.2" width="10" height="3.6" rx="1"></rect><circle cx="7" cy="9.9" r="2.3"></circle><circle cx="7" cy="14.1" r="2.3"></circle><circle cx="17" cy="9.9" r="2.3"></circle><circle cx="17" cy="14.1" r="2.3"></circle></g></svg></span>
-          <span style="font-size:17px;font-weight:700;letter-spacing:-0.02em">Radiant</span>
-        </div>
-        <p style="margin:14px 0 0;font-size:15px;line-height:1.55;color:#6E665E">A student-built, AI-assisted X-ray research prototype for dogs and cats.</p>
+        <p style="margin:0;font-size:15px;line-height:1.55;color:#6E665E">A student-built, AI-assisted X-ray research prototype for dogs.</p>
       </div>
       <div style="display:flex;gap:64px;font-size:15px">
         <div style="display:flex;flex-direction:column;gap:10px">
@@ -340,14 +368,13 @@ a:hover{color:#A8440F}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;splash&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Intro&quot;},&quot;introLoader&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Intro&quot;},&quot;heroHighlight&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;hover&quot;,&quot;always&quot;],&quot;default&quot;:&quot;hover&quot;,&quot;tsType&quot;:&quot;'hover'|'always'&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;previewReducedMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Accessibility&quot;}}">
 const FAQ = [
-  ['Is Radiant a diagnostic tool?', 'No. Radiant is an educational research prototype. It highlights areas that may deserve additional review and shows the model\u2019s confidence, but it does not diagnose conditions. A qualified veterinarian should interpret every radiograph.'],
-  ['What images work best?', 'Clear JPG or PNG exports of dog or cat radiographs, one view per image, with the anatomy filling most of the frame. Photos taken of a screen or film can work, but they lower image quality.'],
+  ['Is Radiant a diagnostic tool?', 'No, Radiant is a second opinion to doctors or dog owners. It highlights areas that may deserve additional review and shows the model\u2019s confidence, but it does not diagnose conditions. A qualified veterinarian should interpret every radiograph.'],
+  ['What images work best?', 'Clear JPG or PNG exports of dog radiographs, one view per image, with the anatomy filling most of the frame. Photos taken of a screen or film can work, but they lower image quality.'],
   ['What does the confidence score mean?', 'It reflects how strongly the image matches patterns the model learned during training. It is not the probability that a condition is present, and it can be wrong in either direction.'],
   ['Why "areas for review" instead of findings?', 'Naming a condition would imply a certainty the model doesn\u2019t have. Framing results as areas to look at keeps the decision with the person reviewing the image.'],
 ];
 const HERO = {
-  dog: { file: 'canine_abdomen_lat.jpg', label: 'Dog · Lateral', hl: [56, 46, 22, 28], conf: 78 },
-  cat: { file: 'feline_lateral.jpg', label: 'Cat · Lateral', hl: [34, 40, 22, 26], conf: 64 }
+  dog: { file: 'canine_forelimb_lat.png', label: 'Dog · Lateral', hl: [29.7, 33, 21, 28], conf: 78 }
 };
 const GOTO = { top: ['00', 'Radiant'], how: ['01', 'How it works'], about: ['02', 'About'], faq: ['03', 'Questions'] };
 const NAV = [['founders', 'About the founders'], ['intro', 'Intro']];
@@ -364,6 +391,10 @@ const ACCT = EMBED ? null : readAcct();
 const GATE = !EMBED && !ACCT;
 // Intro plays only right after a fresh sign-in; a remembered account opens straight on the hero.
 const FRESH = (() => { try { return !!sessionStorage.getItem('radiant-fresh'); } catch (e) { return false; } })();
+const NAVT = (() => { try { const n = performance.getEntriesByType('navigation')[0]; return (n && n.type) || ''; } catch (e) { return ''; } })();
+// A hosted page (Analyze, Founders) gets its own history entry at the same URL, so the browser's Back button closes it instead of leaving the site.
+const mark = (k, replace) => { if (EMBED) return; try { history[replace ? 'replaceState' : 'pushState']({ rh: k }, ''); } catch (e) {} };
+const idle = (cb, t) => window.requestIdleCallback ? window.requestIdleCallback(cb, { timeout: t || 1500 }) : setTimeout(cb, 60);
 const wantIntro = () => {
   if (EMBED || GATE || !FRESH) return false;
   try {
@@ -382,7 +413,7 @@ class Component extends DCLogic {
   introActive() { return !!this.state.introOn && this.props.splash !== false; }
   introShown() { return !!this.state.introOn && (this.props.splash !== false || !!this._introRev); }
   introReady = () => { this._introReady = true; clearTimeout(this._introT); };
-  introOpen = (base = 0) => { if (this._introOpened) return; this._introOpened = true; document.documentElement.style.overflow = ''; if (this._io) this.heroReplay(base); else { this._revealDelay = 0; this.initReveal(); } clearTimeout(this._t2); clearTimeout(this._t3); this.initIntro(base); };
+  introOpen = (base = 0) => { if (this._introOpened) return; this._introOpened = true; document.documentElement.style.overflow = ''; if (this._rv) this.heroReplay(base); else { this._revealDelay = 0; this.initReveal(); } clearTimeout(this._t2); clearTimeout(this._t3); this.initIntro(base); };
   introCovered = () => { window.scrollTo(0, 0); document.documentElement.style.overflow = 'hidden'; this.readScroll(); };
   openIntro() { if (this.state.introOn) return; try { const a = document.activeElement; if (a && a !== document.body && a.blur) a.blur(); } catch (e) {} this._introOpened = false; this._introRev = true; this._introReady = true; this.setState({ introOn: true, menuOpen: false }); }
   heroReplay(base) {
@@ -391,22 +422,22 @@ class Component extends DCLogic {
     top.querySelectorAll('[data-rv]').forEach(el => el.animate([{ opacity: 0, transform: 'translate3d(0,18px,0)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: base + (+el.dataset.rv || 0), easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' }));
   }
   introDone = () => { clearTimeout(this._introT); try { const a = document.activeElement; if (a && a.closest && a.closest('header') && a.blur) a.blur(); } catch (e) {} this.introOpen(0); this._introRev = false; if (this.state.introOn || this.state.introWarm) this.setState({ introOn: false, introWarm: false }); if (!EMBED && this._preFn && this._chain !== 'done') this.warmChain(150); else this.warmIntro(1400); };
-  busyFx() { const b = h => !!(h && h.busy); return !!(this.state.introOn || this._ctBusy || this._txBusy || this._wvOv || b(this.tx) || b(this.wx)); }
-  // Boot the other pages one at a time, right after the intro, so each one's start-up work lands while nothing is animating.
+  // Busy = something is animating, the user is scrolling, or a hosted page is on screen. Background boot work waits for none of these.
+  busyFx() {
+    const b = h => !!(h && (h.busy || h.isOpen)), now = performance.now();
+    return !!(this.state.introOn || this._ctBusy || this._txBusy || this._wvOv || b(this.tx) || b(this.wx) || now < (this._quietAt || 0) || now - (this._lastScroll || -1e9) < 450);
+  }
+  // Boot the other pages one at a time, only while the home page is idle, so their start-up work never lands mid-animation or mid-scroll.
   warmChain(d) {
-    if (this._chain) return; this._chain = 'run';
-    const t0 = performance.now();
+    if (this._chain || EMBED) return; this._chain = 'run';
+    const t0 = performance.now(), wait = h => !!h && !h.ready && performance.now() - (h._t0 || 0) < 8000;
     const step = () => {
       this._chainT = 0; if (!this.root) return;
-      const T = window.RadiantTiles, W = window.RadiantWaves, el = performance.now() - t0;
-      if (!this.busyFx()) {
-        if (!this.tx && T && T.host && el < 4000) this.tx = T.host('Analyze.dc.html');
-        else if (this.tx && !this.tx.ready && el < 6000) {}
-        else if (!this.wx && W && W.host && el < 8000) this.preW();
-        else if (this.wx && !this.wx.ready && el < 10000) {}
-        else { this._chain = 'done'; this.warmIntro(400); return; }
-      }
-      this._chainT = setTimeout(step, 150);
+      const T = window.RadiantTiles, W = window.RadiantWaves, again = () => { this._chainT = setTimeout(step, 250); };
+      if (this.busyFx() || wait(this.tx) || wait(this.wx) || ((!T || !W) && performance.now() - t0 < 5000)) { again(); return; }
+      const next = !this.tx && T && T.host ? () => this.mkTx() : !this.wx && W && W.host ? () => this.preW() : null;
+      if (!next) { this._chain = 'done'; this.warmIntro(600); return; }
+      idle(() => { if (!this.root) return; if (!this.busyFx()) next(); again(); });
     };
     this._chainT = setTimeout(step, d);
   }
@@ -416,14 +447,38 @@ class Component extends DCLogic {
     this._wiT = setTimeout(() => {
       this._wiT = 0; if (!this.root || this.state.introOn || this.state.introWarm) return;
       if (this.busyFx()) { this.warmIntro(400); return; }
-      this.setState({ introWarm: true });
+      idle(() => { if (!this.root || this.state.introOn || this.state.introWarm) return; if (this.busyFx()) { this.warmIntro(400); return; } this.setState({ introWarm: true }); });
     }, d);
+  }
+  mkTx(defer) {
+    if (this.tx || EMBED) return this.tx;
+    const T = window.RadiantTiles; if (!T || !T.host) return null;
+    const h = this.tx = T.host('Analyze.dc.html', defer ? { defer: true } : null);
+    h._t0 = performance.now(); h.onBack = () => this.closeHosted();
+    return h;
+  }
+  // Closing a hosted page always goes through history, so the Back button and the page's own back link stay in step.
+  closeHosted(n = 0, fromPop) {
+    clearTimeout(this._chT);
+    const T = this.tx, W = this.wx;
+    if ((T && T.busy) || (W && W.busy)) { if (n < 50) this._chT = setTimeout(() => this.closeHosted(n + 1, fromPop), 100); return; }
+    if (!fromPop && !EMBED && history.state && history.state.rh) { try { history.back(); return; } catch (e) {} }
+    const o = H => ({ content: this.flow(), sfxBack: H.opts && H.opts.sfxBack });
+    if (T && T.isOpen) T.close(o(T)); else if (W && W.isOpen) W.close(o(W));
+  }
+  onPop(e) {
+    const k = e.state && e.state.rh, T = this.tx, W = this.wx;
+    if (k === 'analyze') { if (!(T && (T.isOpen || T.busy))) this.tileOut(window.innerWidth / 2, window.innerHeight / 2, 'Analyze.dc.html', null, true); }
+    else if (k === 'founders') { if (!(W && (W.isOpen || W.busy))) this.foundersOut(true); }
+    else this.closeHosted(0, true);
   }
 
   componentDidMount() {
     const root = this.rootRef.current; if (!root) return;
     if (GATE) { try { window.location.replace('Login.dc.html?next=' + encodeURIComponent('Radiant.dc.html' + (/^#[\w-]+$/.test(location.hash) ? location.hash : ''))); } catch (e) {} return; }
     this.root = root;
+    try { document.documentElement.style.background = ''; } catch (e) {}
+    if (FRESH && !this.introShown()) { try { sessionStorage.removeItem('radiant-fresh'); } catch (e) {} }
     if (ACCT && ACCT.keep) { try { localStorage.setItem(KEY, JSON.stringify(Object.assign({}, ACCT, { exp: Date.now() + 30 * 864e5 }))); } catch (e) {} }
     this._acctDoc = e => { if (this.state.acctOpen && !(e.target.closest && e.target.closest('[data-acct]'))) this.setState({ acctOpen: false }); };
     this._acctKey = e => { if (e.key === 'Escape' && this.state.acctOpen) this.setState({ acctOpen: false }); };
@@ -437,19 +492,20 @@ class Component extends DCLogic {
     this.h = {}; root.querySelectorAll('[data-h]').forEach(el => { this.h[el.dataset.h] = el; });
     this.heroY = 0;
     this.hc = { x: 0, y: 0, h: 0 }; this.ht = { x: 0, y: 0, h: 0 };
-    this.onScroll = () => { this.readScroll(); this.kick(); };
+    this.onScroll = () => { this._lastScroll = performance.now(); this.readScroll(); this.kick(); };
     window.addEventListener('scroll', this.onScroll, { passive: true });
     window.addEventListener('resize', this.onScroll);
     this.readScroll(); this.applyHero();
-    this.initDelegates(); this.initSpy(); this.initLoader(); this.initHeroFx(); this.initPolish();
+    this.initDelegates(); this.initSpy(); this.initLoader(); this.initHeroFx(); this.initPolish(); this.jumpHash();
     this._onShow = e => { if (!e.persisted) return; this._txBusy = false; const wv = this._wvOv; this._wvOv = null; if (wv && wv.restore) wv.restore(); const T = window.RadiantTiles, ov = this._txOv; this._txOv = null; if (ov && T) T.reveal(ov, { content: this.flow(), done: t => t.host.remove() }); else document.querySelectorAll('[data-radiant-tx]').forEach(n => { if (!wv || n !== wv.layer) n.remove(); }); };
     window.addEventListener('pageshow', this._onShow);
+    if (!EMBED) { this._onPop = e => this.onPop(e); window.addEventListener('popstate', this._onPop); }
     if (EMBED) {
       this._onMsg = e => { if (e.source === window.parent && e.data && e.data.radiant === 'enter') this.enterEmbed(); };
       window.addEventListener('message', this._onMsg);
       postUp('ready');
     } else if (!this.rm()) {
-      const pre = () => whenT(T => { if (!this.tx && T.host) this.tx = T.host('Analyze.dc.html'); }, () => {});
+      const pre = () => whenT(() => this.mkTx(), () => {});
       this._preFn = pre; if (!this.introActive()) this.warmChain(1300);
       this._txHover = e => { if (!e.target.closest) return; if (e.target.closest('[data-analyze]')) pre(); if (e.target.closest('[data-goto="founders"]')) this.preW(); };
       window.addEventListener('pointerover', this._txHover, true);
@@ -463,10 +519,10 @@ class Component extends DCLogic {
   componentWillUnmount() {
     window.removeEventListener('scroll', this.onScroll); window.removeEventListener('resize', this.onScroll);
     if (this._nq) this._nq.removeEventListener('change', this._setN);
-    window.removeEventListener('pageshow', this._onShow); window.removeEventListener('click', this._txClick, true); if (this._io2) this._io2.disconnect(); if (this._onMsg) window.removeEventListener('message', this._onMsg); if (this._txHover) window.removeEventListener('pointerover', this._txHover, true); clearTimeout(this._pre); document.removeEventListener('mouseout', this._ripOut);
+    window.removeEventListener('pageshow', this._onShow); window.removeEventListener('click', this._txClick, true); if (this._onPop) window.removeEventListener('popstate', this._onPop); clearTimeout(this._chT); if (this._io2) this._io2.disconnect(); if (this._onMsg) window.removeEventListener('message', this._onMsg); if (this._txHover) window.removeEventListener('pointerover', this._txHover, true); clearTimeout(this._pre); document.removeEventListener('mouseout', this._ripOut);
     if (this._io) this._io.disconnect(); if (this._spy) this._spy.disconnect();
     document.documentElement.classList.remove('rc-cursor'); if (this._cMove) { window.removeEventListener('pointermove', this._cMove); window.removeEventListener('pointerdown', this._cDown); window.removeEventListener('pointerup', this._cUp); document.removeEventListener('mouseout', this._cLeave); } if (this._ripMove) window.removeEventListener('pointermove', this._ripMove); if (this._ro) this._ro.disconnect(); this.rip = null; clearTimeout(this._ld1); clearTimeout(this._ld2); clearTimeout(this._ldSafety);
-    clearTimeout(this._t); clearTimeout(this._t2); clearTimeout(this._t3); clearTimeout(this._preW); clearTimeout(this._chainT); clearTimeout(this._wiT); cancelAnimationFrame(this._raf); document.removeEventListener('pointerdown', this._acctDoc); document.removeEventListener('keydown', this._acctKey);
+    clearTimeout(this._t); clearTimeout(this._t2); clearTimeout(this._t3); clearTimeout(this._rvT0); clearTimeout(this._preW); clearTimeout(this._chainT); clearTimeout(this._wiT); cancelAnimationFrame(this._raf); document.removeEventListener('pointerdown', this._acctDoc); document.removeEventListener('keydown', this._acctKey);
   }
   componentDidUpdate(pp) {
     this.armLinks(); this.pics();
@@ -483,7 +539,7 @@ class Component extends DCLogic {
     if (this.h && this.h.prog) { const max = document.documentElement.scrollHeight - window.innerHeight; this.h.prog.style.transform = 'scaleX(' + (max > 0 ? clamp(y / max) : 0).toFixed(4) + ')'; }
     if (this.rip && this.rip.lx != null) this.magnet();
     const cue = this.h && this.h.cue; if (cue) cue.style.opacity = Math.max(0, 1 - y / 240).toFixed(3);
-    this.howTick();
+    this.howTick(); this.revealTick();
   }
   kick() { if (!this._raf) this._raf = requestAnimationFrame(this.tick); }
   tick = () => {
@@ -526,6 +582,7 @@ class Component extends DCLogic {
   initIntro(base = 0) {
     const lines = [...this.root.querySelectorAll('[data-line]')];
     if (this.rm() || !lines[0].animate) return;
+    this._quietAt = Math.max(this._quietAt || 0, performance.now() + base + 2700);
     const ez = 'cubic-bezier(.2,.7,.2,1)';
     lines.forEach((el, i) => el.animate([{ transform: 'translateY(108%)' }, { transform: 'translateY(0)' }], { duration: 1000, delay: base + 120 + i * 120, easing: ez, fill: 'backwards' }));
     const { rule, ul } = this.h || {};
@@ -579,36 +636,58 @@ class Component extends DCLogic {
     const vh = window.innerHeight;
     if (!this.state.narrow) {
       const fl = this.h.howfill, ln = this.h.howline; if (!fl || !ln) return;
-      const r = ln.getBoundingClientRect(); if (r.top > vh + 240 || r.bottom < -900) return;
+      const r = ln.getBoundingClientRect(); if (r.top > vh + 240 || r.bottom < -900) { this._hc.forEach((c, i) => this.howAct(i, false, true)); return; }
       const p = clamp((vh * 0.84 - r.top) / (vh * 0.42)), W = r.width || 1;
       fl.style.transform = 'scaleX(' + p.toFixed(4) + ')';
-      this._hn.forEach((nd, i) => { const on = i === 0 ? p > 0.02 : p >= nd.offsetLeft / W; this.sty(nd, 'borderColor', on ? '#E0641C' : null); this.sty(nd, 'backgroundColor', on ? '#E0641C' : null); this.sty(nd, 'transform', on ? 'scale(1.18)' : null); this.howAct(i, on); });
-    } else this._hc.forEach((c, i) => { this.howAct(i, c.getBoundingClientRect().top < vh * 0.8); });
+      this._hn.forEach((nd, i) => { const on = i === 0 ? p > 0.02 : p >= nd.offsetLeft / W; this.sty(nd, 'borderColor', on ? '#E0641C' : null); this.sty(nd, 'backgroundColor', on ? '#E0641C' : null); this.sty(nd, 'transform', on ? 'scale(1.18)' : null); if (on) this.howAct(i, true); else this.howOff(i, vh); });
+    } else this._hc.forEach((c, i) => { const q = c.getBoundingClientRect(); if (q.top < vh * 0.8 && q.bottom > 0) this.howAct(i, true); else if (q.bottom < -40 || q.top > vh + 40) this.howAct(i, false, true); });
   }
+  // A step card resets only once it is fully off screen, so it plays again next time without ever blanking in view.
+  howOff(i, vh) {
+    const c = this._hc && this._hc[i], q = c && c.getBoundingClientRect();
+    if (q && (q.bottom < -40 || q.top > vh + 40)) this.howAct(i, false, true);
+  }
+  // Blocks pop in every time they scroll into view (rising on the way down, dropping in on the way back up).
+  // A block only resets once it is fully off screen, so nothing ever vanishes while you can see it.
   initReveal() {
     if (this.rm()) return;
-    const top = document.getElementById('top'), E = 'cubic-bezier(.2,.7,.2,1)', once = el => !!(top && top.contains(el));
+    const E = 'cubic-bezier(.2,.7,.2,1)';
     const els = [...this.root.querySelectorAll('[data-rv]')];
-    const hide = el => {
-      clearTimeout(el._rvT); el._rvOn = false;
+    const hide = (el, top) => {
+      clearTimeout(el._rvT); el._rvOn = false; el._rvTop = !!top;
+      const k = top ? -1 : 1;
       el.style.transition = 'none'; el.style.transitionDelay = ''; el.style.opacity = '0';
-      if (el.tagName === 'H2') { el.style.clipPath = 'inset(0 0 100% 0)'; el.style.transform = 'translate3d(0,34px,0)'; } else el.style.transform = 'translate3d(0,18px,0)';
+      if (el.tagName === 'H2') { el.style.clipPath = top ? 'inset(100% 0 0 0)' : 'inset(0 0 100% 0)'; el.style.transform = 'translate3d(0,' + 34 * k + 'px,0)'; }
+      else el.style.transform = 'translate3d(0,' + 18 * k + 'px,0)';
     };
-    const show = el => {
-      if (el._rvOn) return; el._rvOn = true; clearTimeout(el._rvT);
-      const h2 = el.tagName === 'H2', d = +el.dataset.rv || 0;
-      void el.offsetWidth;
+    const show = (el, up) => {
+      el._rvOn = true; clearTimeout(el._rvT);
+      const h2 = el.tagName === 'H2', d = up ? 0 : +el.dataset.rv || 0;
       el.style.transition = h2 ? 'clip-path 1.15s ' + E + ', transform 1.15s ' + E + ', opacity .5s ease' : 'opacity .7s ' + E + ', transform .8s ' + E;
       el.style.transitionDelay = d + 'ms';
-      el.style.opacity = '1'; el.style.transform = 'none'; if (h2) el.style.clipPath = 'inset(0 0 -30% 0)';
+      el.style.opacity = '1'; el.style.transform = 'none'; if (h2) el.style.clipPath = 'inset(-30% 0 -30% 0)';
       el._rvT = setTimeout(() => { el.style.transition = ''; el.style.transitionDelay = ''; el.style.transform = ''; el.style.clipPath = ''; }, 1300 + d);
     };
-    els.forEach(hide);
-    this._io = watch(es => es.forEach(e => { if (!e.isIntersecting) return; show(e.target); if (once(e.target)) this._io.unobserve(e.target); }), '0px 0px -8% 0px');
-    this._io2 = watch(es => es.forEach(e => { if (!e.isIntersecting && e.target._rvOn) hide(e.target); }), '80px 0px');
-    setTimeout(() => els.forEach(el => { this._io.observe(el); if (!once(el)) this._io2.observe(el); }), this._revealDelay || 0);
+    els.forEach(el => hide(el, false));
+    const h1 = document.querySelector('#top h1'), lines = h1 ? [...h1.querySelectorAll('[data-line]')] : [];
+    this._rv = { els, hide, show, h1, lines, out: false, y: window.scrollY, at: performance.now() + (this._revealDelay || 0) };
+    clearTimeout(this._rvT0); this._rvT0 = setTimeout(() => this.revealTick(), (this._revealDelay || 0) + 20);
   }
-
+  revealTick() {
+    const R = this._rv; if (!R || performance.now() < R.at) return;
+    const vh = window.innerHeight, y = window.scrollY, up = y < R.y; R.y = y;
+    const rs = R.els.map(el => el.getBoundingClientRect()), hr = R.h1 && R.h1.getBoundingClientRect();
+    R.els.forEach((el, i) => {
+      const r = rs[i];
+      if (!el._rvOn) { if (r.top < vh * 0.92 && r.bottom > 0) R.show(el, up); else if (r.bottom <= 0 && !el._rvTop) R.hide(el, true); else if (r.top >= vh && el._rvTop) R.hide(el, false); }
+      else if (r.bottom < -40) R.hide(el, true); else if (r.top > vh + 40) R.hide(el, false);
+    });
+    // The headline's lines rise again whenever it comes back into view.
+    if (hr && R.lines.length && R.lines[0].animate) {
+      if (!R.out && (hr.bottom < -40 || hr.top > vh + 40)) { R.out = true; R.lines.forEach(l => { l.getAnimations().forEach(a => a.cancel()); l.style.transform = 'translateY(108%)'; }); }
+      else if (R.out && hr.top < vh * 0.92 && hr.bottom > 0) { R.out = false; R.lines.forEach((l, i) => { l.style.transform = ''; l.animate([{ transform: 'translateY(108%)' }, { transform: 'translateY(0)' }], { duration: 1000, delay: (up ? 0 : 80) + i * 110, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' }); }); }
+    }
+  }
   initDelegates() {
     const root = this.root;
     const set = (el, on, e) => {
@@ -660,24 +739,25 @@ class Component extends DCLogic {
       e.preventDefault(); this.goto(a.dataset.goto);
     });
   }
-  tileOut(x, y, href, done) {
+  tileOut(x, y, href, done, fromPop) {
     if (EMBED) { this._par = this.flow().map(el => el.animate([{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-6vh,0)' }], { duration: 960, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' })); postUp('back'); return; }
     const T = window.RadiantTiles, nav = () => { window.location.href = href; };
     if (this.rm() || !T) { nav(); return; }
-    if (this.state.menuOpen) this.setState({ menuOpen: false });
+    if (this.state.menuOpen || this.state.acctOpen) this.setState({ menuOpen: false, acctOpen: false });
     const fallback = cv => { if (this._txBusy) return; this._txBusy = true; try { sessionStorage.setItem('radiant-tx', JSON.stringify({ to: 'analyze', t: Date.now() })); } catch (e) {} if (cv) { this._txOv = cv; nav(); return; } this._txOv = T.leave(x, y, nav, { content: this.flow() }); };
-    if (T.host) { if (!this.tx) this.tx = T.host('Analyze.dc.html', { defer: true }); this.tx.open({ content: this.flow(), fallback, done }); } else fallback();
+    if (T.host) { const fin = () => { const rep = !!(history.state && history.state.rh === 'founders'); if (done) done(); if (!fromPop) mark('analyze', rep); }; this.mkTx(true).open({ content: this.flow(), fallback, done: fin }); } else fallback();
   }
   preW(defer) {
     if (this.wx || EMBED || this.rm()) return;
     const W = window.RadiantWaves; if (!W || !W.host) return;
     const h = this.wx = W.host('Founders.dc.html', defer ? { defer: true } : null);
+    h._t0 = performance.now(); h.onBack = () => this.closeHosted();
     h.onMessage = m => {
       if (m !== 'analyze') return;
       this.tileOut(window.innerWidth / 2, window.innerHeight / 2, 'Analyze.dc.html', () => { const cur = document.title, home = h.title; if (h.hide()) { document.title = cur; if (this.tx && home) this.tx.title = home; } });
     };
   }
-  foundersOut() {
+  foundersOut(fromPop) {
     const href = 'Founders.dc.html', W = window.RadiantWaves;
     if (this.state.menuOpen || this.state.acctOpen) this.setState({ menuOpen: false, acctOpen: false });
     const nav = () => { try { (EMBED ? window.parent : window).location.href = href; } catch (e) { window.location.href = href; } };
@@ -685,7 +765,7 @@ class Component extends DCLogic {
     if (this._wvOv) return;
     if (!EMBED) this.preW(true);
     if (EMBED || !this.wx) { this._wvOv = W.leave(nav, { content: this.flow() }); return; }
-    this.wx.open({ content: this.flow(), fallback: ov => { this._wvOv = ov; nav(); } });
+    this.wx.open({ content: this.flow(), fallback: ov => { this._wvOv = ov; nav(); }, done: () => { if (!fromPop) mark('founders'); } });
   }
   enterEmbed() {
     if (this._par) { this._par.forEach(a => a.cancel()); this._par = null; }
@@ -726,6 +806,13 @@ class Component extends DCLogic {
       fin.onfinish = () => { ct.style.visibility = 'hidden'; ct.style.pointerEvents = 'none'; lab.style.opacity = '0'; this._ctBusy = false; };
     }, 1180);
   }
+  // A section link (#how, #about, #faq) opens at that section; the page renders after the browser's own anchor jump would have run.
+  jumpHash() {
+    const m = !EMBED && /^#(how|about|faq)$/.exec(location.hash), el = m && document.getElementById(m[1]);
+    if (!el) return;
+    window.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + window.scrollY - 64));
+    this.readScroll();
+  }
   initLoader() {
     const ld = this.h && this.h.loader;
     if (EMBED) { if (ld) ld.style.display = 'none'; this._revealDelay = 0; this.initReveal(); return; }
@@ -740,9 +827,10 @@ class Component extends DCLogic {
       if (tx.fx === 'waves') whenW(arr, no); else whenT(arr, no);
       return;
     }
-    const home = !FRESH && !location.hash;
+    const home = !FRESH && !location.hash && NAVT !== 'back_forward';
     if (home) { try { history.scrollRestoration = 'manual'; } catch (e) {} window.scrollTo(0, 0); this.readScroll(); }
-    const skip = skipIntro || home || !ld || !ld.animate || this.rm() || this.props.introLoader === false;
+    // The loader only plays right after a fresh sign-in; every other open goes straight to the page.
+    const skip = skipIntro || !FRESH || !ld || !ld.animate || this.rm() || this.props.introLoader === false;
     if (skip) { if (ld) ld.style.display = 'none'; this._revealDelay = 0; this.initReveal(); this.initIntro(0); return; }
     this._revealDelay = 1250; this.initReveal();
     const q = k => ld.querySelector('[data-ld="' + k + '"]'), ez = 'cubic-bezier(.2,.7,.2,1)', E = 'cubic-bezier(.76,0,.24,1)';
@@ -950,10 +1038,6 @@ class Component extends DCLogic {
       navBorder: st.scrolled ? '#E9E3DB' : 'transparent',
       navItems: NAV.map(([id, label]) => ({ id, label, href: id === 'founders' ? 'Founders.dc.html' : '#' + id, color: st.active === id ? '#1A1612' : '#5A534B', line: st.active === id ? 1 : 0 })),
       heroMove: this.heroMove, heroEnter: this.heroEnter, heroLeave: this.heroLeave,
-      hSegX: st.heroSp === 'cat' ? '100%' : '0%', hIsDog: st.heroSp === 'dog', hIsCat: st.heroSp === 'cat',
-      hDogColor: st.heroSp === 'dog' ? '#fff' : '#9C9389', hCatColor: st.heroSp === 'cat' ? '#fff' : '#9C9389',
-      hDog: () => this.setHeroSp('dog'), hCat: () => this.setHeroSp('cat'),
-      hCatClip: st.heroSp === 'cat' ? 'inset(0 0% 0 0)' : 'inset(0 100% 0 0)',
       hFile: HERO[st.heroSp].file, hLabel: HERO[st.heroSp].label,
       hlL: HERO[st.heroSp].hl[0] + '%', hlT: HERO[st.heroSp].hl[1] + '%', hlW: HERO[st.heroSp].hl[2] + '%', hlH: HERO[st.heroSp].hl[3] + '%',
       heroStatus: on ? 'Analysis complete' : 'Ready', heroStatusColor: on ? '#F08A4B' : '#8A8178',

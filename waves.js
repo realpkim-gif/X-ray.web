@@ -1,5 +1,5 @@
 (function () {
-  if (window.RadiantWaves && window.RadiantWaves.v >= 2) return;
+  if (window.RadiantWaves && window.RadiantWaves.v >= 3) return;
   var IO = 'cubic-bezier(.76,0,.24,1)', SOFT = 'cubic-bezier(.22,1,.36,1)';
   var DUR = 820, LAG_DEEP = 80, LAG_REV = 170, TOTAL = DUR + LAG_REV;
   var FOAM = '#FFF3EA', ORANGE = '#E0641C', LIGHT = '#F08A4B', DEEP = '#161310';
@@ -190,7 +190,7 @@
       if (!f.contentWindow || e.source !== f.contentWindow || !e.data || !e.data.radiant) return;
       var m = e.data.radiant;
       if (m === 'ready') { H.ready = true; if (H.wait) { var w = H.wait; H.wait = null; w(); } idle(warm); }
-      else if (m === 'back') H.close(H.opts);
+      else if (m === 'back') { if (H.onBack) H.onBack(); else H.close(H.opts); }
       else if (H.onMessage) H.onMessage(m, e.data);
     });
     H.open = function (o) {
@@ -258,5 +258,5 @@
     return eng;
   }
   function prefetch(href) { try { var l = document.createElement('link'); l.rel = 'prefetch'; l.href = href; document.head.appendChild(l); } catch (e) {} }
-  window.RadiantWaves = { v: 2, host: host, leave: leave, arrive: arrive, prefetch: prefetch, DUR: DUR };
+  window.RadiantWaves = { v: 3, host: host, leave: leave, arrive: arrive, prefetch: prefetch, DUR: DUR };
 })();
