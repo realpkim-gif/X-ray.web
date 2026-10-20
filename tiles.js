@@ -1,5 +1,5 @@
 (function () {
-  if (window.RadiantTiles && window.RadiantTiles.v >= 5) return;
+  if (window.RadiantTiles && window.RadiantTiles.v >= 6) return;
   var OUT = 'cubic-bezier(.16,1,.3,1)', IO = 'cubic-bezier(.76,0,.24,1)', SOFT = 'cubic-bezier(.22,1,.36,1)';
   var TAN = Math.tan(10 * Math.PI / 180), SIZE = 72, SPREAD = 480, DUR = 440, LAG = 40, TOTAL = SPREAD + LAG + DUR;
   function c01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
@@ -171,7 +171,7 @@
     window.addEventListener('message', function (e) {
       if (!f.contentWindow || e.source !== f.contentWindow || !e.data || !e.data.radiant) return;
       if (e.data.radiant === 'ready') { H.ready = true; var p = H.pending; H.pending = null; if (p) p(); idle(function () { warm(H); }); }
-      else if (e.data.radiant === 'back') H.close(H.opts);
+      else if (e.data.radiant === 'back') { if (H.onBack) H.onBack(); else H.close(H.opts); }
     });
     H.open = function (o) {
       o = o || {}; if (H.busy || H.isOpen) return;
@@ -251,5 +251,5 @@
   }
   function arrive(hostEl, o) { var t = build(hostEl, true); hostEl.style.background = 'transparent'; requestAnimationFrame(function () { reveal(t, o); }); return t; }
   function prefetch(href) { try { var l = document.createElement('link'); l.rel = 'prefetch'; l.href = href; document.head.appendChild(l); } catch (e) {} }
-  window.RadiantTiles = { v: 5, host: host, leave: leave, arrive: arrive, reveal: reveal, prefetch: prefetch };
+  window.RadiantTiles = { v: 6, host: host, leave: leave, arrive: arrive, reveal: reveal, prefetch: prefetch };
 })();

@@ -3,6 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Radiant">
+<meta property="og:title" content="Radiant — AI-assisted review of animal X-rays">
+<meta property="og:description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta property="og:url" content="https://realpkim-gif.github.io/X-ray.web/">
+<meta property="og:image" content="https://realpkim-gif.github.io/X-ray.web/images/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with an area marked for review">
+<meta name="twitter:card" content="summary_large_image">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -27,12 +41,10 @@
   <div data-i="glowB" style="position:absolute;left:0;top:0;width:80vmax;height:80vmax;margin:-40vmax 0 0 -40vmax;border-radius:50%;opacity:0;pointer-events:none;will-change:transform;background:radial-gradient(closest-side,rgba(240,138,75,.09),rgba(240,138,75,0))"></div>
   <div data-i="ghost" style="position:absolute;left:-4%;top:-4%;width:108%;height:108%;opacity:0;pointer-events:none;will-change:transform">
     <img data-sp="dog" alt="" draggable="false" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_view_x-ray_of_large_struvite_stone_in_bladder_of_adult_female_bichon_frise.jpg?width=1920" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.25)">
-    <img data-sp="cat" alt="" draggable="false" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_stand%C2%B4s_cat_radiography.jpg?width=1920" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.25);clip-path:inset(0% 0% 100% 0%)">
   </div>
   <div data-i="litm" style="position:absolute;inset:0;pointer-events:none;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-image:linear-gradient(transparent,transparent);mask-image:linear-gradient(transparent,transparent)">
     <div data-i="lit" style="position:absolute;left:-4%;top:-4%;width:108%;height:108%;will-change:transform">
       <img data-sp="dog" alt="" draggable="false" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_view_x-ray_of_large_struvite_stone_in_bladder_of_adult_female_bichon_frise.jpg?width=1920" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.5) brightness(1.25)">
-      <img data-sp="cat" alt="" draggable="false" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_stand%C2%B4s_cat_radiography.jpg?width=1920" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.5) brightness(1.25);clip-path:inset(0% 0% 100% 0%)">
     </div>
   </div>
   <canvas data-i="bg" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></canvas>
@@ -40,7 +52,6 @@
   <div data-i="neg" style="position:absolute;inset:0;opacity:0;pointer-events:none;background:#FAF8F5;isolation:isolate">
     <div data-i="negi" style="position:absolute;left:-4%;top:-4%;width:108%;height:108%;mix-blend-mode:multiply">
       <img data-sp="dog" alt="" draggable="false" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_view_x-ray_of_large_struvite_stone_in_bladder_of_adult_female_bichon_frise.jpg?width=1920" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:invert(1) grayscale(1) sepia(.35) contrast(1.15)">
-      <img data-sp="cat" alt="" draggable="false" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_stand%C2%B4s_cat_radiography.jpg?width=1920" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:invert(1) grayscale(1) sepia(.35) contrast(1.15);clip-path:inset(0% 0% 100% 0%)">
     </div>
   </div>
   <canvas data-i="fx" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></canvas>
@@ -79,11 +90,6 @@
     <span data-i="status" style="color:#CFC6BB">Detector ready</span>
   </div>
   <div data-hud="bl" style="position:absolute;left:clamp(20px,2.4vw,40px);bottom:clamp(20px,3.2vh,36px);display:flex;align-items:center;gap:14px;opacity:0">
-    <div role="group" aria-label="Radiograph" style="pointer-events:auto;position:relative;display:flex;padding:3px;border-radius:10px;background:rgba(243,237,230,.04);border:1px solid rgba(243,237,230,.1)">
-      <span style="position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:7px;background:#E0641C;transform:translateX({{ segX }});transition:transform .55s cubic-bezier(.2,.7,.2,1)"></span>
-      <button type="button" onClick="{{ setDog }}" aria-pressed="{{ isDog }}" style="position:relative;height:30px;min-width:76px;padding:0 12px;border:none;background:none;border-radius:7px;font-family:inherit;font-size:11.5px;letter-spacing:.02em;color:{{ dogC }};cursor:pointer;transition:color .35s ease">Canine</button>
-      <button type="button" onClick="{{ setCat }}" aria-pressed="{{ isCat }}" style="position:relative;height:30px;min-width:76px;padding:0 12px;border:none;background:none;border-radius:7px;font-family:inherit;font-size:11.5px;letter-spacing:.02em;color:{{ catC }};cursor:pointer;transition:color .35s ease">Feline</button>
-    </div>
     <span data-i="blText">Lateral view</span>
   </div>
   <div data-hud="br" data-i="br" style="position:absolute;right:clamp(20px,2.4vw,40px);bottom:clamp(20px,3.2vh,36px);display:flex;flex-direction:column;align-items:flex-end;gap:6px;opacity:0">
@@ -106,7 +112,7 @@
 const CH = 640, SWAP = CH + 120, AP0 = CH + 500, APD = 1000, MOR0 = AP0 - 40, MORD = 1000, END = AP0 + APD + 40;
 const RAP = 950, RSW = RAP + 60, UC = 800, REND = RSW + UC;
 const FLASH = [{ opacity: 0, easing: 'cubic-bezier(.5,0,1,1)' }, { opacity: 1, offset: 0.16 }, { opacity: 1, offset: 0.32, easing: 'cubic-bezier(.2,.6,.3,1)' }, { opacity: 0 }];
-const HL = { dog: [56, 46, 22, 28], cat: [34, 40, 22, 26] };
+const HL = { dog: [56, 46, 22, 28] };
 const TINT = {
   bone: 'grayscale(1) contrast(1.5) brightness(1.25)',
   amber: 'grayscale(1) sepia(1) saturate(2.6) hue-rotate(-14deg) contrast(1.35) brightness(1.15)'
@@ -148,7 +154,7 @@ class Component extends DCLogic {
     if (!this.hosted) root.style.background = '#FAF8F5';
     const el = this.el = {}; root.querySelectorAll('[data-i]').forEach(n => { el[n.dataset.i] = n; });
     this.L = Array.from(el.solid.querySelectorAll('[data-l]'));
-    this.gimg = { dog: el.ghost.querySelector('img[data-sp="dog"]'), cat: el.ghost.querySelector('img[data-sp="cat"]') };
+    this.gimg = { dog: el.ghost.querySelector('img[data-sp="dog"]') };
     this._mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     this.touch = window.matchMedia('(hover: none)').matches;
     if (this.touch) this.setState({ touch: true });
@@ -291,15 +297,6 @@ class Component extends DCLogic {
     return a;
   }
 
-  setSpecies(sp) {
-    if (sp === this.state.species || this._tx || this._rv) return;
-    this.setState({ species: sp });
-    const cat = sp === 'cat', imgs = this.root.querySelectorAll('img[data-sp="cat"]');
-    const from = cat ? 'inset(0% 0% 100% 0%)' : 'inset(0% 0% 0% 0%)', to = cat ? 'inset(0% 0% 0% 0%)' : 'inset(100% 0% 0% 0%)';
-    imgs.forEach(i => { if (!this.rm()) i.animate([{ clipPath: from }, { clipPath: to }], { duration: 1100, easing: 'cubic-bezier(.7,0,.2,1)' }); i.style.clipPath = to; });
-    if (!this.rm()) this.scan = { t0: performance.now(), dur: 1100, wipe: true };
-    this.roi = 0;
-  }
 
   roiRect() {
     const sp = this.state.species, img = this.gimg[sp];
@@ -673,8 +670,10 @@ class Component extends DCLogic {
     f.font = "600 12px 'Hanken Grotesk', system-ui, sans-serif"; f.textBaseline = 'middle';
     const txt = 'Area for additional review', ph = 24, pw = f.measureText(txt).width + 18;
     let ly = y - ph - 8 + (1 - k) * 8; if (ly < 14) ly = y + h + 8 - (1 - k) * 8;
-    f.fillStyle = '#E0641C'; f.beginPath(); if (f.roundRect) f.roundRect(x, ly, pw, ph, 6); else f.rect(x, ly, pw, ph); f.fill();
-    f.fillStyle = '#FFFFFF'; f.fillText(txt, x + 9, ly + ph / 2 + 0.5);
+    // keep the tag on screen when the box sits near the right edge (narrow phones)
+    const lx = Math.max(12, Math.min(x, window.innerWidth - pw - 12));
+    f.fillStyle = '#E0641C'; f.beginPath(); if (f.roundRect) f.roundRect(lx, ly, pw, ph, 6); else f.rect(lx, ly, pw, ph); f.fill();
+    f.fillStyle = '#FFFFFF'; f.fillText(txt, lx + 9, ly + ph / 2 + 0.5);
   }
 
   renderVals() {
@@ -682,9 +681,6 @@ class Component extends DCLogic {
     return {
       rootRef: this.rootRef,
       go: () => this.go(),
-      setDog: () => this.setSpecies('dog'), setCat: () => this.setSpecies('cat'),
-      isDog: dog ? 'true' : 'false', isCat: dog ? 'false' : 'true',
-      segX: dog ? '0%' : '100%', dogC: dog ? '#FFFFFF' : '#8A8178', catC: dog ? '#8A8178' : '#FFFFFF',
       desk: !this.state.touch, touch: this.state.touch, hello: this.state.hello || 'Veterinary radiograph review'
     };
   }

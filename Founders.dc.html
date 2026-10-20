@@ -3,6 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Radiant">
+<meta property="og:title" content="Radiant — AI-assisted review of animal X-rays">
+<meta property="og:description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta property="og:url" content="https://realpkim-gif.github.io/X-ray.web/">
+<meta property="og:image" content="https://realpkim-gif.github.io/X-ray.web/images/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with an area marked for review">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<script>
+// Runs before the page boots: signed-out visitors go straight to the login, the first frame matches the dark entrance
+// cover (no white flash), and fonts start loading early so text never swaps mid-animation.
+(function () {
+  try {
+    var d = document.documentElement, emb = window.parent !== window && /[?&]embed=1/.test(location.search);
+    if (emb) { d.style.overscrollBehavior = 'contain'; return; }
+    var ok = function (s) { try { var a = JSON.parse(window[s].getItem('radiant-account') || 'null'); return !!a && (!a.exp || a.exp > Date.now()); } catch (e) { return false; } };
+    d.style.background = '#161310';
+    if (!ok('localStorage') && !ok('sessionStorage')) { d.style.visibility = 'hidden'; location.replace('Login.dc.html?next=Founders.dc.html'); return; }
+    var l = document.createElement('link'); l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap';
+    l.onload = function () { try { var s = document.fonts; ['400', '500', '600', '700'].forEach(function (w) { s.load(w + ' 1em "Hanken Grotesk"'); }); s.load('400 1em "IBM Plex Mono"'); s.load('500 1em "IBM Plex Mono"'); } catch (e) {} };
+    document.head.appendChild(l);
+  } catch (e) {}
+})();
+</script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -16,6 +48,7 @@
 <script src="./sfx.js"></script>
 <script src="./tiles.js"></script>
 <script src="./waves.js"></script>
+<script src="./lens.js"></script>
 <style>
 html{scroll-behavior:auto}
 body{margin:0;background:#FAF8F5;color:#1A1612;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -70,18 +103,10 @@ a:hover{color:#A8440F}
   <div style="max-width:1200px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:clamp(64px,7vw,88px) clamp(28px,4vw,64px)">
 
     <article data-fc="1" aria-label="Patrick Kim" style="min-width:0;display:flex;flex-direction:column">
-      <div data-rv="0" data-pt="1" style="position:relative;aspect-ratio:4/5;max-height:680px;border-radius:22px;overflow:hidden;background:#F1EAE1;color:#9A8F84;isolation:isolate">
-        <div data-px="1" style="position:absolute;left:0;right:0;top:-4%;bottom:-4%;will-change:transform">
-          <div data-zoom="1" style="position:absolute;inset:0;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)">
-            <image-slot id="founder-patrick" shape="rect" placeholder="Photo of Patrick Kim"></image-slot>
-          </div>
+      <div data-xlens="1" style="position:relative;width:90%;aspect-ratio:5/6;max-height:600px;border-radius:22px;overflow:hidden;background:#F1EAE1;color:#9A8F84;isolation:isolate">
+        <div style="position:absolute;inset:0">
+          <image-slot id="founder-patrick" shape="rect" src="images/patrick-kim.jpg" placeholder="Photo of Patrick Kim"></image-slot>
         </div>
-        <div data-scan="1" aria-hidden="true" style="position:absolute;left:0;right:0;top:-96px;height:96px;opacity:0;pointer-events:none;z-index:2;background:linear-gradient(180deg,rgba(224,100,28,0),rgba(224,100,28,.14) 72%,rgba(255,228,210,.9) 97%,rgba(224,100,28,0))"></div>
-        <div data-cover="1" aria-hidden="true" style="position:absolute;inset:-1px;z-index:4;background:#FAF8F5;transform:scaleY(0);transform-origin:50% 0%;pointer-events:none"></div>
-        <span data-cn="tl" aria-hidden="true" style="position:absolute;left:16px;top:16px;width:22px;height:22px;box-sizing:border-box;border-left:2px solid #E0641C;border-top:2px solid #E0641C;border-top-left-radius:5px;opacity:0;transform:translate(-8px,-8px);transition:opacity .35s ease,transform .55s cubic-bezier(.2,.7,.2,1);z-index:3;pointer-events:none"></span>
-        <span data-cn="tr" aria-hidden="true" style="position:absolute;right:16px;top:16px;width:22px;height:22px;box-sizing:border-box;border-right:2px solid #E0641C;border-top:2px solid #E0641C;border-top-right-radius:5px;opacity:0;transform:translate(8px,-8px);transition:opacity .35s ease,transform .55s cubic-bezier(.2,.7,.2,1);z-index:3;pointer-events:none"></span>
-        <span data-cn="bl" aria-hidden="true" style="position:absolute;left:16px;bottom:16px;width:22px;height:22px;box-sizing:border-box;border-left:2px solid #E0641C;border-bottom:2px solid #E0641C;border-bottom-left-radius:5px;opacity:0;transform:translate(-8px,8px);transition:opacity .35s ease,transform .55s cubic-bezier(.2,.7,.2,1);z-index:3;pointer-events:none"></span>
-        <span data-cn="br" aria-hidden="true" style="position:absolute;right:16px;bottom:16px;width:22px;height:22px;box-sizing:border-box;border-right:2px solid #E0641C;border-bottom:2px solid #E0641C;border-bottom-right-radius:5px;opacity:0;transform:translate(8px,8px);transition:opacity .35s ease,transform .55s cubic-bezier(.2,.7,.2,1);z-index:3;pointer-events:none"></span>
       </div>
       <div data-rv="60" style="margin-top:26px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase">
         <span style="display:flex;align-items:center;gap:10px;color:#C9551A"><span>01</span><span style="width:18px;height:1px;background:#E3B597"></span><span>Co-founder</span></span>
@@ -100,18 +125,10 @@ a:hover{color:#A8440F}
     </article>
 
     <article data-fc="1" aria-label="Edward George Tamas" style="min-width:0;display:flex;flex-direction:column">
-      <div data-rv="90" data-pt="1" style="position:relative;aspect-ratio:4/5;max-height:680px;border-radius:22px;overflow:hidden;background:#F1EAE1;color:#9A8F84;isolation:isolate">
-        <div data-px="1" style="position:absolute;left:0;right:0;top:-4%;bottom:-4%;will-change:transform">
-          <div data-zoom="1" style="position:absolute;inset:0;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)">
-            <image-slot id="founder-george" shape="rect" placeholder="Photo of Edward George Tamas"></image-slot>
-          </div>
+      <div data-xlens="1" style="position:relative;width:90%;aspect-ratio:5/6;max-height:600px;border-radius:22px;overflow:hidden;background:#F1EAE1;color:#9A8F84;isolation:isolate">
+        <div style="position:absolute;inset:0">
+          <image-slot id="founder-george" shape="rect" src="images/george-tamas.jpg" placeholder="Photo of Edward George Tamas"></image-slot>
         </div>
-        <div data-scan="1" aria-hidden="true" style="position:absolute;left:0;right:0;top:-96px;height:96px;opacity:0;pointer-events:none;z-index:2;background:linear-gradient(180deg,rgba(224,100,28,0),rgba(224,100,28,.14) 72%,rgba(255,228,210,.9) 97%,rgba(224,100,28,0))"></div>
-        <div data-cover="1" aria-hidden="true" style="position:absolute;inset:-1px;z-index:4;background:#FAF8F5;transform:scaleY(0);transform-origin:50% 0%;pointer-events:none"></div>
-        <span data-cn="tl" aria-hidden="true" style="position:absolute;left:16px;top:16px;width:22px;height:22px;box-sizing:border-box;border-left:2px solid #E0641C;border-top:2px solid #E0641C;border-top-left-radius:5px;opacity:0;transform:translate(-8px,-8px);transition:opacity .35s ease,transform .55s cubic-bezier(.2,.7,.2,1);z-index:3;pointer-events:none"></span>
-        <span data-cn="tr" aria-hidden="true" style="position:absolute;right:16px;top:16px;width:22px;height:22px;box-sizing:border-box;border-right:2px solid #E0641C;border-top:2px solid #E0641C;border-top-right-radius:5px;opacity:0;transform:translate(8px,-8px);transition:opacity .35s ease,transform .55s cubic-bezier(.2,.7,.2,1);z-index:3;pointer-events:none"></span>
-        <span data-cn="bl" aria-hidden="true" style="position:absolute;left:16px;bottom:16px;width:22px;height:22px;box-sizing:border-box;border-left:2px solid #E0641C;border-bottom:2px solid #E0641C;border-bottom-left-radius:5px;opacity:0;transform:translate(-8px,8px);transition:opacity .35s ease,transform .55s cubic-bezier(.2,.7,.2,1);z-index:3;pointer-events:none"></span>
-        <span data-cn="br" aria-hidden="true" style="position:absolute;right:16px;bottom:16px;width:22px;height:22px;box-sizing:border-box;border-right:2px solid #E0641C;border-bottom:2px solid #E0641C;border-bottom-right-radius:5px;opacity:0;transform:translate(8px,8px);transition:opacity .35s ease,transform .55s cubic-bezier(.2,.7,.2,1);z-index:3;pointer-events:none"></span>
       </div>
       <div data-rv="150" style="margin-top:26px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase">
         <span style="display:flex;align-items:center;gap:10px;color:#C9551A"><span>02</span><span style="width:18px;height:1px;background:#E3B597"></span><span>Co-founder</span></span>
@@ -153,7 +170,7 @@ a:hover{color:#A8440F}
         </span>
         <span style="display:block">
           <span style="display:block;overflow:hidden;height:1.18em;line-height:1.18em;font-size:clamp(28px,3.4vw,46px);font-weight:700;letter-spacing:-0.035em;white-space:nowrap"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .6s cubic-bezier(.7,0,.2,1)"><span>Analyze an X-ray</span><span aria-hidden="true">Analyze an X-ray</span></span></span>
-          <span style="display:block;margin-top:12px;max-width:400px;font-size:16px;line-height:1.5">Upload a dog or cat radiograph and review the areas the model highlights.</span>
+          <span style="display:block;margin-top:12px;max-width:400px;font-size:16px;line-height:1.5">Upload a dog radiograph and review the areas the model highlights.</span>
         </span>
       </a>
       <a data-rv="120" data-home="1" data-hx="1" data-hx-var="radial" data-mag-area="1" href="Radiant.dc.html" style="position:relative;overflow:hidden;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;gap:56px;min-height:260px;box-sizing:border-box;padding:clamp(24px,3vw,36px);border-radius:22px;background:#fff;border:1px solid #E2DBD2;color:#1A1612;transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .4s ease,border-color .35s ease,color .3s ease .08s" style-hover="color:#fff;border-color:#1A1612;transform:translateY(-3px);box-shadow:0 34px 60px -34px rgba(26,22,18,.6)" style-active="transform:translateY(0) scale(.985)">
@@ -209,6 +226,7 @@ class Component extends DCLogic {
     const root = this.rootRef.current; if (!root) return;
     if (!EMBED && !readAcct()) { try { window.location.replace('Login.dc.html?next=Founders.dc.html'); } catch (e) {} return; }
     this.root = root;
+    if (!EMBED) { try { document.documentElement.style.background = ''; } catch (e) {} }
     this._mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     this._coarse = window.matchMedia('(hover: none)').matches;
     const nq = window.matchMedia('(max-width: 640px)');
@@ -343,17 +361,29 @@ class Component extends DCLogic {
       else if (k === 'title') words.forEach((w, i) => { stop(w); w.style.transform = ''; fin(w.animate([{ transform: 'translate3d(0,108%,0)' }, { transform: 'translate3d(0,0,0)' }], { duration: 1150, delay: d + i * 90, easing: EXPO, fill: 'backwards' })); });
       else { const y = fromTop ? -18 : 18; fin(el.animate([{ opacity: 0, transform: 'translate3d(0,' + y + 'px,0)' }, { opacity: 1, transform: 'translate3d(0,0,0)' }], { duration: 900, delay: d, easing: EZ, fill: 'backwards' })); }
     };
-    if (rm) { els.concat(hs).forEach(el => { stop(el); clear(el); el._rv = true; }); words.forEach(w => { stop(w); w.style.transform = ''; }); this.qa('[data-cover]').forEach(c => { stop(c); c.style.transform = 'scaleY(0)'; }); return; }
+    if (rm) { this._rvS = null; els.concat(hs).forEach(el => { stop(el); clear(el); el._rv = true; }); words.forEach(w => { stop(w); w.style.transform = ''; }); this.qa('[data-cover]').forEach(c => { stop(c); c.style.transform = 'scaleY(0)'; }); return; }
     els.forEach(hide);
     hs.forEach(el => { el._rv = true; });
-    // Each block reveals once, the moment any part of it is on screen, and never hides again.
-    this._io = watch(es => es.forEach(e => { if (!e.isIntersecting) return; this._io.unobserve(e.target); show(e.target, e.boundingClientRect.top < (e.rootBounds ? e.rootBounds.top : 0) + 1); }), '0px');
-    els.forEach(el => this._io.observe(el));
+    // Blocks pop in every time they scroll into view (dropping in from above on the way back up) and only reset once fully off screen.
+    // Driven by this page's own scroll position, so it behaves the same standalone and inside the home page's frame.
+    this._rvS = { els: els.concat(hs), show, hide, y: window.scrollY };
+    this.revealTick();
+  }
+  revealTick() {
+    const R = this._rvS; if (!R) return;
+    const vh = window.innerHeight, y = window.scrollY, up = y < R.y; R.y = y;
+    const rs = R.els.map(el => el.getBoundingClientRect());
+    R.els.forEach((el, i) => {
+      const r = rs[i];
+      if (!el._rv) { if (r.top < vh * 0.94 && r.bottom > 0) R.show(el, up || r.top < 0); }
+      else if (r.bottom < -40 || r.top > vh + 40) R.hide(el);
+    });
   }
 
   kick() { if (!this._raf) this._raf = requestAnimationFrame(this.tick); }
   tick = () => {
     this._raf = 0; if (!this.root) return;
+    this.revealTick();
     const y = window.scrollY, top = y > 8;
     if (this._hd && top !== this._hdTop) { this._hdTop = top; this._hd.style.borderBottomColor = top ? '#E9E3DB' : 'transparent'; }
     if (!this._jsFx) return;

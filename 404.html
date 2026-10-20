@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found · Radiant</title>
+<meta name="robots" content="noindex">
+<script>
+// GitHub Pages serves this page for any missing address, at any depth, so every link and asset
+// resolves from the site root instead of from wherever the visitor landed.
+(function () {
+  var p = location.pathname, b = '/';
+  if (/\/404\.html$/.test(p)) b = p.replace(/[^\/]*$/, '');
+  else if (/\.github\.io$/.test(location.hostname)) { var s = p.split('/')[1]; b = s ? '/' + s + '/' : '/'; }
+  document.write('<base href="' + b + '">');
+  document.documentElement.style.background = '#161310';
+})();
+</script>
+<link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@100..900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="beam.js" defer></script>
+<style>
+html,body{margin:0;background:#161310;color:#F3EDE6;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#F08A4B;text-decoration:none}
+a:hover{color:#FFB07F}
+a:focus-visible{outline:2px solid #E0641C;outline-offset:3px;border-radius:8px}
+[data-home]:hover{color:#F3EDE6}
+[data-btn]{transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease,background-color .25s ease}
+[data-btn]:hover{color:#fff;background:#C9551A;transform:translateY(-2px);box-shadow:0 18px 34px -14px rgba(0,0,0,.7)}
+[data-btn]:active{transform:translateY(0) scale(.97)}
+</style>
+</head>
+<body>
+<section data-bw="sec" aria-labelledby="nf-title" style="position:relative;min-height:100vh;min-height:100svh;overflow:hidden;background:#161310;isolation:isolate;cursor:crosshair;touch-action:pan-y;display:flex;flex-direction:column">
+  <img alt="" draggable="false" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_view_x-ray_of_large_struvite_stone_in_bladder_of_adult_female_bichon_frise.jpg?width=1920" style="position:absolute;left:-4%;top:-4%;width:108%;height:108%;object-fit:cover;opacity:.1;pointer-events:none;filter:grayscale(1) contrast(1.2)">
+  <div data-bw="lit" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-image:linear-gradient(transparent,transparent);mask-image:linear-gradient(transparent,transparent)">
+    <img alt="" draggable="false" src="https://commons.wikimedia.org/wiki/Special:FilePath/Side_view_x-ray_of_large_struvite_stone_in_bladder_of_adult_female_bichon_frise.jpg?width=1920" style="position:absolute;left:-4%;top:-4%;width:108%;height:108%;object-fit:cover;filter:grayscale(1) contrast(1.5) brightness(1.25)">
+  </div>
+  <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(22,19,16,0) 35%,rgba(22,19,16,.55) 80%,rgba(22,19,16,.9) 100%)"></div>
+  <canvas data-bw="fx" aria-hidden="true" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></canvas>
+
+  <header style="position:relative;display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;max-width:1200px;margin:0 auto;padding:22px 24px;box-sizing:border-box">
+    <a data-home href="./" style="display:flex;align-items:center;gap:10px;color:#F3EDE6">
+      <span style="width:32px;height:32px;border-radius:9px;background:#E0641C;display:grid;place-items:center;flex:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><g transform="rotate(-45 12 12)"><rect x="7" y="10.2" width="10" height="3.6" rx="1"></rect><circle cx="7" cy="9.9" r="2.3"></circle><circle cx="7" cy="14.1" r="2.3"></circle><circle cx="17" cy="9.9" r="2.3"></circle><circle cx="17" cy="14.1" r="2.3"></circle></g></svg></span>
+      <span style="font-size:19px;font-weight:700;letter-spacing:-0.02em">Radiant</span>
+    </a>
+    <span data-bw="read" aria-hidden="true" style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;white-space:pre;font-variant-numeric:tabular-nums;color:#B9AFA4">X 0000   Y 0000   Ø 0000</span>
+  </header>
+
+  <main style="position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;max-width:1200px;margin:0 auto;padding:8px 24px 48px;box-sizing:border-box">
+    <div style="display:flex;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#F08A4B"><span style="width:7px;height:7px;border-radius:50%;background:#E0641C"></span><span>Error 404</span></div>
+    <div data-bw="word" data-max="340" role="img" aria-label="404" style="position:relative;width:100%;margin-top:8px;font-size:clamp(120px,28vw,340px);line-height:1;letter-spacing:-0.05em;font-weight:700;white-space:nowrap;text-align:center;user-select:none;-webkit-user-select:none">
+      <span data-bw="solid" aria-hidden="true" style="display:block;padding:.04em 0 .08em;color:#F3EDE6;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat"><span data-l="0" style="display:inline-block;font-weight:var(--w0,700);transform:var(--t0,none)">4</span><span data-l="1" style="display:inline-block;font-weight:var(--w1,700);transform:var(--t1,none)">0</span><span data-l="2" style="display:inline-block;font-weight:var(--w2,700);transform:var(--t2,none)">4</span></span>
+      <span data-bw="line" aria-hidden="true" style="position:absolute;inset:0;display:block;padding:.04em 0 .08em;color:transparent;-webkit-text-stroke:max(1.5px,.006em) #F08A4B;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-image:linear-gradient(transparent,transparent);mask-image:linear-gradient(transparent,transparent)"><span style="display:inline-block;font-weight:var(--w0,700);transform:var(--t0,none)">4</span><span style="display:inline-block;font-weight:var(--w1,700);transform:var(--t1,none)">0</span><span style="display:inline-block;font-weight:var(--w2,700);transform:var(--t2,none)">4</span></span>
+    </div>
+    <h1 id="nf-title" style="margin:6px 0 0;font-size:clamp(28px,3.4vw,40px);line-height:1.1;letter-spacing:-0.03em;font-weight:700">Nothing on this film.</h1>
+    <p style="margin:12px 0 0;max-width:420px;font-size:17px;line-height:1.55;color:#BDB3A8;text-wrap:pretty">The page you’re looking for doesn’t exist or has moved.</p>
+    <a data-btn href="./" style="margin-top:30px;display:inline-flex;align-items:center;gap:10px;height:50px;padding:0 22px;border-radius:11px;background:#E0641C;color:#fff;font-size:16px;font-weight:600;cursor:pointer">Back to Radiant <span aria-hidden="true">→</span></a>
+  </main>
+
+  <div style="position:relative;width:100%;max-width:1200px;margin:0 auto;padding:0 24px 20px;box-sizing:border-box;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8A8178">
+    <span data-bw="hint" data-touch="Tap to scan">Move to scan</span>
+  </div>
+</section>
+</body>
+</html>

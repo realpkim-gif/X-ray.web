@@ -3,10 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Radiant">
+<meta property="og:title" content="Radiant — AI-assisted review of animal X-rays">
+<meta property="og:description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta property="og:url" content="https://realpkim-gif.github.io/X-ray.web/">
+<meta property="og:image" content="https://realpkim-gif.github.io/X-ray.web/images/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with an area marked for review">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<script>
+// Runs before the page boots: dark background from the first frame, signed-out visitors go straight to the login,
+// and fonts start loading early so text never swaps mid-animation.
+(function () {
+  try {
+    var d = document.documentElement, emb = window.parent !== window && /[?&]embed=1/.test(location.search);
+    d.style.background = '#12100E';
+    if (emb) { d.style.overscrollBehavior = 'contain'; return; }
+    var ok = function (s) { try { var a = JSON.parse(window[s].getItem('radiant-account') || 'null'); return !!a && (!a.exp || a.exp > Date.now()); } catch (e) { return false; } };
+    if (!ok('localStorage') && !ok('sessionStorage')) { d.style.background = '#161310'; d.style.visibility = 'hidden'; location.replace('Login.dc.html?next=Analyze.dc.html'); return; }
+    if (history.state && history.state.rh === 'home') { d.style.background = '#FAF8F5'; d.style.visibility = 'hidden'; location.replace('Radiant.dc.html'); return; }
+    var l = document.createElement('link'); l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap';
+    l.onload = function () { try { var s = document.fonts; ['400', '500', '600', '700'].forEach(function (w) { s.load(w + ' 1em "Hanken Grotesk"'); }); s.load('400 1em "IBM Plex Mono"'); s.load('500 1em "IBM Plex Mono"'); } catch (e) {} };
+    document.head.appendChild(l);
+  } catch (e) {}
+})();
+</script>
 <script src="./support.js"></script>
-<!-- the fracture model runs in the browser: onnxruntime-web runs the model, radiant.js is the pipeline -->
-<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
-<script src="./radiant.js"></script>
+<!-- the fracture model runs in the browser with onnxruntime-web; ort.min.js and radiant.js (the pipeline) are loaded on demand by the page logic (see loadScripts) -->
 </head>
 <body>
 <x-dc>
@@ -52,7 +83,7 @@ input::placeholder{color:#7D746B}
     <span style="display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.1em"><span data-word="1" style="display:inline-block;padding:0 .08em;border-radius:.1em;background-image:linear-gradient(#E0641C,#E0641C);background-repeat:no-repeat;background-position:0 50%;background-size:0% 100%;transition:background-size .5s cubic-bezier(.7,0,.2,1),color .3s ease" style-hover="background-size:100% 100%;color:#12100E">an</span></span>
     <span style="display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.1em"><span data-word="1" style="display:inline-block;padding:0 .08em;border-radius:.1em;color:#E0641C;background-image:linear-gradient(#F3EDE6,#F3EDE6);background-repeat:no-repeat;background-position:0 50%;background-size:0% 100%;transition:background-size .5s cubic-bezier(.7,0,.2,1),color .3s ease" style-hover="background-size:100% 100%;color:#12100E">X-ray.</span></span>
   </h1>
-  <p data-in="160" data-sub="1" style="margin:22px auto 0;max-width:560px;text-align:center;font-size:18px;line-height:1.55;color:#C9C1B8;text-wrap:pretty">Drag in a JPG or PNG of a dog or cat radiograph, or browse your files. The image stays in your browser.</p>
+  <p data-in="160" data-sub="1" style="margin:22px auto 0;max-width:560px;text-align:center;font-size:18px;line-height:1.55;color:#C9C1B8;text-wrap:pretty">Drag in a JPG or PNG of a dog radiograph, or browse your files. The image stays in your browser.</p>
   </sc-if>
   <sc-if value="{{ tabScans }}" hint-placeholder-val="{{ false }}">
   <h1 style="margin:0;text-align:center;font-size:clamp(44px,6.6vw,88px);line-height:1.02;letter-spacing:-0.045em;font-weight:700;color:#F3EDE6">
@@ -88,10 +119,10 @@ input::placeholder{color:#7D746B}
       </span>
       <div>
         <div style="font-size:22px;font-weight:600;letter-spacing:-0.01em;color:#F3EDE6">{{ zTitle }}</div>
-        <div style="margin-top:6px;font-size:15px;color:#A69D93">or</div>
+        <sc-if value="{{ showOr }}" hint-placeholder-val="{{ true }}"><div style="margin-top:6px;font-size:15px;color:#A69D93">or</div></sc-if>
       </div>
       <button type="button" onClick="{{ pick }}" data-hx="1" style="position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;gap:10px;height:50px;padding:0 22px;border:none;border-radius:11px;background:#E0641C;color:#fff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease,color .35s ease" style-hover="color:#12100E;transform:translateY(-2px);box-shadow:0 18px 34px -14px rgba(0,0,0,.7)" style-active="transform:translateY(0) scale(.97)"><span data-hx-fill="1" style="position:absolute;left:-10%;width:120%;top:100%;height:240%;border-radius:50%;background:#F3EDE6;z-index:-1;transform:translateY(0);transition:transform .6s cubic-bezier(.7,0,.2,1)"></span><span style="display:block;overflow:hidden;height:1.3em;line-height:1.3em"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .55s cubic-bezier(.7,0,.2,1)"><span>Browse files</span><span aria-hidden="true">Browse files</span></span></span></button>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;color:#8A8178">JPG, PNG or WebP · up to 20 MB · or paste with {{ pasteKey }}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;color:#8A8178">{{ fileHint }}</div>
       <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}">
         <div role="alert" style="font-size:14px;color:#F08A4B">{{ err }}</div>
       </sc-if>
@@ -139,10 +170,13 @@ input::placeholder{color:#7D746B}
               <div style="font-size:20px;font-weight:700;letter-spacing:-0.01em;color:{{ answerColor }}">{{ answer }}</div>
               <div style="margin-top:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#A69D93">{{ answerMeta }}</div>
             </div>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px">
             <div role="group" aria-label="What to show on the X-ray" style="display:flex;flex-wrap:wrap;gap:8px">
               <button type="button" onClick="{{ showBoth }}" aria-pressed="{{ bothOn }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid {{ bothBorder }};background:{{ bothBg }};color:#F3EDE6;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Box + heatmap</button>
               <button type="button" onClick="{{ showBoxOnly }}" aria-pressed="{{ boxOn }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid {{ boxBorder }};background:{{ boxBtnBg }};color:#F3EDE6;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Box</button>
               <button type="button" onClick="{{ showHeat }}" aria-pressed="{{ heatOn }}" style="height:36px;padding:0 14px;border-radius:9px;border:1px solid {{ heatBorder }};background:{{ heatBtnBg }};color:#F3EDE6;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Heatmap</button>
+            </div>
+            <button type="button" onClick="{{ report }}" disabled="{{ pdfBusy }}" style="margin-left:{{ pdfMl }};display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:9px;border:1px solid #E0641C;background:transparent;color:#F08A4B;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background-color .2s ease" style-hover="background-color:rgba(224,100,28,.12)"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"></path></svg><span>{{ pdfLabel }}</span></button>
             </div>
             <div style="font-size:13px;line-height:1.5;color:#8A8178">{{ disclaimer }}</div>
           </div>
@@ -294,11 +328,16 @@ input::placeholder{color:#7D746B}
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const MAX = 20 * 1048576;
 const MODEL_URL = './model/';
+const ORT_URL = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js';
+const addScript = src => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = () => res(); s.onerror = () => rej(new Error('could not load ' + src)); document.head.appendChild(s); });
+// onnxruntime-web and radiant.js only load when the model is needed, so opening this page (or preloading it behind the home page) stays light.
+const loadScripts = () => window.radiantScripts || (window.radiantScripts = (typeof ort !== 'undefined' ? Promise.resolve() : addScript(ORT_URL)).then(() => typeof Radiant !== 'undefined' ? null : addScript('./radiant.js')));
 const loadModel = () => {
   // start downloading once per page; every caller gets the same promise
-  if (!window.radiantReady) window.radiantReady = typeof Radiant === 'undefined'
-    ? Promise.reject(new Error('radiant.js did not load'))
-    : Radiant.load(MODEL_URL);
+  if (!window.radiantReady) window.radiantReady = loadScripts().then(() => {
+    if (typeof Radiant === 'undefined') throw new Error('radiant.js did not load');
+    return Radiant.load(MODEL_URL);
+  });
   return window.radiantReady;
 };
 const whenT = (cb, fail) => { const t0 = performance.now(); const tick = () => { if (window.RadiantTiles) cb(window.RadiantTiles); else if (performance.now() - t0 > 1500) fail(); else setTimeout(tick, 16); }; tick(); };
@@ -346,9 +385,9 @@ class Component extends DCLogic {
     const root = this.rootRef.current; if (!root) return;
     if (!EMBED && !readAcct()) { try { window.location.replace('Login.dc.html?next=Analyze.dc.html'); } catch (e) {} return; }
     this.root = root;
-    // start downloading the model right away, so it's ready by the time an X-ray is picked
-    loadModel().then(() => { if (!this._dead) this.setState({ model: 'ready' }); })
-               .catch(e => { if (!this._dead) this.setState({ model: 'error', modelErr: String(e && e.message || e) }); });
+    // The model starts downloading once this page is on screen and its entrance has settled (or as soon as an X-ray is picked),
+    // never while the page sits preloaded and hidden behind the home page.
+    if (!EMBED) this._mdlT = setTimeout(() => this.startModel(), 1400);
     this._mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const nq = window.matchMedia('(max-width: 520px)');
     this._nq = nq; this._setN = () => this.setState({ narrow: nq.matches }); this._setN(); nq.addEventListener('change', this._setN);
@@ -367,8 +406,9 @@ class Component extends DCLogic {
       window.addEventListener('message', this._onMsg);
       postUp('ready');
     } else if (!this.rm()) {
-      const pre = () => whenT(T => { if (!this.tx && T.host) this.tx = T.host('Radiant.dc.html'); }, () => {});
-      this._pre = setTimeout(pre, 1600);
+      const pre = () => whenT(() => this.mkTx(), () => {});
+      this._pre = setTimeout(() => { if (window.requestIdleCallback) window.requestIdleCallback(pre, { timeout: 2000 }); else pre(); }, 2600);
+      this._onPop = e => this.onPop(e); window.addEventListener('popstate', this._onPop);
       this._txHover = e => { if (e.target.closest && e.target.closest('[data-to]')) { clearTimeout(this._pre); pre(); } };
       window.addEventListener('pointerover', this._txHover, true);
     }
@@ -389,7 +429,8 @@ class Component extends DCLogic {
     if (this._nq) this._nq.removeEventListener('change', this._setN);
     if (this._ripDown) window.removeEventListener('pointerdown', this._ripDown);
     if (this._rsz) window.removeEventListener('resize', this._rsz);
-    clearInterval(this._amb); clearTimeout(this._uvT); clearTimeout(this._ovT); clearTimeout(this._trT); clearTimeout(this._bT);
+    clearInterval(this._amb); clearTimeout(this._uvT); clearTimeout(this._ovT); clearTimeout(this._trT); clearTimeout(this._bT); clearTimeout(this._mdlT); clearTimeout(this._chT);
+    if (this._onPop) window.removeEventListener('popstate', this._onPop);
     this.rip = null; this._dead = true;
     this.dropLayers();
     if (this.state.file) URL.revokeObjectURL(this.state.file.url);
@@ -411,6 +452,12 @@ class Component extends DCLogic {
     this._conf = st.conf;
   }
 
+  startModel() {
+    clearTimeout(this._mdlT); this._mdlT = 0;
+    if (this._mdl || this._dead) return; this._mdl = true;
+    loadModel().then(() => { if (!this._dead) this.setState({ model: 'ready' }); })
+               .catch(e => { if (!this._dead) this.setState({ model: 'error', modelErr: String(e && e.message || e) }); });
+  }
   unveil() {
     const cv = this.q('cover'); if (!cv) return;
     let tx = null; try { tx = JSON.parse(sessionStorage.getItem('radiant-tx') || 'null'); if (tx && tx.to === 'analyze') sessionStorage.removeItem('radiant-tx'); } catch (e) {}
@@ -420,16 +467,37 @@ class Component extends DCLogic {
     this._uvT = setTimeout(finish, 6000);
     whenT(T => T.arrive(cv, { content: this.flow(), start: base => { this.intro(base); }, done: finish }), () => finish());
   }
-  leave(x, y, href) {
-    if (EMBED) { this._par = this.flow().map(el => el.animate([{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-6vh,0)' }], { duration: 960, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' })); postUp('back'); return; }
+  leave(x, y, href, fromPop) {
+    if (EMBED) { this._open = false; this._par = this.flow().map(el => el.animate([{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-6vh,0)' }], { duration: 960, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' })); postUp('back'); return; }
     const T = window.RadiantTiles, nav = () => { window.location.href = href; };
     if (this.rm() || !T) { nav(); return; }
     const fallback = cv => { if (this._txBusy) return; this._txBusy = true; try { sessionStorage.setItem('radiant-tx', JSON.stringify({ to: 'home', t: Date.now() })); } catch (e) {} if (cv) { this._txOv = cv; nav(); return; } this._txOv = T.leave(x, y, nav, { content: this.flow(), sfx: 'tilesBack' }); };
-    if (T.host) { if (!this.tx) this.tx = T.host('Radiant.dc.html', { defer: true }); this.tx.open({ content: this.flow(), fallback, sfx: 'tilesBack', sfxBack: 'tiles' }); } else fallback();
+    if (T.host) this.mkTx(true).open({ content: this.flow(), fallback, sfx: 'tilesBack', sfxBack: 'tiles', done: () => { if (!fromPop) { try { history.pushState({ rh: 'home' }, ''); } catch (e) {} } } }); else fallback();
+  }
+  // The home page hosted over this one gets its own history entry (same URL), so Back returns here instead of leaving.
+  mkTx(defer) {
+    if (this.tx || EMBED) return this.tx;
+    const T = window.RadiantTiles; if (!T || !T.host) return null;
+    const h = this.tx = T.host('Radiant.dc.html', defer ? { defer: true } : null);
+    h.onBack = () => this.closeHome();
+    return h;
+  }
+  closeHome(n = 0, fromPop) {
+    clearTimeout(this._chT); const h = this.tx; if (!h) return;
+    if (h.busy) { if (n < 50) this._chT = setTimeout(() => this.closeHome(n + 1, fromPop), 100); return; }
+    if (!fromPop && history.state && history.state.rh === 'home') { try { history.back(); return; } catch (e) {} }
+    if (h.isOpen) h.close({ content: this.flow(), sfxBack: 'tiles' });
+  }
+  onPop(e) {
+    const k = e.state && e.state.rh, h = this.tx;
+    if (k === 'home') { if (!(h && (h.isOpen || h.busy))) this.leave(window.innerWidth / 2, window.innerHeight / 2, 'Radiant.dc.html', true); }
+    else this.closeHome(0, true);
   }
   enterEmbed() {
+    this._open = true; window.scrollTo(0, 0);
     this.setAcct(); this.loadScans();
     if (this._par) { this._par.forEach(a => a.cancel()); this._par = null; }
+    if (!this._mdl) { clearTimeout(this._mdlT); this._mdlT = setTimeout(() => { if (this._open) this.startModel(); }, 1500); }
     if (this.rm()) return;
     this.flow().forEach(el => el.animate([{ transform: 'translate3d(0,7vh,0)' }, { transform: 'translate3d(0,0,0)' }], { duration: 1210, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
     this.intro(120);
@@ -567,6 +635,7 @@ class Component extends DCLogic {
     if (!f) return;
     if (!f.type || !f.type.startsWith('image/')) { this.setState({ err: 'That file isn\u2019t an image. Choose a JPG, PNG or WebP.' }); return; }
     if (f.size > MAX) { this.setState({ err: 'That image is over 20 MB. Try a smaller export.' }); return; }
+    this.startModel();
     if (this.state.file) URL.revokeObjectURL(this.state.file.url);
     const url = URL.createObjectURL(f), sig = [f.name || '', f.size, f.lastModified || 0].join('|');
     this._raw = f;   // the File itself, for the model
@@ -732,7 +801,7 @@ class Component extends DCLogic {
     const f = this._raw;
     if (!f || this.state.busy || this.state.model !== 'ready') return;
     this.dropLayers();
-    this.setState({ busy: true, res: null, gate: null, err: '' });
+    this.setState({ busy: true, res: null, gate: null, err: '', pdf: '' });
     const started = performance.now();
     try {
       const out = await Radiant.analyse(f, 'both', stillRun);
@@ -751,9 +820,27 @@ class Component extends DCLogic {
   };
 
 
+  // one-page PDF of the current result: the X-ray, what the viewer shows on it, confidence and the disclaimer
+  report = async () => {
+    const st = this.state, res = st.res, f = st.file;
+    if (!res || !f || this._pdfBusy) return;
+    this._pdfBusy = true; this.setState({ pdf: 'busy' });
+    try {
+      if (!window.RadiantReport) await new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'report.js'; s.onload = ok; s.onerror = () => no(new Error('report.js')); document.head.appendChild(s); });
+      const L = res.layers || {};
+      await window.RadiantReport.make({ xray: L.xray || f.url, heat: L.heatmap, box: L.box, view: st.layer, answer: res.answer, answerText: res.answer === 'fracture' ? 'Possible fracture' : 'No fracture found', confidence: res.confidence, votes: res.fracture_votes, gateSkipped: res.gate === 'skipped', fileName: f.name, dims: f.dims, secs: st.secs });
+      if (!this._dead) this.setState({ pdf: '' });
+    } catch (e) {
+      if (!this._dead) this.setState({ pdf: 'err' });
+    }
+    this._pdfBusy = false;
+  };
+
   renderVals() {
     const st = this.state, f = st.file, over = st.over, ac = this.acct;
     const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
+    // phones and tablets can't drag files in or paste with a keyboard shortcut
+    const touch = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
     const tabNew = st.tab !== 'scans', n = st.scans.length, vis = tabNew ? [] : this.visible(), groups = [];
     let grp = null;
     vis.forEach(s => {
@@ -777,8 +864,9 @@ class Component extends DCLogic {
       zBg: over ? 'rgba(224,100,28,.07)' : 'rgba(26,22,18,.62)',
       zScale: over ? 1.015 : 1,
       iconBorder: over ? '#E0641C' : '#3A342E', iconY: over ? '-4px' : '0px',
-      zTitle: over ? 'Drop to insert' : 'Drag an X-ray here',
-      pasteKey: mac ? '\u2318V' : 'Ctrl+V',
+      zTitle: over ? 'Drop to insert' : touch ? 'Add an X-ray' : 'Drag an X-ray here',
+      showOr: !touch,
+      fileHint: 'JPG, PNG or WebP \u00b7 up to 20 MB' + (touch ? '' : ' \u00b7 or paste with ' + (mac ? '\u2318V' : 'Ctrl+V')),
       hasErr: !!st.err, err: st.err,
       fileBg: f ? 'url("' + f.url + '")' : 'none', fileName: f ? f.name : '',
       fileMeta: f ? [f.size, f.type, f.dims].filter(Boolean).join(' \u00b7 ') : '',
@@ -847,6 +935,8 @@ class Component extends DCLogic {
       answerColor: res && res.answer === 'fracture' ? '#F08A4B' : '#F3EDE6',
       answerMeta: res ? Math.round(res.confidence * 100) + '% confident · ' + res.fracture_votes + ' votes for fracture' + (res.gate === 'skipped' ? ' · X-ray check skipped' : '') : '',
       disclaimer: res ? res.disclaimer : '',
+      report: this.report, pdfBusy: st.pdf === 'busy', pdfMl: st.narrow ? '0px' : 'auto',
+      pdfLabel: st.pdf === 'busy' ? 'Preparing PDF…' : st.pdf === 'err' ? 'PDF failed, try again' : 'Download PDF report',
       heatBg: showHeat ? 'url("' + L.heatmap + '")' : 'none',
       boxBg: showBox ? 'url("' + L.box + '")' : 'none',
 
@@ -855,11 +945,6 @@ class Component extends DCLogic {
       showHeat: () => this.setState({ layer: 'heatmap' }), heatOn: view === 'heatmap' ? 'true' : 'false', heatBorder: heat.border, heatBtnBg: heat.bg
     };
   }
-}
-</script>
-</body>
-</html>
-
 }
 </script>
 </body>
