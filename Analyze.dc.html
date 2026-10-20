@@ -349,21 +349,28 @@ const unb64 = u => u ? fetch(u).then(r => r.blob()) : Promise.resolve(null);
 const DRIVE = (() => {
   const TK = 'radiant-drive', GONE = 'radiant-drive-gone', API = 'https://www.googleapis.com/drive/v3/files', UP = 'https://www.googleapis.com/upload/drive/v3/files';
   let lib = null;
-  const tok = () => { try { const t = JSON.parse(sessionStorage.getItem(TK) || 'null'); return t && t.exp > Date.now() + 60000 ? t.v : ''; } catch (e) { return ''; } };
-  const req = (url, o) => fetch(url, Object.assign({}, o, { headers: { Authorization: 'Bearer ' + tok() } })).then(r => { if (r.status === 401) try { sessionStorage.removeItem(TK); } catch (e) {} if (!r.ok && r.status !== 404) throw new Error('Drive ' + r.status); return r; });
-  const api = { ready: () => !!tok() };
+  const api = { sub: '' };   // sub = the signed-in Google account; a token saved for someone else is ignored
+  const saved = () => { try { const t = JSON.parse(localStorage.getItem(TK) || 'null'); return t && t.sub === api.sub ? t : null; } catch (e) { return null; } };
+  const save = t => { try { localStorage.setItem(TK, JSON.stringify(Object.assign({ sub: api.sub }, t))); } catch (e) {} };
+  const tok = () => { const t = saved(); return t && t.v && t.exp > Date.now() + 60000 ? t.v : ''; };
+  const req = (url, o) => fetch(url, Object.assign({}, o, { headers: { Authorization: 'Bearer ' + tok() } })).then(r => { if (r.status === 401) save({}); if (!r.ok && r.status !== 404) throw new Error('Drive ' + r.status); return r; });
+  api.ready = () => !!tok();
+  api.off = () => !!(saved() || {}).off;   // the user said no to Drive backup
+  api.loaded = () => !!(window.google && google.accounts && google.accounts.oauth2);
   api.load = () => lib || (lib = new Promise((res, rej) => { if (window.google && google.accounts && google.accounts.oauth2) return res(); const s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.async = true; s.onload = res; s.onerror = rej; document.head.appendChild(s); }));
-  // call straight from a click (the library must already be loaded): Google opens a consent popup.
-  // ponytail: tokens last 1 hour and aren't refreshed silently; after that the user clicks the button again
-  api.connect = (cid, email) => new Promise((res, rej) => {
-    if (!(window.google && google.accounts && google.accounts.oauth2)) return rej(new Error('Still loading, try again.'));
-    google.accounts.oauth2.initTokenClient({ client_id: cid, scope: 'https://www.googleapis.com/auth/drive.appdata', login_hint: email, error_callback: rej, callback: r => {
+  // call straight from a click (the library must already be loaded). prompt '' = no consent screen if
+  // already allowed, so the popup closes by itself. ponytail: without a server Google's permission lasts
+  // 1 hour, so it's renewed on the user's next click after that; a small server with refresh tokens would avoid the popup
+  api.connect = (cid, email, prompt) => new Promise((res, rej) => {
+    if (!api.loaded()) return rej(new Error('Still loading, try again.'));
+    const scope = 'openid https://www.googleapis.com/auth/drive.appdata';
+    google.accounts.oauth2.initTokenClient({ client_id: cid, scope, login_hint: email, prompt, error_callback: rej, callback: r => {
       if (r.error || !r.access_token) return rej(new Error(r.error || 'denied'));
-      try { sessionStorage.setItem(TK, JSON.stringify({ v: r.access_token, exp: Date.now() + r.expires_in * 1000 })); } catch (e) {}
+      if (!google.accounts.oauth2.hasGrantedAllScopes(r, 'https://www.googleapis.com/auth/drive.appdata')) { save({ off: 1 }); return rej(new Error('Drive wasn\u2019t allowed.')); }
       // the popup lets people pick any Google account; only back up to the one they signed in with
-      req('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)').then(x => x.json()).then(j => {
-        if (email && j.user && String(j.user.emailAddress).toLowerCase() !== String(email).toLowerCase()) { try { sessionStorage.removeItem(TK); } catch (e) {} throw new Error('Pick ' + email + ' in the Google popup.'); }
-        res();
+      fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: 'Bearer ' + r.access_token } }).then(x => x.json()).then(j => {
+        if (j.sub !== api.sub) throw new Error('Pick ' + email + ' in the Google popup.');
+        save({ v: r.access_token, exp: Date.now() + r.expires_in * 1000 }); res();
       }).catch(rej);
     } }).requestAccessToken();
   });
@@ -404,7 +411,16 @@ class Component extends DCLogic {
     const mq2 = window.matchMedia('(max-width: 860px)'); this._mq2 = mq2; this._setM = () => this.setState({ mid: mq2.matches }); this._setM(); mq2.addEventListener('change', this._setM);
     const mq3 = window.matchMedia('(max-height: 640px)'); this._mq3 = mq3; this._setS = () => this.setState({ short: mq3.matches }); this._setS(); mq3.addEventListener('change', this._setS);
     this._rec = new Map(); this._turl = new Map(); this.setAcct(); this.loadScans();
-    if (this.cid) { DRIVE.load().catch(() => {}); if (DRIVE.ready()) this.runSync(); }
+    if (this.cid) {
+      DRIVE.load().catch(() => {});
+      if (DRIVE.ready()) this.runSync();
+      // pull scans added on other devices: when the tab comes back into view, and every 2 minutes while it's open
+      this._sync = () => { if (document.visibilityState === 'visible' && DRIVE.ready() && this.state.drive !== 'busy' && Date.now() - (this._synced || 0) > 20000) this.runSync(); };
+      this._syncT = setInterval(this._sync, 120000); document.addEventListener('visibilitychange', this._sync);
+      // permission ran out (or was never given): renew it on the next click, which Google needs for its popup
+      this._renew = () => { if (!DRIVE.ready() && !DRIVE.off() && !this._noNag) this.connectDrive(''); };
+      window.addEventListener('click', this._renew, true);
+    }
     this._key = e => this.viewKey(e); window.addEventListener('keydown', this._key);
     this.initRipple(); this.initHx(); this.initBack(); this.unveil();
     root.querySelectorAll('a[href="Radiant.dc.html"]').forEach(a => { a.dataset.to = 'Radiant.dc.html'; a.setAttribute('href', '#home'); });
@@ -434,7 +450,7 @@ class Component extends DCLogic {
     window.addEventListener('dragover', this._dOver); window.addEventListener('drop', this._dDrop); window.addEventListener('paste', this._paste);
   }
   componentWillUnmount() {
-    window.removeEventListener('pageshow', this._onShow); if (this._onMsg) window.removeEventListener('message', this._onMsg); if (this._txHover) window.removeEventListener('pointerover', this._txHover, true); clearTimeout(this._pre);  window.removeEventListener('click', this._onClick, true);
+    window.removeEventListener('pageshow', this._onShow); clearInterval(this._syncT); if (this._sync) document.removeEventListener('visibilitychange', this._sync); if (this._renew) window.removeEventListener('click', this._renew, true); if (this._onMsg) window.removeEventListener('message', this._onMsg); if (this._txHover) window.removeEventListener('pointerover', this._txHover, true); clearTimeout(this._pre);  window.removeEventListener('click', this._onClick, true);
     window.removeEventListener('dragover', this._dOver); window.removeEventListener('drop', this._dDrop); window.removeEventListener('paste', this._paste);
     if (this._nq) this._nq.removeEventListener('change', this._setN);
     if (this._ripDown) window.removeEventListener('pointerdown', this._ripDown);
@@ -627,7 +643,7 @@ class Component extends DCLogic {
     im.onload = () => { const cur = this.state.file; if (cur && cur.url === url) { this.setState({ file: { ...cur, dims: im.naturalWidth + ' \u00d7 ' + im.naturalHeight } }); this.saveScan(f, im); } };
     im.src = url;
   }
-  setAcct() { this.acct = readAcct(); this.acctId = this.acct ? String(this.acct.id || this.acct.email || 'guest') : ''; this.cid = this.acct && this.acct.provider === 'google' ? this.acct.cid || '' : ''; }
+  setAcct() { this.acct = readAcct(); this.acctId = this.acct ? String(this.acct.id || this.acct.email || 'guest') : ''; this.cid = this.acct && this.acct.provider === 'google' ? this.acct.cid || '' : ''; DRIVE.sub = this.cid ? this.acctId : ''; }
   setTab(t, extra) {
     if (t === this.state.tab && !extra) return;
     if (t !== this.state.tab && !EMBED) { try { history.replaceState(history.state, '', t === 'scans' ? '#scans' : location.pathname + location.search); } catch (e) {} }
@@ -714,13 +730,22 @@ class Component extends DCLogic {
     if (!this._dead) this.loadScans();
   }
   runSync = () => {
+    if (this.state.drive === 'busy') return;
+    this._synced = Date.now();
     this.setState({ drive: 'busy', driveErr: '' });
     this.sync().then(() => { if (!this._dead) this.setState({ drive: 'on' }); }, e => { if (!this._dead) this.setState({ drive: DRIVE.ready() ? 'on' : 'off', driveErr: 'Sync failed: ' + (e && e.message || e) }); });
   };
+  connectDrive(prompt) {
+    if (this._asking || !DRIVE.loaded()) return;
+    this._asking = true;
+    DRIVE.connect(this.cid, this.acct && this.acct.email, prompt).then(() => { this._asking = false; this._noNag = false; this.runSync(); }, e => {
+      this._asking = false; this._noNag = true;   // closed or refused: don't ask again on every click this visit
+      if (!this._dead) this.setState({ drive: 'off', driveErr: e && e.type === 'popup_closed' ? '' : 'Couldn\u2019t connect Google Drive. ' + (e && (e.message || e.type) || '') });
+    });
+  }
   driveClick = () => {
     if (this.state.drive === 'busy') return;
-    if (DRIVE.ready()) { this.runSync(); return; }
-    DRIVE.connect(this.cid, this.acct && this.acct.email).then(this.runSync, e => { if (!this._dead) this.setState({ drive: 'off', driveErr: 'Couldn\u2019t connect Google Drive. ' + (e && (e.message || e.type) || '') }); });
+    if (DRIVE.ready()) this.runSync(); else this.connectDrive(DRIVE.off() ? 'consent' : '');
   };
   visible() {
     const q = this.state.hq.trim().toLowerCase(), old = this.state.sort === 'old';
@@ -903,8 +928,8 @@ class Component extends DCLogic {
       countLabel: q ? vis.length + ' of ' + n + ' scans' : n + (n === 1 ? ' scan' : ' scans'),
       privNote: st.hist === 'mem' ? 'Saved for this visit only. This browser is blocking storage.' : 'Private to ' + who + (st.drive === 'on' ? ' \u00b7 backed up to your Google Drive' : ' on this device'),
       canDrive: !!this.cid && st.hist !== 'noacct', driveClick: this.driveClick, driveErr: st.driveErr || '', hasDriveErr: !!st.driveErr,
-      driveLabel: st.drive === 'busy' ? 'Syncing\u2026' : st.drive === 'on' ? 'Sync now' : 'Back up to Google Drive',
-      driveNote: st.drive === 'on' ? 'Your scans are saved to your Google Drive and show up on any device you sign in on.' : 'Save your scans to your own Google Drive so they show up on any device you sign in on.',
+      driveLabel: st.drive === 'busy' ? 'Syncing\u2026' : st.drive === 'on' ? 'Sync now' : DRIVE.off() ? 'Turn on backup' : 'Reconnect',
+      driveNote: DRIVE.off() && st.drive !== 'on' ? 'Drive backup is off. Turn it on to see your scans on any device you sign in on.' : 'Your scans back up to your Google Drive automatically and show up on any device you sign in on.',
       groups, cardMin: st.narrow ? '140px' : '188px',
       isSaved: !!(f && f.savedId),
       viewing: !!v, vBg: v ? 'url("' + (st.vUrl || v.turl) + '")' : 'none', vDl: v ? (st.vUrl || v.turl) : '', vName: v ? v.name : '', vAria: v ? 'Scan ' + v.name : 'Scan',

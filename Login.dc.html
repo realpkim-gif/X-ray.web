@@ -49,9 +49,8 @@ button:focus-visible{outline:2px solid #E0641C;outline-offset:3px}
             </div>
           </sc-if>
           <div data-in="1" style="margin-top:28px;min-height:44px">
-            <div ref="{{ gRef }}" style="display:flex;justify-content:center"></div>
-            <sc-if value="{{ demo }}" hint-placeholder-val="{{ false }}">
-              <button type="button" onClick="{{ gDemo }}" style="position:relative;width:100%;height:44px;display:flex;align-items:center;justify-content:center;padding:0 48px;box-sizing:border-box;border-radius:22px;border:1px solid #3C4043;background:#202124;color:#E8EAED;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;transition:background .2s ease,border-color .2s ease" style-hover="background:#2B2C2F;border-color:#5F6368">
+            <sc-if value="{{ showBtn }}" hint-placeholder-val="{{ false }}">
+              <button type="button" onClick="{{ gBtn }}" style="position:relative;width:100%;height:44px;display:flex;align-items:center;justify-content:center;padding:0 48px;box-sizing:border-box;border-radius:22px;border:1px solid #3C4043;background:#202124;color:#E8EAED;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;transition:background .2s ease,border-color .2s ease" style-hover="background:#2B2C2F;border-color:#5F6368">
                 <span style="position:absolute;left:5px;top:50%;width:32px;height:32px;margin-top:-16px;border-radius:50%;background:#fff;display:grid;place-items:center"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg></span>
                 <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}"><span>Sign in with Google</span></sc-if>
                 <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}"><span>Sign up with Google</span></sc-if>
@@ -63,13 +62,6 @@ button:focus-visible{outline:2px solid #E0641C;outline-offset:3px}
               <div style="font-size:14px;font-weight:600;color:#F3EDE6">Google sign-in isn’t connected yet</div>
               <p style="margin:4px 0 0;font-size:13.5px;line-height:1.55;color:#B9AFA4">Add a Google OAuth client ID to turn it on. Until then, you can look around with a demo account.</p>
               <button type="button" onClick="{{ useDemo }}" style="margin-top:12px;height:36px;padding:0 14px;border-radius:9px;border:1px solid rgba(243,237,230,.22);background:rgba(243,237,230,.04);color:#F3EDE6;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:border-color .2s ease,color .2s ease" style-hover="border-color:#F08A4B;color:#F08A4B">Use a demo account</button>
-            </div>
-          </sc-if>
-          <sc-if value="{{ nOrigin }}" hint-placeholder-val="{{ false }}">
-            <div data-nt="1" role="status" style="margin-top:14px;padding:14px 16px;border-radius:12px;background:rgba(224,100,28,.08);border:1px solid rgba(224,100,28,.3)">
-              <div style="font-size:14px;font-weight:600;color:#F3EDE6">Google sign-in is blocked on this address</div>
-              <p style="margin:4px 0 0;font-size:13.5px;line-height:1.55;color:#B9AFA4">Add this address to your client ID’s Authorized JavaScript origins in Google Cloud Console:</p>
-              <div style="margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#F08A4B;overflow-wrap:anywhere">{{ origin }}</div>
             </div>
           </sc-if>
           <sc-if value="{{ nError }}" hint-placeholder-val="{{ false }}">
@@ -128,14 +120,15 @@ button:focus-visible{outline:2px solid #E0641C;outline-offset:3px}
 <script type="text/x-dc" data-dc-script data-props="{&quot;googleClientId&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Google sign-in&quot;},&quot;keepDefault&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Saved login&quot;},&quot;previewReducedMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Accessibility&quot;}}">
 // Paste your Google OAuth 2.0 Web client ID here (or set it in Tweaks → Google sign-in).
 const GOOGLE_CLIENT_ID = '1075348249061-9e4jmgf1fipop4rueka76otbf84el340.apps.googleusercontent.com';
-const KEY = 'radiant-account', KEEP = 30 * 864e5;
+const KEY = 'radiant-account', KEEP = 30 * 864e5, DRIVE_TK = 'radiant-drive';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata', SCOPES = 'openid email profile ' + DRIVE_SCOPE;
 const readAcct = () => { for (const s of ['localStorage', 'sessionStorage']) { try { const st = window[s], a = JSON.parse(st.getItem(KEY) || 'null'); if (a && (!a.exp || a.exp > Date.now())) return a; if (a) st.removeItem(KEY); } catch (e) {} } return null; };
 const saveAcct = (a, keep) => {
   const v = Object.assign({}, a, { at: Date.now(), keep: !!keep, exp: keep ? Date.now() + KEEP : 0 });
   try { if (keep) { localStorage.setItem(KEY, JSON.stringify(v)); sessionStorage.removeItem(KEY); } else { sessionStorage.setItem(KEY, JSON.stringify(v)); localStorage.removeItem(KEY); } } catch (e) {}
   return v;
 };
-const clearAcct = () => ['localStorage', 'sessionStorage'].forEach(s => { try { window[s].removeItem(KEY); } catch (e) {} });
+const clearAcct = () => ['localStorage', 'sessionStorage'].forEach(s => { try { window[s].removeItem(KEY); window[s].removeItem(DRIVE_TK); } catch (e) {} });
 const jwt = t => { const p = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'), b = atob(p + '='.repeat((4 - p.length % 4) % 4)); return JSON.parse(new TextDecoder().decode(Uint8Array.from(b, c => c.charCodeAt(0)))); };
 const NEXT = (() => { try { const n = new URLSearchParams(location.search).get('next') || ''; return /^(Radiant|Intro|Analyze|Founders)\.dc\.html(#[\w-]+)?$/.test(n) ? n : 'Radiant.dc.html'; } catch (e) { return 'Radiant.dc.html'; } })();
 const MODE0 = /[?&]mode=signup(&|$)/.test(location.search) ? 'signup' : 'login';
@@ -146,7 +139,7 @@ const fontsOk = () => { try { const fs = document.fonts; if (!fs) return true; l
 
 class Component extends DCLogic {
   state = (() => { const a = readAcct(); return { mode: MODE0, remember: true, view: a ? 'known' : 'form', acct: a, fresh: false, gis: 'loading', notice: '', wide: window.innerWidth >= 900 }; })();
-  rootRef = React.createRef(); formRef = React.createRef(); gRef = React.createRef();
+  rootRef = React.createRef(); formRef = React.createRef();
   rm() { return !!this.props.previewReducedMotion || !!(this._mq && this._mq.matches); }
   pics() { const p = (this.state.acct && this.state.acct.picture) || ''; if (!p || !this.root) return; this.root.querySelectorAll('img[data-pic]').forEach(i => { if (i.getAttribute('src') !== p) i.setAttribute('src', p); }); }
   cidNow() { return String(this.props.googleClientId || GOOGLE_CLIENT_ID || '').trim(); }
@@ -158,24 +151,22 @@ class Component extends DCLogic {
     this._wq = window.matchMedia('(min-width: 900px)'); this._setW = () => this.setState({ wide: this._wq.matches }); this._wq.addEventListener('change', this._setW);
     if (this.props.keepDefault === false) this.setState({ remember: false });
     this.cid = this.cidNow(); this.loadGis();
-    this._rs = () => { clearTimeout(this._rsT); this._rsT = setTimeout(() => this.renderG(), 160); };
-    window.addEventListener('resize', this._rs);
     this.intro(); this.pics();
   }
   componentDidUpdate(pp) {
     if (!this.root) return;
     const cid = this.cidNow(), st = this.state, ps = this._ps || {}; this._ps = { view: st.view, mode: st.mode, notice: st.notice, wide: st.wide }; this.pics();
-    if (cid !== this.cid) { this.cid = cid; this._gisOk = false; this._gEl = null; if (this.gRef.current) this.gRef.current.innerHTML = ''; this.setState({ gis: 'loading', notice: '' }); this.loadGis(); }
+    if (cid !== this.cid) { this.cid = cid; this._gisOk = false; this.setState({ gis: 'loading', notice: '' }); this.loadGis(); }
     if (pp.keepDefault !== this.props.keepDefault) this.setState({ remember: this.props.keepDefault !== false });
-    if (ps.view !== st.view) { this.reveal(false); if (st.view === 'form') this.renderG(); if (st.view === 'done') this.bar(); }
-    else if (ps.mode !== st.mode) { this.anim('[data-sw]'); this.renderG(); }
+    if (ps.view !== st.view) { this.reveal(false); if (st.view === 'done') this.bar(); }
+    else if (ps.mode !== st.mode) this.anim('[data-sw]');
     if (st.notice && ps.notice !== st.notice) this.anim('[data-nt]');
     if (st.wide && !ps.wide) this.panelIn();
   }
   componentWillUnmount() {
     this.root = null;
-    cancelAnimationFrame(this._fw); clearTimeout(this._lv); clearTimeout(this._rsT); clearTimeout(this._gChk);
-    window.removeEventListener('resize', this._rs); if (this._wq) this._wq.removeEventListener('change', this._setW);
+    cancelAnimationFrame(this._fw); clearTimeout(this._lv);
+    if (this._wq) this._wq.removeEventListener('change', this._setW);
   }
 
   intro() {
@@ -226,26 +217,51 @@ class Component extends DCLogic {
     if (!this.root || this._gisOk || !this.cid) return;
     try {
       google.accounts.id.initialize({ client_id: this.cid, callback: this.onCred, ux_mode: 'popup', itp_support: true, use_fedcm_for_prompt: true });
-      this._gisOk = true; this.setState({ gis: 'ready' }, () => { this.renderG(); this.oneTap(); });
+      this._gisOk = true; this.setState({ gis: 'ready' }, () => this.oneTap());
     } catch (e) { this.setState({ gis: 'error', notice: 'error' }); }
   }
   // Google's "Continue as <name>" card with the Gmail profile photo, for people already signed in to Google
   oneTap() { if (this._gisOk && this.state.view === 'form') try { google.accounts.id.prompt(); } catch (e) {} }
-  renderG() {
-    const el = this.gRef.current; if (!el || !this._gisOk || this.state.view !== 'form') return;
-    const w = Math.round(Math.max(200, Math.min(400, el.offsetWidth || 380))), key = this.state.mode + w;
-    if (el === this._gEl && key === this._gKey) return;
-    this._gEl = el; this._gKey = key; el.innerHTML = '';
-    try { google.accounts.id.renderButton(el, { type: 'standard', theme: 'filled_black', size: 'large', shape: 'pill', text: this.state.mode === 'signup' ? 'signup_with' : 'signin_with', logo_alignment: 'left', width: w }); } catch (e) { this.setState({ notice: 'error' }); return; }
-    clearTimeout(this._gChk);
-    this._gChk = setTimeout(() => { if (this.root && this._gEl === el && this.state.view === 'form' && !el.querySelector('iframe')) this.setState({ notice: 'origin' }); }, 4000);
+  // the sign-in button: ONE Google popup that signs in AND allows backing up scans to the user's own Drive
+  gBtn = () => {
+    if (this.state.gis === 'demo') { this.setState({ notice: 'setup' }); return; }
+    this._tap = null; this.gLogin('');
+  };
+  gLogin(hint) {
+    if (!this._gisOk) return;
+    try {
+      google.accounts.oauth2.initTokenClient({ client_id: this.cid, scope: SCOPES, login_hint: hint, callback: this.onToken, error_callback: this.onTokenErr }).requestAccessToken();
+    } catch (e) { this.onTokenErr({}); }
   }
+  onToken = r => {
+    if (r.error || !r.access_token) { this.onTokenErr({}); return; }
+    const drive = google.accounts.oauth2.hasGrantedAllScopes(r, DRIVE_SCOPE);
+    fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: 'Bearer ' + r.access_token } })
+      .then(x => { if (!x.ok) throw new Error('userinfo'); return x.json(); })
+      .then(p => {
+        if (this._tap && this._tap.id !== p.sub) throw new Error('account');   // One Tap picked someone else than the popup
+        // drive unticked in the popup: remember "off" so the Analyze page doesn't keep asking
+        try { localStorage.setItem(DRIVE_TK, JSON.stringify(drive ? { v: r.access_token, exp: Date.now() + r.expires_in * 1000, sub: p.sub } : { off: 1, sub: p.sub })); } catch (e) {}
+        const name = p.name || p.email || 'there';
+        this._tap = null;
+        this.signIn({ id: p.sub, name, given: p.given_name || name.split(' ')[0], email: p.email || '', picture: p.picture || '', provider: 'google', cid: this.cid });
+      })
+      .catch(() => this.onTokenErr({}));
+  };
+  onTokenErr = e => {
+    // came from the One Tap card and the Drive popup didn't go through: sign in anyway, Analyze asks for Drive on the next click
+    const t = this._tap; this._tap = null;
+    if (t) { this.signIn(t); return; }
+    if (e.type !== 'popup_closed') this.setState({ notice: 'fail' });
+  };
+  // One Tap card: tells us who it is (with photo), then the same popup asks for Drive
   onCred = r => {
     try {
       const p = jwt(r.credential);
       if (p.aud !== this.cid || p.exp * 1000 < Date.now() - 60000) throw new Error('token');
       const name = p.name || p.email || 'there';
-      this.signIn({ id: p.sub, name, given: p.given_name || name.split(' ')[0], email: p.email || '', picture: p.picture || '', provider: 'google', cid: this.cid });
+      this._tap = { id: p.sub, name, given: p.given_name || name.split(' ')[0], email: p.email || '', picture: p.picture || '', provider: 'google', cid: this.cid };
+      this.gLogin(p.email || '');
     } catch (e) { this.setState({ notice: 'fail' }); }
   };
   signIn(a) {
@@ -267,13 +283,13 @@ class Component extends DCLogic {
   renderVals() {
     const st = this.state, a = st.acct || {}, login = st.mode === 'login', rem = st.remember, given = String(a.given || a.name || 'there').trim();
     return {
-      rootRef: this.rootRef, formRef: this.formRef, gRef: this.gRef,
+      rootRef: this.rootRef, formRef: this.formRef,
       vForm: st.view === 'form', vKnown: st.view === 'known', vDone: st.view === 'done', wide: st.wide,
       isLogin: login, isSignup: !login, segX: login ? '0%' : '100%', loginSel: login ? 'true' : 'false', signupSel: login ? 'false' : 'true',
       loginC: login ? '#FFFFFF' : '#8A8178', signupC: login ? '#8A8178' : '#FFFFFF',
       setLogin: () => this.setState({ mode: 'login', notice: st.notice === 'fail' ? '' : st.notice }), setSignup: () => this.setState({ mode: 'signup', notice: st.notice === 'fail' ? '' : st.notice }),
-      demo: st.gis === 'demo', gDemo: () => this.setState({ notice: 'setup' }), useDemo: () => this.signIn(DEMO),
-      nSetup: st.notice === 'setup', nOrigin: st.notice === 'origin', nError: st.notice === 'error', nFail: st.notice === 'fail', origin: window.location.origin,
+      showBtn: st.gis === 'demo' || st.gis === 'ready', gBtn: this.gBtn, useDemo: () => this.signIn(DEMO),
+      nSetup: st.notice === 'setup', nError: st.notice === 'error', nFail: st.notice === 'fail',
       rememberS: rem ? 'true' : 'false', toggleRemember: () => this.setState(s => ({ remember: !s.remember })),
       cbBg: rem ? '#E0641C' : 'transparent', cbBorder: rem ? '#E0641C' : 'rgba(243,237,230,.35)', cbOp: rem ? 1 : 0, cbS: rem ? 1 : 0.4,
       given, email: a.email || '', pic: a.picture || '', noPic: !a.picture, initial: (given[0] || '?').toUpperCase(),
