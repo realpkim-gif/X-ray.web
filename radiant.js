@@ -56,19 +56,40 @@ const Radiant = {};   // everything lives in this one object, so it can't clash 
         return crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["decrypt"]);
     }
 
+    // the downloaded (still encrypted) pieces are kept in the browser, so the 300 MB only downloads once.
+    // The name changes by itself when encrypt_models.py writes a new key, which makes browsers fetch the new model.
+    // If you ever replace the model files WITHOUT a new key, change "v1" here.
+    const CACHE = "radiant-model-v1-" + KEY_A.slice(0, 8);
+    const openCache = async () => {
+        if (!self.caches) return null;   // old browser or plain http: just download every time
+        try {
+            for (const name of await caches.keys()) if (name.startsWith("radiant-model-") && name !== CACHE) caches.delete(name);   // drop old models
+            return await caches.open(CACHE);
+        } catch (e) { return null; }
+    };
+
     async function fetchAndDecrypt(folder, part, key) {
         // download the pieces (part3-0.bin, part3-1.bin, ...) and glue them back into one file
-        const pieces = [];
+        const cache = await openCache(), pieces = [];
         for (let i = 0; i < PIECES[part]; i++) {
-            const response = await fetch(folder + "part" + part + "-" + i + ".bin");
-            if (!response.ok) throw new Error("model file part" + part + "-" + i + ".bin: " + response.status);
+            const url = folder + "part" + part + "-" + i + ".bin";
+            let response = cache && await cache.match(url);
+            if (!response) {
+                response = await fetch(url);
+                if (!response.ok) throw new Error("model file part" + part + "-" + i + ".bin: " + response.status);
+                if (cache) await cache.put(url, response.clone()).catch(() => {});   // disk full etc.: still works, just not saved
+            }
             pieces.push(await response.arrayBuffer());
         }
         const file = new Uint8Array(await new Blob(pieces).arrayBuffer());
         // file = 12-byte IV + encrypted bytes. Decrypting also checks nobody changed the file
         const iv = file.subarray(0, 12);
-        const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, file.subarray(12));
-        return new Uint8Array(plain);
+        try {
+            return new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, file.subarray(12)));
+        } catch (e) {
+            if (cache) await caches.delete(CACHE);   // a damaged saved copy: forget it, the next load downloads fresh
+            throw e;
+        }
     }
 
     Radiant.load = async function (modelFolder) {
