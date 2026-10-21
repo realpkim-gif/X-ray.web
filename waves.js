@@ -41,18 +41,19 @@
     var s = f.style; s.clipPath = 'none'; s.visibility = 'visible'; s.opacity = '0'; s.willChange = 'opacity'; s.pointerEvents = 'none';
     f.setAttribute('aria-hidden', 'true'); f.setAttribute('inert', ''); f.tabIndex = -1; solo();
   }
-  function unpark(f) { f.removeAttribute('data-radiant-hid'); f.style.visibility = 'visible'; f.style.opacity = '1'; solo(); }
+  function unpark(f) { if (f.hasAttribute('data-radiant-z')) { f.style.zIndex = f.getAttribute('data-radiant-z'); f.removeAttribute('data-radiant-z'); } f.style.visibility = 'visible'; f.style.opacity = '1'; solo(); }
   // While a hosted page is up it must own scrolling: this page's root scrollbar paints above every fixed layer, and an
-  // invisible parked frame stacked above the open one still swallows wheel and scrollbar drags.
+  // invisible parked frame stacked above the open one still swallows wheel and scrollbar drags, so tuck it just underneath
+  // (still painted, so the next switch stays instant).
   function solo() {
-    var d = document.documentElement, fr = document.querySelectorAll('body > iframe[src*="embed=1"]'), up = false, i, o;
-    for (i = 0; i < fr.length; i++) if (fr[i].style.opacity === '1') up = true;
+    var d = document.documentElement, fr = document.querySelectorAll('body > iframe[src*="embed=1"]'), up = false, top = Infinity, i, o;
+    for (i = 0; i < fr.length; i++) if (fr[i].style.opacity === '1') { up = true; top = Math.min(top, +fr[i].style.zIndex || 0); }
     if (up && !d.hasAttribute('data-radiant-ov')) { d.setAttribute('data-radiant-ov', d.style.overflow); d.style.overflow = 'hidden'; }
     if (!up && d.hasAttribute('data-radiant-ov')) { d.style.overflow = d.getAttribute('data-radiant-ov'); d.removeAttribute('data-radiant-ov'); }
     for (i = 0; i < fr.length; i++) {
       o = fr[i]; if (o.style.opacity !== '0') continue;
-      if (up) { o.style.visibility = 'hidden'; o.setAttribute('data-radiant-hid', ''); }
-      else if (o.hasAttribute('data-radiant-hid')) { o.style.visibility = 'visible'; o.removeAttribute('data-radiant-hid'); }
+      if (up && (+o.style.zIndex || 0) >= top) { if (!o.hasAttribute('data-radiant-z')) o.setAttribute('data-radiant-z', o.style.zIndex); o.style.zIndex = String(top - 1); }
+      else if (!up && o.hasAttribute('data-radiant-z')) { o.style.zIndex = o.getAttribute('data-radiant-z'); o.removeAttribute('data-radiant-z'); }
     }
   }
   // While a hosted page fully covers this one, freeze this page's endless loops so they don't compete for frames.
