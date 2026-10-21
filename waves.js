@@ -39,9 +39,22 @@
   // A parked frame is fully transparent but still painted, so revealing it never waits on a first paint.
   function park(f) {
     var s = f.style; s.clipPath = 'none'; s.visibility = 'visible'; s.opacity = '0'; s.willChange = 'opacity'; s.pointerEvents = 'none';
-    f.setAttribute('aria-hidden', 'true'); f.setAttribute('inert', ''); f.tabIndex = -1;
+    f.setAttribute('aria-hidden', 'true'); f.setAttribute('inert', ''); f.tabIndex = -1; solo();
   }
-  function unpark(f) { f.style.visibility = 'visible'; f.style.opacity = '1'; }
+  function unpark(f) { f.removeAttribute('data-radiant-hid'); f.style.visibility = 'visible'; f.style.opacity = '1'; solo(); }
+  // While a hosted page is up it must own scrolling: this page's root scrollbar paints above every fixed layer, and an
+  // invisible parked frame stacked above the open one still swallows wheel and scrollbar drags.
+  function solo() {
+    var d = document.documentElement, fr = document.querySelectorAll('body > iframe[src*="embed=1"]'), up = false, i, o;
+    for (i = 0; i < fr.length; i++) if (fr[i].style.opacity === '1') up = true;
+    if (up && !d.hasAttribute('data-radiant-ov')) { d.setAttribute('data-radiant-ov', d.style.overflow); d.style.overflow = 'hidden'; }
+    if (!up && d.hasAttribute('data-radiant-ov')) { d.style.overflow = d.getAttribute('data-radiant-ov'); d.removeAttribute('data-radiant-ov'); }
+    for (i = 0; i < fr.length; i++) {
+      o = fr[i]; if (o.style.opacity !== '0') continue;
+      if (up) { o.style.visibility = 'hidden'; o.setAttribute('data-radiant-hid', ''); }
+      else if (o.hasAttribute('data-radiant-hid')) { o.style.visibility = 'visible'; o.removeAttribute('data-radiant-hid'); }
+    }
+  }
   // While a hosted page fully covers this one, freeze this page's endless loops so they don't compete for frames.
   function hush(H, on) {
     if (!on) { (H.hushed || []).forEach(function (a) { try { a.play(); } catch (e) {} }); H.hushed = []; return; }
