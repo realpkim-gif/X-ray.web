@@ -502,7 +502,7 @@ class Component extends DCLogic {
     if (this.state.file) URL.revokeObjectURL(this.state.file.url);
     window.removeEventListener('keydown', this._key); if (this._mq2) this._mq2.removeEventListener('change', this._setM); if (this._mq3) this._mq3.removeEventListener('change', this._setS);
     if (this._turl) this._turl.forEach(u => URL.revokeObjectURL(u)); if (this.state.vUrl) URL.revokeObjectURL(this.state.vUrl);
-    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
   }
   componentDidUpdate() {
     const st = this.state, b = st.file && st.file.url;
@@ -706,7 +706,7 @@ class Component extends DCLogic {
     const url = URL.createObjectURL(f), sig = [f.name || '', f.size, f.lastModified || 0].join('|');
     this._raw = f;   // the File itself, for the model
     this.dropLayers();
-    if (this.state.view) { if (this.state.vUrl) URL.revokeObjectURL(this.state.vUrl); document.documentElement.style.overflow = ''; }
+    if (this.state.view) { if (this.state.vUrl) URL.revokeObjectURL(this.state.vUrl); document.body.style.overflow = ''; }
     this.setTab('new', { view: null, vUrl: '', conf: false, res: null, gate: null, layer: 'both', secs: '', file: { url, sig, savedId: null, name: f.name || 'pasted-image.png', size: (f.size / 1048576).toFixed(1) + ' MB', type: (f.type.split('/')[1] || '').toUpperCase().replace('JPEG', 'JPG'), dims: '' }, err: '', over: false, zh: false });
     const im = new Image();
     im.onload = () => { const cur = this.state.file; if (cur && cur.url === url) { this.setState({ file: { ...cur, dims: im.naturalWidth + ' \u00d7 ' + im.naturalHeight } }); this.saveScan(f, im); } };
@@ -843,7 +843,7 @@ class Component extends DCLogic {
   closeView() {
     if (!this.state.view || this._closing) return;
     const fin = () => {
-      this._closing = false; document.documentElement.style.overflow = '';
+      this._closing = false; document.body.style.overflow = '';
       if (this.state.vUrl) URL.revokeObjectURL(this.state.vUrl);
       this.setState({ view: null, vUrl: '', conf: false });
       const o = this._opener; this._opener = null;
@@ -868,7 +868,7 @@ class Component extends DCLogic {
       if (!b || this._dead) return;
       if (this.state.file) URL.revokeObjectURL(this.state.file.url);
       if (this.state.vUrl) URL.revokeObjectURL(this.state.vUrl);
-      document.documentElement.style.overflow = ''; this._opener = null;
+      document.body.style.overflow = ''; this._opener = null;
       this._raw = b; this.dropLayers();
       const res = rec && rec.res && hm ? rec.res : null;
       if (res) this._layers = { heatmap: URL.createObjectURL(hm), box: bx ? URL.createObjectURL(bx) : null };
@@ -902,7 +902,9 @@ class Component extends DCLogic {
     R.querySelectorAll('[data-card]').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translate3d(0,26px,0) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: (base || 0) + Math.min(i, 11) * 50, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' }));
   }
   viewIn() {
-    document.documentElement.style.overflow = 'hidden';
+    // lock the page behind the viewer on <body>: on <html> it would stop body's overflow-x from reaching the
+    // viewport, which throws away the scroll position (the page snapped to the top and stayed there)
+    document.body.style.overflow = 'hidden';
     const R = this.root; if (!R) return;
     const ov = R.querySelector('[data-v="ov"]'), pn = R.querySelector('[data-v="panel"]');
     if (pn) { try { pn.focus({ preventScroll: true }); } catch (e) {} }

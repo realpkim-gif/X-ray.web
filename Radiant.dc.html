@@ -153,6 +153,7 @@ a:hover{color:#A8440F}
           <div data-cursor="hide" style="position:relative;aspect-ratio:4/3;overflow:hidden;background:#0B0A09">
             <div data-h="img" style="position:absolute;inset:0;will-change:transform">
               <div data-sp="dog" style="position:absolute;inset:0"><image-slot id="hero-xray" shape="rect" src="images/hero-xray.png" placeholder="Radiograph: canine forelimb, lateral view"></image-slot></div>
+              <div data-h="heat" aria-hidden="true" style="position:absolute;inset:0;opacity:0;pointer-events:none;background:url(images/hero-heatmap.png) center/cover no-repeat"></div>
               <div data-h="lens" style="display:none;position:absolute;left:0;top:0;width:136px;height:136px;border-radius:50%;opacity:0;pointer-events:none;border:1.5px solid rgba(255,255,255,.9);box-shadow:0 14px 34px -10px rgba(0,0,0,.7),inset 0 0 0 1px rgba(0,0,0,.35);background-color:#0B0A09;background-repeat:no-repeat;will-change:transform,opacity;z-index:2"><span style="position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-left:1px solid rgba(255,255,255,.6);border-top:1px solid rgba(255,255,255,.6);transform:rotate(45deg) translate(3px,3px)"></span><span style="position:absolute;left:50%;bottom:10px;transform:translateX(-50%);padding:1px 6px;border-radius:4px;background:rgba(14,12,10,.75);font-family:'IBM Plex Mono',monospace;font-size:10px;color:#E4DCD2">2.5×</span></div>
             </div>
             <div data-h="scan" style="position:absolute;left:0;right:0;top:-10%;height:64px;opacity:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.10) 70%,rgba(255,255,255,.55) 98%,rgba(255,255,255,0));z-index:1"></div>
@@ -161,10 +162,10 @@ a:hover{color:#A8440F}
             </div>
             <div style="position:absolute;right:14px;top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#BDB4AA;pointer-events:none">{{ hLabel }}</div>
           </div>
-          <div aria-hidden="true" style="display:flex;align-items:center;gap:6px;height:48px;padding:0 12px;border-top:1px solid #26211C;color:#A69D93">
-            <span style="height:28px;padding:0 10px;border-radius:8px;border:1px solid #3A342E;color:#F3EDE6;font-size:12px;font-weight:600;line-height:26px;white-space:nowrap">Box + heatmap</span>
-            <span style="height:28px;padding:0 10px;border-radius:8px;border:1px solid {{ heroEyeColor }};background:{{ heroEyeBg }};color:#F3EDE6;font-size:12px;font-weight:600;line-height:26px;transition:background .3s ease,border-color .3s ease">Box</span>
-            <span style="height:28px;padding:0 10px;border-radius:8px;border:1px solid #3A342E;color:#F3EDE6;font-size:12px;font-weight:600;line-height:26px">Heatmap</span>
+          <div role="group" aria-label="What to show on the X-ray" style="display:flex;align-items:center;gap:6px;height:48px;padding:0 12px;border-top:1px solid #26211C;color:#A69D93">
+            <button type="button" onClick="{{ hvBoth }}" aria-pressed="{{ hvBothOn }}" style="height:28px;padding:0 10px;border-radius:8px;border:1px solid {{ hvBothB }};background:{{ hvBothBg }};color:#F3EDE6;font-family:inherit;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;transition:background-color .25s ease,border-color .25s ease" style-hover="border-color:#6E665E">Box + heatmap</button>
+            <button type="button" onClick="{{ hvBox }}" aria-pressed="{{ hvBoxOn }}" style="height:28px;padding:0 10px;border-radius:8px;border:1px solid {{ hvBoxB }};background:{{ hvBoxBg }};color:#F3EDE6;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background-color .25s ease,border-color .25s ease" style-hover="border-color:#6E665E">Box</button>
+            <button type="button" onClick="{{ hvHeat }}" aria-pressed="{{ hvHeatOn }}" style="height:28px;padding:0 10px;border-radius:8px;border:1px solid {{ hvHeatB }};background:{{ hvHeatBg }};color:#F3EDE6;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background-color .25s ease,border-color .25s ease" style-hover="border-color:#6E665E">Heatmap</button>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));background:#fff;border-top:1px solid #26211C">
             <div style="padding:14px 16px;border-right:1px solid #EFEAE3">
@@ -178,7 +179,7 @@ a:hover{color:#A8440F}
           </div>
         </div>
       </div>
-      <p style="margin:14px 2px 0;font-size:12px;color:#8A8178">Real output from Radiant’s model on this X-ray. Hover the image to show it.</p>
+      <p style="margin:14px 2px 0;font-size:12px;color:#8A8178">Real output from Radiant’s model on this X-ray. Hover the image or pick a view.</p>
     </div>
   </div>
   <a href="#how" data-goto="how" data-h="cue" aria-label="Scroll to How it works" style="position:absolute;left:50%;bottom:clamp(14px,2.2vw,24px);z-index:2;transform:translateX(-50%);display:{{ cueDisp }};flex-direction:column;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:#8A8178;transition:color .25s ease" style-hover="color:#1A1612">
@@ -390,7 +391,7 @@ const FAQ = [
   ['Why does it say "possible fracture"?', 'The model can be wrong, so it never says \u201cfracture\u201d outright. The box and heatmap show where to look; the decision stays with the person reviewing the image.'],
 ];
 const HERO = {
-  dog: { file: 'canine_forelimb_lat.png', label: '438 × 396 · PNG', hl: [19, 5, 59, 60], conf: 100, votes: 10 }   // the model's real output on images/hero-xray.png
+  dog: { file: 'canine_forelimb_lat.png', label: '438 × 396 · PNG', hl: [18.8, 4.8, 59.4, 60.3], conf: 100, votes: 10 }   // the model's real output on images/hero-xray.png
 };
 const GOTO = { top: ['00', 'Radiant'], how: ['01', 'How it works'], about: ['02', 'About'], faq: ['03', 'Questions'] };
 const NAV = [['founders', 'About the founders'], ['intro', 'Intro']];
@@ -423,7 +424,7 @@ const wantIntro = () => {
   return !/^#(how|about|faq)$/.test(location.hash);
 };
 class Component extends DCLogic {
-  state = { narrow: false, menuOpen: false, scrolled: false, active: '', heroOn: false, faq: 0, heroSp: 'dog', introOn: wantIntro(), introWarm: false, acctOpen: false };
+  state = { narrow: false, menuOpen: false, scrolled: false, active: '', heroOn: false, heroView: 'both', faq: 0, heroSp: 'dog', introOn: wantIntro(), introWarm: false, acctOpen: false };
   rootRef = React.createRef();
 
   rm() { return !!this.props.previewReducedMotion || !!(this._mq && this._mq.matches); }
@@ -571,10 +572,12 @@ class Component extends DCLogic {
   };
 
   applyHero() {
-    const { card, img, hl, wrap } = this.h; if (!card) return;
-    const c = this.hc, rm = this.rm();
+    const { card, img, hl, heat, wrap } = this.h; if (!card) return;
+    const c = this.hc, rm = this.rm(), v = this.state.heroView;
     wrap.style.transform = `translate3d(0,${this.heroY.toFixed(1)}px,0) scale(${(this.heroS || 1).toFixed(4)})`;
-    hl.style.opacity = c.h.toFixed(3);
+    // the same three views as the X-ray page: box + heatmap, box only, heatmap only
+    hl.style.opacity = (v === 'heatmap' ? 0 : c.h).toFixed(3);
+    if (heat) heat.style.opacity = (v === 'box' ? 0 : c.h).toFixed(3);
     hl.style.transform = `scale(${(0.96 + 0.04 * c.h).toFixed(4)})`;
     card.style.boxShadow = `0 ${24 + 18 * c.h}px ${60 + 30 * c.h}px -28px rgba(22,16,10,${(0.35 + 0.2 * c.h).toFixed(3)})`;
     const mix = (a, b) => Math.round(a + (b - a) * c.h);
@@ -1030,6 +1033,8 @@ class Component extends DCLogic {
   };
   heroEnter = () => { this._inHero = true; this.ht.h = 1; if (!this.state.heroOn) this.setState({ heroOn: true }); this.kick(); };
   heroLeave = () => { this._inHero = false; this.ht.x = 0; this.ht.y = 0; if (!this.always() && !this._coarse) { this.ht.h = 0; this.setState({ heroOn: false }); } this.kick(); };
+  // a view button also reveals the result, so a tap on a touch screen shows it straight away
+  heroShow(v) { clearTimeout(this._t3); this.ht.h = 1; this.setState({ heroView: v, heroOn: true }, () => this.kick()); }
 
   pics() { const p = (ACCT && ACCT.picture) || ''; if (!p || !this.root) return; this.root.querySelectorAll('img[data-pic]').forEach(i => { if (i.getAttribute('src') !== p) i.setAttribute('src', p); }); }
   signOut = e => {
@@ -1045,7 +1050,8 @@ class Component extends DCLogic {
     ld.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, easing: 'ease', fill: 'forwards' }).onfinish = go;
   };
   renderVals() {
-    const st = this.state, narrow = st.narrow, on = st.heroOn;
+    const st = this.state, narrow = st.narrow, on = st.heroOn, hv = st.heroView;
+    const hvB = k => hv === k ? '#E0641C' : '#3A342E', hvBg = k => hv === k ? 'rgba(224,100,28,.14)' : 'transparent';
     return {
       rootRef: this.rootRef,
       acctPic: (ACCT && ACCT.picture) || '', acctNoPic: !(ACCT && ACCT.picture), acctInitial: (String((ACCT && (ACCT.given || ACCT.name)) || '?').trim()[0] || '?').toUpperCase(),
@@ -1065,7 +1071,9 @@ class Component extends DCLogic {
       heroStatus: on ? 'Analysis complete' : 'Ready', heroStatusColor: on ? '#F08A4B' : '#8A8178',
       heroResult: on ? 'Possible fracture' : 'Hover the image to review',
       heroConfText: on ? HERO[st.heroSp].conf + '% · ' + HERO[st.heroSp].votes + ' of 10 votes' : '—', heroConfW: on ? HERO[st.heroSp].conf + '%' : '0%',
-      heroEyeBg: on ? 'rgba(224,100,28,.14)' : 'transparent', heroEyeColor: on ? '#E0641C' : '#3A342E',
+      hvBoth: () => this.heroShow('both'), hvBox: () => this.heroShow('box'), hvHeat: () => this.heroShow('heatmap'),
+      hvBothOn: hv === 'both' ? 'true' : 'false', hvBoxOn: hv === 'box' ? 'true' : 'false', hvHeatOn: hv === 'heatmap' ? 'true' : 'false',
+      hvBothB: hvB('both'), hvBoxB: hvB('box'), hvHeatB: hvB('heatmap'), hvBothBg: hvBg('both'), hvBoxBg: hvBg('box'), hvHeatBg: hvBg('heatmap'),
       faqs: FAQ.map(([q, a], i) => { const o = st.faq === i; return { q, a, n: String(i + 1).padStart(2, '0'), qColor: o ? '#C9551A' : '#1A1612', open: o, toggle: () => this.setState({ faq: o ? -1 : i }), rows: o ? '1fr' : '0fr', op: o ? 1 : 0, rot: o ? '45deg' : '0deg', iconBg: o ? '#E0641C' : '#fff', iconBorder: o ? '#E0641C' : '#DDD5CB', iconColor: o ? '#fff' : '#4A433C' }; })
     };
   }
