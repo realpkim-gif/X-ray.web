@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta name="description" content="Upload a dog X-ray. Radiant’s AI runs in your browser, flags a possible fracture, boxes where it looked, and shows how confident it is.">
 <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Radiant">
-<meta property="og:title" content="Radiant — AI-assisted review of animal X-rays">
-<meta property="og:description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta property="og:title" content="Radiant — AI fracture check for dog X-rays">
+<meta property="og:description" content="Upload a dog X-ray. Radiant’s AI runs in your browser, flags a possible fracture, boxes where it looked, and shows how confident it is.">
 <meta property="og:url" content="https://realpkim-gif.github.io/X-ray.web/">
 <meta property="og:image" content="https://realpkim-gif.github.io/X-ray.web/images/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with an area marked for review">
+<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with a possible fracture boxed">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <script>
@@ -48,7 +48,6 @@
 <script src="./sfx.js"></script>
 <script src="./tiles.js"></script>
 <script src="./waves.js"></script>
-<script src="./lens.js"></script>
 <style>
 html{scroll-behavior:auto}
 body{margin:0;background:#FAF8F5;color:#1A1612;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -103,7 +102,7 @@ a:hover{color:#A8440F}
   <div style="max-width:1200px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:clamp(64px,7vw,88px) clamp(28px,4vw,64px)">
 
     <article data-fc="1" aria-label="Patrick Kim" style="min-width:0;display:flex;flex-direction:column">
-      <div data-xlens="1" style="position:relative;width:90%;aspect-ratio:5/6;max-height:600px;border-radius:22px;overflow:hidden;background:#F1EAE1;color:#9A8F84;isolation:isolate">
+      <div style="position:relative;width:90%;aspect-ratio:5/6;max-height:600px;border-radius:22px;overflow:hidden;background:#F1EAE1;color:#9A8F84;isolation:isolate">
         <div style="position:absolute;inset:0">
           <image-slot id="founder-patrick" shape="rect" src="images/patrick-kim.jpg" placeholder="Photo of Patrick Kim"></image-slot>
         </div>
@@ -125,7 +124,7 @@ a:hover{color:#A8440F}
     </article>
 
     <article data-fc="1" aria-label="Edward George Tamas" style="min-width:0;display:flex;flex-direction:column">
-      <div data-xlens="1" style="position:relative;width:90%;aspect-ratio:5/6;max-height:600px;border-radius:22px;overflow:hidden;background:#F1EAE1;color:#9A8F84;isolation:isolate">
+      <div style="position:relative;width:90%;aspect-ratio:5/6;max-height:600px;border-radius:22px;overflow:hidden;background:#F1EAE1;color:#9A8F84;isolation:isolate">
         <div style="position:absolute;inset:0">
           <image-slot id="founder-george" shape="rect" src="images/george-tamas.jpg" placeholder="Photo of Edward George Tamas"></image-slot>
         </div>
@@ -170,7 +169,7 @@ a:hover{color:#A8440F}
         </span>
         <span style="display:block">
           <span style="display:block;overflow:hidden;height:1.18em;line-height:1.18em;font-size:clamp(28px,3.4vw,46px);font-weight:700;letter-spacing:-0.035em;white-space:nowrap"><span data-hx-roll="1" style="display:flex;flex-direction:column;transition:transform .6s cubic-bezier(.7,0,.2,1)"><span>Analyze an X-ray</span><span aria-hidden="true">Analyze an X-ray</span></span></span>
-          <span style="display:block;margin-top:12px;max-width:400px;font-size:16px;line-height:1.5">Upload a dog radiograph and review the areas the model highlights.</span>
+          <span style="display:block;margin-top:12px;max-width:400px;font-size:16px;line-height:1.5">Upload a dog X-ray and see whether the model flags a possible fracture.</span>
         </span>
       </a>
       <a data-rv="120" data-home="1" data-hx="1" data-hx-var="radial" data-mag-area="1" href="Radiant.dc.html" style="position:relative;overflow:hidden;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;gap:56px;min-height:260px;box-sizing:border-box;padding:clamp(24px,3vw,36px);border-radius:22px;background:#fff;border:1px solid #E2DBD2;color:#1A1612;transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .4s ease,border-color .35s ease,color .3s ease .08s" style-hover="color:#fff;border-color:#1A1612;transform:translateY(-3px);box-shadow:0 34px 60px -34px rgba(26,22,18,.6)" style-active="transform:translateY(0) scale(.985)">

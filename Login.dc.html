@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta name="description" content="Upload a dog X-ray. Radiant’s AI runs in your browser, flags a possible fracture, boxes where it looked, and shows how confident it is.">
 <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Radiant">
-<meta property="og:title" content="Radiant — AI-assisted review of animal X-rays">
-<meta property="og:description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta property="og:title" content="Radiant — AI fracture check for dog X-rays">
+<meta property="og:description" content="Upload a dog X-ray. Radiant’s AI runs in your browser, flags a possible fracture, boxes where it looked, and shows how confident it is.">
 <meta property="og:url" content="https://realpkim-gif.github.io/X-ray.web/">
 <meta property="og:image" content="https://realpkim-gif.github.io/X-ray.web/images/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with an area marked for review">
+<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with a possible fracture boxed">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <script>
@@ -116,10 +116,10 @@ button:focus-visible{outline:2px solid #E0641C;outline-offset:3px}
             </span>
             <span style="min-width:0">
               <span style="display:block;font-size:15px;font-weight:500;color:#F3EDE6">Keep me signed in on this device</span>
-              <span style="display:block;margin-top:3px;font-size:13.5px;line-height:1.5;color:#8A8178">Radiant will recognize you next time, so you won’t have to log in again.</span>
+              <span style="display:block;margin-top:3px;font-size:13.5px;line-height:1.5;color:#8A8178">Radiant will remember you on this device for 30 days.</span>
             </span>
           </button>
-          <p data-in="1" style="margin:28px 0 0;padding-top:20px;border-top:1px solid rgba(243,237,230,.1);font-size:13px;line-height:1.55;color:#8A8178">Radiant only receives your name, email address and profile photo from Google.</p>
+          <p data-in="1" style="margin:28px 0 0;padding-top:20px;border-top:1px solid rgba(243,237,230,.1);font-size:13px;line-height:1.55;color:#8A8178">Radiant asks Google for your name, email and photo, plus a private app folder in your Drive to back up your scans.</p>
         </sc-if>
 
         <sc-if value="{{ vKnown }}" hint-placeholder-val="{{ false }}">

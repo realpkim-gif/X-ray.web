@@ -6,8 +6,8 @@
   var PW = 850, PH = 1100, K = 2, M = 60, CW = PW - 2 * M;   // 8.5 x 11 in at 100 px/in, drawn at 200 dpi
   var DISCLAIMER = 'Radiant is an AI-assisted research prototype. It is not a veterinary diagnostic tool and does not replace evaluation by a qualified veterinarian.';
   var QA = [
-    ['What does the confidence score mean?', 'It reflects how strongly the image matches patterns the model learned during training. It is not the probability that a condition is present, and it can be wrong in either direction.'],
-    ['Why \u201careas for review\u201d instead of findings?', 'Naming a condition would imply a certainty the model doesn\u2019t have. Framing results as areas to look at keeps the decision with the person reviewing the image.']
+    ['What does the confidence score mean?', 'It\u2019s the share of the model\u2019s 10 votes that agree with its answer: 8 of 10 is 80%. It is not the probability that a fracture is really there, and it can be wrong in either direction.'],
+    ['Why \u201cpossible fracture\u201d?', 'The model can be wrong, so it never says \u201cfracture\u201d outright. The box and heatmap show where to look; the decision stays with the person reviewing the image.']
   ];
 
   function load(src) {
