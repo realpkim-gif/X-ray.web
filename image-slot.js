@@ -684,7 +684,10 @@
       });
       // Wheel zoom stays available inside reframe mode as a trackpad nicety —
       // zooms toward the cursor (offset' = cursor·(1-k) + offset·k).
-      this.addEventListener('wheel', (e) => {
+      // Attached only while reframing (see _enterReframe): a non-passive wheel
+      // listener makes the browser hold every scroll over the image until the
+      // page's main thread answers, so a busy page stalls scrolling over photos.
+      this._wheel = (e) => {
         if (!this.hasAttribute('data-reframe')) return;
         e.preventDefault();
         const r = this.getBoundingClientRect();
@@ -699,7 +702,7 @@
         this._view.y = cy * (1 - k) + this._view.y * k;
         this._clampView();
         this._applyView();
-      }, { passive: false });
+      };
     }
 
     connectedCallback() {
@@ -747,6 +750,7 @@
     _enterReframe() {
       if (this.hasAttribute('data-reframe')) return;
       this.setAttribute('data-reframe', '');
+      this.addEventListener('wheel', this._wheel, { passive: false });
       this._signalReframe(true);
       // Best-effort commit when the document unloads mid-reframe (a host
       // navigation racing the enter signal, a manual reload, tab close):
@@ -793,6 +797,7 @@
     _exitReframe(commit) {
       if (!this.hasAttribute('data-reframe')) return;
       if (this._dragUp) this._dragUp();
+      this.removeEventListener('wheel', this._wheel);
       this.removeAttribute('data-reframe');
       this.removeAttribute('data-panning');
       if (this._outside) document.removeEventListener('pointerdown', this._outside, true);
