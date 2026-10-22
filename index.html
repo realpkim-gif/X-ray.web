@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Upload a dog X-ray. Radiant’s AI runs in your browser, flags a possible fracture, boxes where it looked, and shows how confident it is.">
 <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
@@ -13,7 +14,65 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with a possible fracture boxed">
-<meta name="twitter:card" content="summary_large_image"><title>Radiant</title>
-<script>(function () { var ok = function (s) { try { var a = JSON.parse(window[s].getItem('radiant-account') || 'null'); return !!a && (!a.exp || a.exp > Date.now()); } catch (e) { return false; } }, signed = ok('localStorage') || ok('sessionStorage'), h = /^#[\w-]+$/.test(location.hash) ? location.hash : ''; document.documentElement.style.background = signed ? '#FAF8F5' : '#161310'; location.replace(signed ? 'Radiant.dc.html' + location.search + h : 'Login.dc.html?next=' + encodeURIComponent('Radiant.dc.html' + h)); })();</script>
-<noscript><meta http-equiv="refresh" content="0; url=Radiant.dc.html"></noscript>
-</head><body style="margin:0"></body></html>
+<meta name="twitter:card" content="summary_large_image">
+<title>Radiant — AI fracture check for dog X-rays</title>
+<!-- signed-in users go straight into the app; everyone else (and Google's reviewers) sees this public page -->
+<script>(function () { var ok = function (s) { try { var a = JSON.parse(window[s].getItem('radiant-account') || 'null'); return !!a && (!a.exp || a.exp > Date.now()); } catch (e) { return false; } }; if (ok('localStorage') || ok('sessionStorage')) { document.documentElement.style.visibility = 'hidden'; location.replace('Radiant.dc.html' + location.search + (/^#[\w-]+$/.test(location.hash) ? location.hash : '')); } })();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#161310;color:#F3EDE6;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:760px;margin:0 auto;padding:clamp(28px,6vw,64px) 16px 64px;line-height:1.65;font-size:17px}
+a{color:#F08A4B}
+a:hover{color:#F3EDE6}
+.brand{display:inline-flex;align-items:center;gap:12px;font-size:19px;font-weight:700;letter-spacing:-0.02em}
+.brand span{width:32px;height:32px;border-radius:9px;background:#E0641C;display:grid;place-items:center}
+h1{margin:44px 0 0;font-size:clamp(38px,7vw,58px);line-height:1.02;letter-spacing:-0.045em}
+h2{margin:40px 0 8px;font-size:22px;letter-spacing:-0.01em}
+p,li{color:#C9C1B8}
+.lead{font-size:clamp(18px,2.4vw,21px);color:#D9D1C7;margin:18px 0 0}
+.cta{display:inline-flex;align-items:center;height:52px;padding:0 24px;margin-top:30px;border-radius:12px;background:#E0641C;color:#fff;font-weight:600;font-size:16.5px;text-decoration:none}
+.cta:hover{color:#fff;background:#C9551A}
+.hero{margin-top:40px;width:100%;height:auto;border-radius:16px;border:1px solid #2A251F;display:block}
+ol,ul{padding-left:22px}
+li{margin:6px 0}
+strong{color:#F3EDE6}
+.note{margin-top:40px;padding:16px 18px;border-radius:14px;border:1px solid rgba(224,100,28,.35);background:rgba(224,100,28,.07)}
+.note p{margin:0}
+footer{margin-top:48px;padding-top:20px;border-top:1px solid #2A251F;display:flex;flex-wrap:wrap;gap:10px 20px;font-size:14px}
+footer span{color:#8A8178}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><span><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><g transform="rotate(-45 12 12)"><rect x="7" y="10.2" width="10" height="3.6" rx="1"></rect><circle cx="7" cy="9.9" r="2.3"></circle><circle cx="7" cy="14.1" r="2.3"></circle><circle cx="17" cy="9.9" r="2.3"></circle><circle cx="17" cy="14.1" r="2.3"></circle></g></svg></span>Radiant</div>
+
+  <h1>An AI fracture check for dog X-rays.</h1>
+  <p class="lead">Radiant is a free research prototype built by students for the Congressional App Challenge. You upload a radiograph (X-ray) of a dog or cat; an AI model running in your browser checks it for a possible bone fracture, draws a box where it looked, and tells you how confident it is.</p>
+  <a class="cta" href="Login.dc.html?next=Radiant.dc.html">Sign in with Google to open Radiant</a>
+
+  <img class="hero" src="images/og.png" width="1200" height="630" alt="A dog forelimb X-ray with a possible fracture boxed by Radiant">
+
+  <h2>How it works</h2>
+  <ol>
+    <li><strong>Upload</strong> a JPG or PNG X-ray of a dog or cat.</li>
+    <li><strong>The model runs on your device.</strong> A fracture-detection model checks that the image is an X-ray, then looks for possible fractures. The image is not uploaded to us for analysis.</li>
+    <li><strong>See the result:</strong> "possible fracture" or "no fracture found", a confidence level, a heatmap of where the model looked, and a box around the area of concern.</li>
+  </ol>
+
+  <h2>Why it asks you to sign in with Google</h2>
+  <p>Google sign-in is used for two things only: showing which account is signed in, and saving <em>your</em> scans to a private, hidden app folder in <em>your own</em> Google Drive so they appear on any device you use. Radiant requests your name, email address, profile photo and access to its own app folder in Drive (<code>drive.appdata</code>). It cannot see your other Drive files, and it never sells or shares your data.</p>
+
+  <div class="note">
+    <p><strong>What Radiant does not do.</strong> Radiant only analyzes veterinary X-rays for bone fractures. It does not generate, edit or alter images, does not create images of people, and is never used to create sexual or intimate imagery of anyone. It is not a diagnostic tool and does not replace a veterinarian.</p>
+  </div>
+
+  <footer>
+    <a href="privacy.html">Privacy policy</a>
+    <a href="terms.html">Terms of service</a>
+    <a href="https://github.com/realpkim-gif/X-ray.web">Source code</a>
+    <span>© 2026 Radiant</span>
+  </footer>
+</main>
+</body></html>
