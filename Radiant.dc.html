@@ -377,7 +377,7 @@ a:hover{color:#A8440F}
   </div>
 </div>
 <sc-if value="{{ introMount }}" hint-placeholder-val="{{ false }}">
-  <div data-intro-host="1" style="position:fixed;inset:0;z-index:10060;background:{{ ihBg }};color:{{ ihBg }};visibility:{{ ihVis }}">
+  <div data-intro-host="1" style="position:fixed;inset:0;z-index:10060;background:{{ ihBg }};color:{{ ihBg }};visibility:{{ ihVis }};pointer-events:{{ ihPe }}">
     <dc-import name="Intro" dormant="{{ introDormant }}" reverse="{{ introRev }}" on-covered="{{ introCovered }}" on-open="{{ introOpen }}" on-done="{{ introDone }}" on-ready="{{ introReady }}" preview-reduced-motion="{{ prm }}" hint-size="100%,100%" style="position:absolute;inset:0"></dc-import>
   </div>
 </sc-if>
@@ -502,6 +502,10 @@ class Component extends DCLogic {
     this._acctDoc = e => { if (this.state.acctOpen && !(e.target.closest && e.target.closest('[data-acct]'))) this.setState({ acctOpen: false }); };
     this._acctKey = e => { if (e.key === 'Escape' && this.state.acctOpen) this.setState({ acctOpen: false }); };
     document.addEventListener('pointerdown', this._acctDoc); document.addEventListener('keydown', this._acctKey); this.pics();
+    // Safety net: the page is only ever locked while the intro covers it. If a lock is still on with nothing
+    // covering the page, the next scroll attempt lifts it, so scrolling can never stay stuck.
+    this._unlock = () => { const d = document.documentElement; if (!this.introShown() && (d.style.overflow === 'hidden' || document.body.style.overflow === 'hidden')) { d.style.overflow = ''; document.body.style.overflow = ''; } };
+    ['wheel', 'touchstart', 'keydown'].forEach(t => window.addEventListener(t, this._unlock, { passive: true, capture: true }));
     if (this.introActive()) { try { history.scrollRestoration = 'manual'; } catch (e) {} window.scrollTo(0, 0); document.documentElement.style.overflow = 'hidden'; this._introT = setTimeout(() => { if (!this._introReady) this.introDone(); }, 8000); }
     this._mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     this._coarse = window.matchMedia('(hover: none)').matches;
@@ -541,7 +545,7 @@ class Component extends DCLogic {
     window.removeEventListener('pageshow', this._onShow); window.removeEventListener('click', this._txClick, true); if (this._onPop) window.removeEventListener('popstate', this._onPop); clearTimeout(this._chT); if (this._io2) this._io2.disconnect(); if (this._onMsg) window.removeEventListener('message', this._onMsg); if (this._txHover) window.removeEventListener('pointerover', this._txHover, true); clearTimeout(this._pre); document.removeEventListener('mouseout', this._ripOut);
     if (this._io) this._io.disconnect(); if (this._spy) this._spy.disconnect();
     document.documentElement.classList.remove('rc-cursor'); if (this._cMove) { window.removeEventListener('pointermove', this._cMove); window.removeEventListener('pointerdown', this._cDown); window.removeEventListener('pointerup', this._cUp); document.removeEventListener('mouseout', this._cLeave); } if (this._ripMove) window.removeEventListener('pointermove', this._ripMove); if (this._ro) this._ro.disconnect(); this.rip = null; clearTimeout(this._ld1); clearTimeout(this._ld2); clearTimeout(this._ldSafety);
-    clearTimeout(this._t); clearTimeout(this._t2); clearTimeout(this._t3); clearTimeout(this._rvT0); clearTimeout(this._preW); clearTimeout(this._chainT); clearTimeout(this._wiT); cancelAnimationFrame(this._raf); document.removeEventListener('pointerdown', this._acctDoc); document.removeEventListener('keydown', this._acctKey);
+    clearTimeout(this._t); clearTimeout(this._t2); clearTimeout(this._t3); clearTimeout(this._rvT0); clearTimeout(this._preW); clearTimeout(this._chainT); clearTimeout(this._wiT); cancelAnimationFrame(this._raf); document.removeEventListener('pointerdown', this._acctDoc); document.removeEventListener('keydown', this._acctKey); if (this._unlock) ['wheel', 'touchstart', 'keydown'].forEach(t => window.removeEventListener(t, this._unlock, { capture: true }));
   }
   componentDidUpdate(pp) {
     this.armLinks(); this.pics();
@@ -1058,7 +1062,7 @@ class Component extends DCLogic {
       acctName: (ACCT && ACCT.name) || 'Signed in', acctEmail: (ACCT && ACCT.email) || '', acctNote: ACCT && ACCT.keep ? 'Saved login on this device' : 'Signed in for this session',
       acctOpen: st.acctOpen ? 'true' : 'false', acctOp: st.acctOpen ? 1 : 0, acctY: st.acctOpen ? '0px' : '-6px', acctVis: st.acctOpen ? 'visible' : 'hidden',
       toggleAcct: () => this.setState(s => ({ acctOpen: !s.acctOpen })), signOut: this.signOut,
-      introMount: this.introShown() || (!!st.introWarm && !st.introOn), introDormant: !this.introShown(), ihVis: this.introShown() ? 'visible' : 'hidden', introRev: !!this._introRev, ihBg: this._introRev || !this.introShown() ? 'transparent' : '#161310', introCovered: this.introCovered, introOpen: this.introOpen, introDone: this.introDone, introReady: this.introReady, prm: !!this.props.previewReducedMotion,
+      introMount: this.introShown() || (!!st.introWarm && !st.introOn), introDormant: !this.introShown(), ihVis: this.introShown() ? 'visible' : 'hidden', ihPe: this.introShown() ? 'auto' : 'none',introRev: !!this._introRev, ihBg: this._introRev || !this.introShown() ? 'transparent' : '#161310', introCovered: this.introCovered, introOpen: this.introOpen, introDone: this.introDone, introReady: this.introReady, prm: !!this.props.previewReducedMotion,
       narrow, wide: !narrow, cueDisp: narrow ? 'none' : 'flex', howLine: narrow ? 'none' : 'block', howCols: narrow ? 'minmax(0,1fr)' : 'repeat(3,minmax(0,1fr))', howGap: narrow ? '48px' : '20px', menuOpen: st.menuOpen,
       menuH: st.menuOpen ? '440px' : '0px', menuOp: st.menuOpen ? 1 : 0,
       menuIcon: st.menuOpen ? 'M6 6l12 12M18 6L6 18' : 'M4 7h16M4 12h16M4 17h16',

@@ -461,6 +461,10 @@ class Component extends DCLogic {
       window.addEventListener('click', this._renew, true);
     }
     this._key = e => this.viewKey(e); window.addEventListener('keydown', this._key);
+    // Safety net: the page is only ever locked while the scan viewer is open. A lock left on without it is
+    // lifted by the next scroll attempt, so scrolling can never stay stuck.
+    this._unlock = () => { const d = document.documentElement; if (!this.state.view && (document.body.style.overflow === 'hidden' || d.style.overflow === 'hidden')) { document.body.style.overflow = ''; d.style.overflow = ''; } };
+    ['wheel', 'touchstart', 'keydown'].forEach(t => window.addEventListener(t, this._unlock, { passive: true, capture: true }));
     this.initRipple(); this.initHx(); this.initBack(); this.unveil();
     root.querySelectorAll('a[href="Radiant.dc.html"]').forEach(a => { a.dataset.to = 'Radiant.dc.html'; a.setAttribute('href', '#home'); });
     this._onClick = e => { const a = e.target.closest && e.target.closest('[data-to]'); if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button > 0) return; e.preventDefault(); e.stopImmediatePropagation(); this.leave(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, a.dataset.to); };
@@ -500,7 +504,7 @@ class Component extends DCLogic {
     this.rip = null; this._dead = true;
     this.dropLayers();
     if (this.state.file) URL.revokeObjectURL(this.state.file.url);
-    window.removeEventListener('keydown', this._key); if (this._mq2) this._mq2.removeEventListener('change', this._setM); if (this._mq3) this._mq3.removeEventListener('change', this._setS);
+    window.removeEventListener('keydown', this._key); if (this._unlock) ['wheel', 'touchstart', 'keydown'].forEach(t => window.removeEventListener(t, this._unlock, { capture: true })); if (this._mq2) this._mq2.removeEventListener('change', this._setM); if (this._mq3) this._mq3.removeEventListener('change', this._setS);
     if (this._turl) this._turl.forEach(u => URL.revokeObjectURL(u)); if (this.state.vUrl) URL.revokeObjectURL(this.state.vUrl);
     document.body.style.overflow = '';
   }

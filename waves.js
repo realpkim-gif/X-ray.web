@@ -36,9 +36,10 @@
   function send(f, m, d) { try { f.contentWindow.postMessage({ radiant: m, d: d }, '*'); } catch (e) {} }
   function sfx(n, o) { try { if (window.RadiantSfx) window.RadiantSfx.play(n, o); } catch (e) {} }
   var idle = window.requestIdleCallback ? function (cb) { window.requestIdleCallback(cb, { timeout: 1200 }); } : function (cb) { setTimeout(cb, 80); };
-  // A parked frame is fully transparent but still painted, so revealing it never waits on a first paint.
+  // A parked frame stays loaded and laid out but fully hidden: a visible-but-transparent full-screen frame over
+  // the page can still catch wheel and touch scrolling in some browsers, which froze scrolling once the page idled.
   function park(f) {
-    var s = f.style; s.clipPath = 'none'; s.visibility = 'visible'; s.opacity = '0'; s.willChange = 'opacity'; s.pointerEvents = 'none';
+    var s = f.style; s.clipPath = 'none'; s.visibility = 'hidden'; s.opacity = '0'; s.willChange = 'opacity'; s.pointerEvents = 'none';
     f.setAttribute('aria-hidden', 'true'); f.setAttribute('inert', ''); f.tabIndex = -1; solo();
   }
   function unpark(f) { if (f.hasAttribute('data-radiant-z')) { f.style.zIndex = f.getAttribute('data-radiant-z'); f.removeAttribute('data-radiant-z'); } f.style.visibility = 'visible'; f.style.opacity = '1'; solo(); }
