@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta name="description" content="Upload a dog X-ray. Radiant’s AI runs in your browser, flags a possible fracture, boxes where it looked, and shows how confident it is.">
 <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Radiant">
-<meta property="og:title" content="Radiant — AI-assisted review of animal X-rays">
-<meta property="og:description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta property="og:title" content="Radiant — AI fracture check for dog X-rays">
+<meta property="og:description" content="Upload a dog X-ray. Radiant’s AI runs in your browser, flags a possible fracture, boxes where it looked, and shows how confident it is.">
 <meta property="og:url" content="https://realpkim-gif.github.io/X-ray.web/">
 <meta property="og:image" content="https://realpkim-gif.github.io/X-ray.web/images/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with an area marked for review">
+<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with a possible fracture boxed">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <script>
@@ -83,7 +83,7 @@ input::placeholder{color:#7D746B}
     <span style="display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.1em"><span data-word="1" style="display:inline-block;padding:0 .08em;border-radius:.1em;background-image:linear-gradient(#E0641C,#E0641C);background-repeat:no-repeat;background-position:0 50%;background-size:0% 100%;transition:background-size .5s cubic-bezier(.7,0,.2,1),color .3s ease" style-hover="background-size:100% 100%;color:#12100E">an</span></span>
     <span style="display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.1em"><span data-word="1" style="display:inline-block;padding:0 .08em;border-radius:.1em;color:#E0641C;background-image:linear-gradient(#F3EDE6,#F3EDE6);background-repeat:no-repeat;background-position:0 50%;background-size:0% 100%;transition:background-size .5s cubic-bezier(.7,0,.2,1),color .3s ease" style-hover="background-size:100% 100%;color:#12100E">X-ray.</span></span>
   </h1>
-  <p data-in="160" data-sub="1" style="margin:22px auto 0;max-width:560px;text-align:center;font-size:18px;line-height:1.55;color:#C9C1B8;text-wrap:pretty">Drag in a JPG or PNG of a dog radiograph, or browse your files. The image stays in your browser.</p>
+  <p data-in="160" data-sub="1" style="margin:22px auto 0;max-width:560px;text-align:center;font-size:18px;line-height:1.55;color:#C9C1B8;text-wrap:pretty">Drag in a JPG, PNG or WebP of a dog radiograph, or browse your files. It’s analyzed right in your browser.</p>
   </sc-if>
   <sc-if value="{{ tabScans }}" hint-placeholder-val="{{ false }}">
   <h1 style="margin:0;text-align:center;font-size:clamp(44px,6.6vw,88px);line-height:1.02;letter-spacing:-0.045em;font-weight:700;color:#F3EDE6">
@@ -218,7 +218,7 @@ input::placeholder{color:#7D746B}
       <div data-ti="1" style="border-radius:22px;border:1.5px dashed #3A342E;background:rgba(26,22,18,.62);display:flex;flex-direction:column;align-items:center;gap:18px;padding:clamp(44px,8vh,72px) 24px;text-align:center">
         <div>
           <div style="font-size:22px;font-weight:600;letter-spacing:-0.01em;color:#F3EDE6">Sign in to keep your scans</div>
-          <div style="margin:8px auto 0;max-width:380px;font-size:15px;line-height:1.55;color:#A69D93;text-wrap:pretty">Your scan history is tied to your account, so only you can see it.</div>
+          <div style="margin:8px auto 0;max-width:380px;font-size:15px;line-height:1.55;color:#A69D93;text-wrap:pretty">Your scans are saved in this browser under your account.</div>
         </div>
         <a href="Login.dc.html?next=Analyze.dc.html%23scans" target="_top" style="display:inline-flex;align-items:center;height:50px;padding:0 22px;border-radius:11px;background:#E0641C;color:#fff;font-size:16px;font-weight:600;transition:transform .25s cubic-bezier(.2,.7,.2,1)" style-hover="color:#fff;transform:translateY(-2px)">Log in</a>
       </div>
@@ -317,7 +317,7 @@ input::placeholder{color:#7D746B}
           </sc-if>
           <sc-if value="{{ vConf }}" hint-placeholder-val="{{ false }}">
             <div data-v="conf" style="display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:12px;border:1px solid rgba(224,100,28,.38);background:rgba(224,100,28,.07)">
-              <div style="font-size:14px;line-height:1.45;color:#F3EDE6">Delete this scan? It will be removed from this device.</div>
+              <div style="font-size:14px;line-height:1.45;color:#F3EDE6">Delete this scan? It will be removed everywhere it’s saved.</div>
               <div style="display:flex;gap:8px">
                 <button type="button" onClick="{{ cancelDel }}" style="flex:1;height:38px;border-radius:9px;border:1px solid #3A342E;background:transparent;color:#F3EDE6;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background-color .2s ease" style-hover="background-color:#221D19">Cancel</button>
                 <button type="button" onClick="{{ doDel }}" style="flex:1;height:38px;border-radius:9px;border:none;background:#E0641C;color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background-color .2s ease" style-hover="background-color:#C9551A">Delete</button>
@@ -1044,7 +1044,7 @@ class Component extends DCLogic {
     else if (st.busy) status = 'Analyzing… this runs on your computer and can take 10–30 seconds.';
     else if (st.err && st.file) status = st.err;
     else if (st.secs) status = 'Done in ' + st.secs + ' s.';
-    else status = 'Model ready. Your X-ray never leaves this browser.';
+    else status = 'Model ready. The analysis runs right here in your browser.';
 
     // the overlay layers are only shown for the chosen view
     const L = res && this._layers;

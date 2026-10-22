@@ -96,6 +96,9 @@ const Radiant = {};   // everything lives in this one object, so it can't clash 
         // modelFolder = where the part*-*.bin pieces are, e.g. "model/"
         // the WebAssembly engine files of onnxruntime come from the same CDN as ort.min.js
         ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
+        // run the models in a background worker: the 10-30 s of number crunching would otherwise freeze
+        // the page (no scrolling, no animation) until the result is in
+        ort.env.wasm.proxy = true;
         const key = await getKey();
         config = JSON.parse(new TextDecoder().decode(await fetchAndDecrypt(modelFolder, 0, key)));
         const options = { executionProviders: ["wasm"] };   // wasm = runs on the CPU, works in every browser

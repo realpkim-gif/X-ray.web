@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta name="description" content="Upload a dog X-ray. Radiant’s AI runs in your browser, flags a possible fracture, boxes where it looked, and shows how confident it is.">
 <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Radiant">
-<meta property="og:title" content="Radiant — AI-assisted review of animal X-rays">
-<meta property="og:description" content="Upload a radiograph of a dog. Radiant runs an AI model over the image, marks areas that may deserve additional review, and shows how confident the model is in each one.">
+<meta property="og:title" content="Radiant — AI fracture check for dog X-rays">
+<meta property="og:description" content="Upload a dog X-ray. Radiant’s AI runs in your browser, flags a possible fracture, boxes where it looked, and shows how confident it is.">
 <meta property="og:url" content="https://realpkim-gif.github.io/X-ray.web/">
 <meta property="og:image" content="https://realpkim-gif.github.io/X-ray.web/images/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with an area marked for review">
+<meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with a possible fracture boxed">
 <meta name="twitter:card" content="summary_large_image">
 <script src="./support.js"></script>
 </head>
@@ -668,7 +668,8 @@ class Component extends DCLogic {
     f.moveTo(x + L, y + h); f.lineTo(x, y + h); f.lineTo(x, y + h - L);
     f.stroke();
     f.font = "600 12px 'Hanken Grotesk', system-ui, sans-serif"; f.textBaseline = 'middle';
-    const txt = 'Area for additional review', ph = 24, pw = f.measureText(txt).width + 18;
+    // decorative splash: this X-ray was never run through the model, so the box makes no claim about it
+    const txt = 'Example highlight', ph = 24, pw = f.measureText(txt).width + 18;
     let ly = y - ph - 8 + (1 - k) * 8; if (ly < 14) ly = y + h + 8 - (1 - k) * 8;
     // keep the tag on screen when the box sits near the right edge (narrow phones)
     const lx = Math.max(12, Math.min(x, window.innerWidth - pw - 12));

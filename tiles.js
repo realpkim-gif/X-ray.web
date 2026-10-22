@@ -77,7 +77,9 @@
   function solo() {
     var d = document.documentElement, fr = document.querySelectorAll('body > iframe[src*="embed=1"]'), up = false, top = Infinity, i, o;
     for (i = 0; i < fr.length; i++) if (fr[i].style.opacity === '1') { up = true; top = Math.min(top, +fr[i].style.zIndex || 0); }
-    if (up && !d.hasAttribute('data-radiant-ov')) { d.setAttribute('data-radiant-ov', d.style.overflow); d.style.overflow = 'hidden'; }
+    // hide only the bar: overflow:hidden on <html> would also snap this page back to the top
+    if (up && !document.getElementById('radiant-up-css')) { var st = document.createElement('style'); st.id = 'radiant-up-css'; st.textContent = 'html[data-radiant-up]{scrollbar-width:none}html[data-radiant-up]::-webkit-scrollbar{display:none}'; document.head.appendChild(st); }
+    if (up) d.setAttribute('data-radiant-up', ''); else d.removeAttribute('data-radiant-up');
     if (!up && d.hasAttribute('data-radiant-ov')) { d.style.overflow = d.getAttribute('data-radiant-ov'); d.removeAttribute('data-radiant-ov'); }
     for (i = 0; i < fr.length; i++) {
       o = fr[i]; if (o.style.opacity !== '0') continue;
