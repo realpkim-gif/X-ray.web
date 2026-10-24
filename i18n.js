@@ -1,16 +1,19 @@
-// Radiant language: English by default, Spanish when the visitor picks it. The choice lives in localStorage
-// ("radiant-lang", or ?lang=es in the URL) and every page loads this file first. In Spanish, English text and
-// labels are swapped for their Spanish version as they render, so the pages' own templates and code stay English.
+// Radiant language: Spanish when the browser's main language is Spanish, English otherwise, until the visitor
+// picks one. The pick lives in localStorage ("radiant-lang", or ?lang=es in the URL) and every page loads this
+// file first. In Spanish, English text and labels are swapped for their Spanish version as they render, so the
+// pages' own templates and code stay English.
 // Elements marked data-lang="en" / data-lang="es" show only in that language; any [data-set-lang] switches it.
 (function () {
   if (window.RadiantI18n) return;
-  var KEY = 'radiant-lang', d = document.documentElement, lang = 'en', stored = false;
+  var KEY = 'radiant-lang', d = document.documentElement, nav = navigator.languages || [navigator.language];
+  var lang = /^es\b/i.test(nav[0] || '') ? 'es' : 'en';
+  var q = /[?&]lang=(en|es)\b/.exec(location.search), saved = null;
   try {
-    var q = /[?&]lang=(en|es)\b/.exec(location.search);
     if (q) localStorage.setItem(KEY, q[1]);
-    lang = localStorage.getItem(KEY) === 'es' ? 'es' : 'en'; stored = true;
-    if (q) lang = q[1];
-  } catch (e) { var q2 = /[?&]lang=(en|es)\b/.exec(location.search); if (q2) lang = q2[1]; }
+    saved = localStorage.getItem(KEY);
+  } catch (e) {}
+  if (q) lang = q[1];
+  else if (saved === 'es' || saved === 'en') lang = saved;
   d.lang = lang;
   var css = document.createElement('style');
   css.textContent = 'html[lang="es"] [data-lang="en"],html:not([lang="es"]) [data-lang="es"]{display:none!important}';
