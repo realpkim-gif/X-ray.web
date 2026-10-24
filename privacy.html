@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy Policy · Radiant</title>
+<script src="i18n.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
@@ -21,12 +22,14 @@ ul{padding-left:22px}
 li{margin:6px 0}
 .date{color:#8A8178;font-size:14px;margin:0}
 strong{color:#F3EDE6}
+.tr-note{margin:18px 0 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(224,100,28,.35);background:rgba(224,100,28,.07);font-size:14px}
 </style>
 </head>
 <body>
 <main>
   <a class="brand" href="Radiant.dc.html"><span><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><g transform="rotate(-45 12 12)"><rect x="7" y="10.2" width="10" height="3.6" rx="1"></rect><circle cx="7" cy="9.9" r="2.3"></circle><circle cx="7" cy="14.1" r="2.3"></circle><circle cx="17" cy="9.9" r="2.3"></circle><circle cx="17" cy="14.1" r="2.3"></circle></g></svg></span>Radiant</a>
 
+  <div data-lang="en">
   <h1>Privacy Policy</h1>
   <p class="date">Effective October 22, 2026</p>
 
@@ -61,6 +64,45 @@ strong{color:#F3EDE6}
 
   <h2>Changes and contact</h2>
   <p>If this policy changes, the new version will be posted on this page with a new effective date. See also the <a href="terms.html">Terms of Service</a>. Questions? Open an issue on <a href="https://github.com/realpkim-gif/X-ray.web/issues">Radiant's GitHub page</a>.</p>
+  </div>
+
+  <div data-lang="es" lang="es">
+  <h1>Política de privacidad</h1>
+  <p class="date">Vigente desde el 22 de octubre de 2026</p>
+  <p class="tr-note">Esta traducción se ofrece para su comodidad. En caso de discrepancia, prevalece la versión en inglés. <a href="#" data-set-lang="en" lang="en">Read in English</a></p>
+
+  <p>Radiant revisa radiografías de perros y gatos en busca de posibles fracturas. No tiene un servidor propio: todo se ejecuta en su navegador web. Esta página explica qué información usa Radiant y adónde va.</p>
+
+  <h2>Información de su cuenta de Google</h2>
+  <p>Cuando inicia sesión con Google, Radiant recibe su <strong>nombre, dirección de correo electrónico, foto de perfil e ID de cuenta de Google</strong>. Estos datos se guardan solo en su navegador, para que Radiant pueda mostrar quién tiene la sesión iniciada y mantener sus escaneos separados de los de cualquier otra persona en la misma computadora. No se envían a Radiant ni a nadie más.</p>
+
+  <h2>Sus radiografías y resultados</h2>
+  <ul>
+    <li><strong>El análisis se realiza en su dispositivo.</strong> El modelo de fracturas se ejecuta dentro de su navegador. Sus radiografías nunca se suben a Radiant para su análisis.</li>
+    <li><strong>Se guardan en su navegador.</strong> Cada radiografía que agrega se guarda en el almacenamiento de su navegador, junto con una miniatura, su resultado y las capas del mapa de calor y del recuadro, para que pueda abrirla de nuevo en Escaneos anteriores.</li>
+    <li><strong>Con respaldo en su propio Google Drive.</strong> Si permite el acceso a Drive, Radiant copia esos mismos escaneos a una carpeta oculta de la aplicación en <em>su</em> Google Drive, para que aparezcan en cualquier dispositivo donde inicie sesión. Solo Radiant puede usar esa carpeta. No puede ver ni modificar ninguno de sus otros archivos de Drive.</li>
+  </ul>
+
+  <h2>Cómo usa Radiant los datos de usuario de Google</h2>
+  <p>Radiant solicita a Google solo información básica de inicio de sesión (nombre, correo electrónico, foto de perfil) y permiso para usar su propia carpeta oculta de aplicación en su Drive (<code>drive.appdata</code>). Estos datos se usan únicamente para iniciar su sesión y para guardar y sincronizar sus propios escaneos. Radiant no los vende, no los comparte, no los usa con fines publicitarios ni para entrenar modelos de IA.</p>
+  <p>El uso y la transferencia que Radiant hace de la información recibida de las API de Google cumplen con la <a href="https://developers.google.com/terms/api-services-user-data-policy">Política de datos de usuario de los servicios de API de Google</a>, incluidos los requisitos de uso limitado.</p>
+
+  <h2>Otros servicios con los que se comunica su navegador</h2>
+  <p>Para cargar el sitio, su navegador descarga archivos de GitHub Pages (que aloja Radiant), Google Fonts y las bibliotecas de código jsDelivr y unpkg. Como con cualquier sitio web, estos servicios pueden ver su dirección IP y los datos de su navegador cuando le envían esos archivos. Radiant no usa analíticas, anuncios ni cookies de seguimiento.</p>
+
+  <h2>Cómo eliminar sus datos</h2>
+  <ul>
+    <li><strong>Un escaneo:</strong> ábralo en Escaneos anteriores y elimínelo. Esto lo borra de su navegador y de su respaldo en Drive.</li>
+    <li><strong>Cerrar sesión:</strong> elimina de este navegador los datos de su cuenta y el permiso de Drive.</li>
+    <li><strong>Todo:</strong> borre los datos de este sitio en la configuración de su navegador. Para eliminar el respaldo de Drive, vaya a <a href="https://drive.google.com/drive/settings">Configuración de Google Drive → Administrar aplicaciones</a>, busque Radiant (aparece como Radient) y elija <em>Eliminar datos ocultos de la aplicación</em>. También puede quitar el acceso de Radiant en <a href="https://myaccount.google.com/connections">myaccount.google.com/connections</a>.</li>
+  </ul>
+
+  <h2>No es un servicio médico</h2>
+  <p>Radiant es una herramienta asistida por IA. No es una herramienta de diagnóstico veterinario y no reemplaza la evaluación de un veterinario calificado.</p>
+
+  <h2>Cambios y contacto</h2>
+  <p>Si esta política cambia, la nueva versión se publicará en esta página con una nueva fecha de vigencia. Consulte también los <a href="terms.html">Términos del servicio</a>. ¿Tiene preguntas? Abra un reporte (issue) en <a href="https://github.com/realpkim-gif/X-ray.web/issues">la página de GitHub de Radiant</a>.</p>
+  </div>
 </main>
 </body>
 </html>
