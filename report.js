@@ -4,11 +4,28 @@
   var INK = '#1A1612', BODY = '#4A433C', MUTE = '#6E665E', LINE = '#E2DBD2', OR = '#E0641C', ORD = '#C9551A', FILM = '#0B0A09';
   var SANS = "'Hanken Grotesk',system-ui,sans-serif", MONO = "'IBM Plex Mono',ui-monospace,monospace";
   var PW = 850, PH = 1100, K = 2, M = 60, CW = PW - 2 * M;   // 8.5 x 11 in at 100 px/in, drawn at 200 dpi
-  var DISCLAIMER = 'Radiant is an AI-assisted tool. It is not a veterinary diagnostic tool and does not replace evaluation by a qualified veterinarian.';
-  var QA = [
-    ['What does the confidence score mean?', 'It\u2019s the share of the model\u2019s 10 votes that agree with its answer: 8 of 10 is 80%. It is not the probability that a fracture is really there, and it can be wrong in either direction.'],
-    ['Why \u201cpossible fracture\u201d?', 'The model can be wrong, so it never says \u201cfracture\u201d outright. The box and heatmap show where to look; the decision stays with the person reviewing the image.']
-  ];
+  // Every word printed on the page, in English and Spanish; the report follows the site's language.
+  var W = window.RadiantI18n && RadiantI18n.lang === 'es' ? {
+    disclaimer: 'Radiant es una herramienta asistida por IA. No es una herramienta de diagn\u00f3stico veterinario y no reemplaza la evaluaci\u00f3n de un veterinario calificado.',
+    qa: [
+      ['\u00bfQu\u00e9 significa el nivel de confianza?', 'Es la proporci\u00f3n de los 10 votos del modelo que coinciden con su respuesta: 8 de 10 equivale a 80%. No es la probabilidad de que realmente haya una fractura, y puede equivocarse en ambos sentidos.'],
+      ['\u00bfPor qu\u00e9 \u201cposible fractura\u201d?', 'El modelo puede equivocarse, por eso nunca afirma \u201cfractura\u201d sin m\u00e1s. El recuadro y el mapa de calor muestran d\u00f3nde mirar; la decisi\u00f3n queda en manos de quien revisa la imagen.']
+    ],
+    locale: 'es-US', report: 'INFORME DE AN\u00c1LISIS', title: 'An\u00e1lisis radiogr\u00e1fico', run: 'an\u00e1lisis del modelo: ', xray: 'RADIOGRAF\u00cdA',
+    both: 'RECUADRO + MAPA DE CALOR', box: 'RECUADRO', heat: 'MAPA DE CALOR', none: 'SIN ZONA MARCADA',
+    result: 'RESULTADO', conf: 'CONFIANZA', votes: 'VOTOS DEL MODELO', of: ' de ', skipped: 'Verificaci\u00f3n de radiograf\u00eda omitida', forFx: 'a favor de fractura',
+    fx: 'Posible fractura', noFx: 'No se encontr\u00f3 fractura', file: 'informe-radiant-', pdfTitle: 'Informe de an\\341lisis de Radiant'   // \341 = \u00e1 in PDFDocEncoding
+  } : {
+    disclaimer: 'Radiant is an AI-assisted tool. It is not a veterinary diagnostic tool and does not replace evaluation by a qualified veterinarian.',
+    qa: [
+      ['What does the confidence score mean?', 'It\u2019s the share of the model\u2019s 10 votes that agree with its answer: 8 of 10 is 80%. It is not the probability that a fracture is really there, and it can be wrong in either direction.'],
+      ['Why \u201cpossible fracture\u201d?', 'The model can be wrong, so it never says \u201cfracture\u201d outright. The box and heatmap show where to look; the decision stays with the person reviewing the image.']
+    ],
+    locale: 'en-US', report: 'ANALYSIS REPORT', title: 'Radiograph analysis', run: 'model run ', xray: 'X-RAY',
+    both: 'BOX + HEATMAP', box: 'BOX', heat: 'HEATMAP', none: 'NO AREA MARKED',
+    result: 'RESULT', conf: 'CONFIDENCE', votes: 'MODEL VOTES', of: ' of ', skipped: 'X-ray check skipped', forFx: 'for fracture',
+    fx: 'Possible fracture', noFx: 'No fracture found', file: 'radiant-report-', pdfTitle: 'Radiant analysis report'
+  };
 
   function load(src) {
     return new Promise(function (ok, no) {
@@ -59,47 +76,48 @@
     c.fillStyle = '#fff'; c.fillRect(0, 0, PW, PH);
     c.textBaseline = 'alphabetic';
     var when = o.when || new Date();
-    var day = when.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), clock = when.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    var day = when.toLocaleDateString(W.locale, { month: 'short', day: 'numeric', year: 'numeric' }), clock = when.toLocaleTimeString(W.locale, { hour: 'numeric', minute: '2-digit' });
 
     logo(c, M, 48, 30);
     c.fillStyle = INK; c.font = '700 20px ' + SANS; c.fillText('Radiant', M + 42, 70);
     c.textAlign = 'right';
-    c.font = '500 10.5px ' + MONO; c.fillStyle = ORD; c.fillText('ANALYSIS REPORT', PW - M, 59);
+    c.font = '500 10.5px ' + MONO; c.fillStyle = ORD; c.fillText(W.report, PW - M, 59);
     c.font = '400 10.5px ' + MONO; c.fillStyle = MUTE; c.fillText(day + ' \u00b7 ' + clock, PW - M, 75);
     c.textAlign = 'left';
     c.fillStyle = LINE; c.fillRect(M, 98, CW, 1);
 
-    c.fillStyle = INK; c.font = '700 34px ' + SANS; c.fillText('Radiograph analysis', M, 150);
+    c.fillStyle = INK; c.font = '700 34px ' + SANS; c.fillText(W.title, M, 150);
     c.font = '400 11.5px ' + MONO; c.fillStyle = MUTE;
-    var tail = [o.dims, o.secs ? 'model run ' + o.secs + ' s' : ''].filter(Boolean).join('  \u00b7  ');
+    var tail = [o.dims, o.secs ? W.run + o.secs + ' s' : ''].filter(Boolean).join('  \u00b7  ');
     var tailW = tail ? c.measureText('  \u00b7  ' + tail).width : 0;
     c.fillText(clip(c, o.fileName || 'X-ray', CW - tailW) + (tail ? '  \u00b7  ' + tail : ''), M, 174);
 
     // X-ray on the left, the same X-ray with what the viewer was showing on the right.
     var showHeat = o.view !== 'box' && !!H, showBox = o.view !== 'heatmap' && !!Bx;
-    var cap = showBox && showHeat ? 'BOX + HEATMAP' : showBox ? 'BOX' : showHeat ? 'HEATMAP' : 'NO AREA MARKED';
+    var cap = showBox && showHeat ? W.both : showBox ? W.box : showHeat ? W.heat : W.none;
     var top = 204, gap = 20, pw = (CW - gap) / 2, ar = X.naturalWidth / X.naturalHeight;
     var ph = Math.max(180, Math.min(380, (pw - 20) / ar + 20));
-    label(c, 'X-RAY', M, top + 10); label(c, cap, M + pw + gap, top + 10);
+    label(c, W.xray, M, top + 10); label(c, cap, M + pw + gap, top + 10);
     panel(c, M, top + 22, pw, ph, [X]);
     panel(c, M + pw + gap, top + 22, pw, ph, [X, showHeat ? H : null, showBox ? Bx : null]);
 
     var ry = top + 22 + ph + 46, c1 = Math.round(CW * 0.4), c2 = Math.round(CW * 0.3), conf = Math.max(0, Math.min(1, +o.confidence || 0));
     var vm = /^(\d+)\s+of\s+(\d+)$/.exec(o.votes || '');
-    label(c, 'RESULT', M, ry); label(c, 'CONFIDENCE', M + c1, ry); label(c, 'MODEL VOTES', M + c1 + c2, ry);
-    c.font = '700 24px ' + SANS;
-    c.fillStyle = o.answer === 'fracture' ? ORD : INK; c.fillText(o.answerText || '', M, ry + 34);
-    c.fillStyle = INK; c.fillText(Math.round(conf * 100) + '%', M + c1, ry + 34);
-    c.fillText(vm ? vm[1] + ' of ' + vm[2] : (o.votes || '\u2013'), M + c1 + c2, ry + 34);
+    label(c, W.result, M, ry); label(c, W.conf, M + c1, ry); label(c, W.votes, M + c1 + c2, ry);
+    var ans = o.answer === 'fracture' ? W.fx : o.answer ? W.noFx : (o.answerText || ''), fs = 24;
+    do { c.font = '700 ' + fs + 'px ' + SANS; } while (c.measureText(ans).width > c1 - 16 && --fs > 16);
+    c.fillStyle = o.answer === 'fracture' ? ORD : INK; c.fillText(ans, M, ry + 34);
+    c.font = '700 24px ' + SANS; c.fillStyle = INK; c.fillText(Math.round(conf * 100) + '%', M + c1, ry + 34);
+    c.fillText(vm ? vm[1] + W.of + vm[2] : (o.votes || '\u2013'), M + c1 + c2, ry + 34);
     var bw = c2 - 44; c.fillStyle = '#EFEAE3'; rr(c, M + c1, ry + 48, bw, 5, 2.5); c.fill();
     if (conf > 0) { c.fillStyle = OR; rr(c, M + c1, ry + 48, Math.max(5, bw * conf), 5, 2.5); c.fill(); }
     c.font = '400 13px ' + SANS; c.fillStyle = MUTE;
-    if (o.gateSkipped) c.fillText('X-ray check skipped', M, ry + 56);
-    c.fillText('for fracture', M + c1 + c2, ry + 56);
+    if (o.gateSkipped) c.fillText(W.skipped, M, ry + 56);
+    c.fillText(W.forFx, M + c1 + c2, ry + 56);
 
     var qy = ry + 122, qw = (CW - 36) / 2, qEnd = qy;
     c.fillStyle = LINE; c.fillRect(M, ry + 84, CW, 1);
-    QA.forEach(function (q, i) {
+    W.qa.forEach(function (q, i) {
       var x = M + i * (qw + 36), y = qy;
       c.font = '600 14px ' + SANS; c.fillStyle = INK;
       wrap(c, q[0], qw).forEach(function (l) { c.fillText(l, x, y); y += 20; });
@@ -113,7 +131,7 @@
     c.beginPath(); c.arc(M + 40, dy + dh / 2, 18, 0, Math.PI * 2); c.fillStyle = '#F6E4D7'; c.fill();
     shield(c, M + 31, dy + dh / 2 - 9, 18);
     c.font = '400 13.5px ' + SANS; c.fillStyle = INK;
-    var dl = wrap(c, DISCLAIMER, CW - 100), ly = dy + dh / 2 - (dl.length - 1) * 10 + 5;
+    var dl = wrap(c, W.disclaimer, CW - 100), ly = dy + dh / 2 - (dl.length - 1) * 10 + 5;
     dl.forEach(function (l) { c.fillText(l, M + 76, ly); ly += 20; });
 
     c.fillStyle = LINE; c.fillRect(M, PH - 70, CW, 1);
@@ -137,7 +155,7 @@
     obj(3, function () { put('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + w + ' ' + h + '] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>'); });
     obj(4, function () { put('<< /Type /XObject /Subtype /Image /Width ' + cv.width + ' /Height ' + cv.height + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpg.length + ' >>\nstream\n'); put(jpg); put('\nendstream'); });
     obj(5, function () { put('<< /Length ' + cs.length + ' >>\nstream\n' + cs + '\nendstream'); });
-    obj(6, function () { put('<< /Title (Radiant analysis report) /Producer (Radiant) >>'); });
+    obj(6, function () { put('<< /Title (' + W.pdfTitle + ') /Producer (Radiant) >>'); });
     var xref = len, x = 'xref\n0 7\n0000000000 65535 f \n';
     for (var i = 1; i <= 6; i++) x += String(offs[i]).padStart(10, '0') + ' 00000 n \n';
     put(x + 'trailer\n<< /Size 7 /Root 1 0 R /Info 6 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
@@ -159,7 +177,7 @@
       var blob = await pdf(await draw(o));
       var slug = String(o.fileName || 'x-ray').replace(/\.[a-z0-9]+$/i, '').replace(/[^\w-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'x-ray';
       var d = o.when, ymd = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-      save(blob, 'radiant-report-' + slug + '-' + ymd + '.pdf');
+      save(blob, W.file + slug + '-' + ymd + '.pdf');
       return blob;
     }
   };

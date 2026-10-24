@@ -16,6 +16,7 @@
 <meta property="og:image:alt" content="Radiant: a dog forelimb X-ray with a possible fracture boxed">
 <meta name="twitter:card" content="summary_large_image">
 <title>Radiant — AI fracture check for dog X-rays</title>
+<script src="i18n.js"></script>
 <!-- signed-in users go straight into the app; everyone else (and Google's reviewers) sees this public page -->
 <script>(function () { var ok = function (s) { try { var a = JSON.parse(window[s].getItem('radiant-account') || 'null'); return !!a && (!a.exp || a.exp > Date.now()); } catch (e) { return false; } }; if (ok('localStorage') || ok('sessionStorage')) { document.documentElement.style.visibility = 'hidden'; location.replace('Radiant.dc.html' + location.search + (/^#[\w-]+$/.test(location.hash) ? location.hash : '')); } })();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,15 +43,33 @@ strong{color:#F3EDE6}
 .note p{margin:0}
 footer{margin-top:48px;padding-top:20px;border-top:1px solid #2A251F;display:flex;flex-wrap:wrap;gap:10px 20px;font-size:14px}
 footer span{color:#8A8178}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.lang{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 13px;border-radius:9px;border:1px solid #3A332C;background:transparent;color:#F3EDE6;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:border-color .2s ease,color .2s ease}
+.lang:hover{border-color:#E0641C;color:#F08A4B}
+.lang svg{color:#F08A4B;flex:none}
+.es-note{margin-top:22px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+.es-note .lang{height:44px;padding:0 16px;font-size:15px;border-radius:11px}
+.es-note p{flex:1 1 240px;margin:0;font-size:14.5px;line-height:1.5;color:#A89E93}
+.es-note strong{font-weight:600}
 </style>
 </head>
 <body>
 <main>
+  <div class="top">
   <div class="brand"><span><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><g transform="rotate(-45 12 12)"><rect x="7" y="10.2" width="10" height="3.6" rx="1"></rect><circle cx="7" cy="9.9" r="2.3"></circle><circle cx="7" cy="14.1" r="2.3"></circle><circle cx="17" cy="9.9" r="2.3"></circle><circle cx="17" cy="14.1" r="2.3"></circle></g></svg></span>Radiant</div>
+  <button type="button" class="lang" data-set-lang="es" data-lang="en" lang="es" title="Ver Radiant en español"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9s1.3-6.3 3.8-9z"></path></svg>Español</button>
+  <button type="button" class="lang" data-set-lang="en" data-lang="es" lang="en" title="View Radiant in English"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9s1.3-6.3 3.8-9z"></path></svg>English</button>
+  </div>
+
+  <div data-lang="en">
 
   <h1>An AI fracture check for dog X-rays.</h1>
   <p class="lead">Radiant is a free tool. You upload a radiograph (X-ray) of a dog or cat; an AI model running in your browser checks it for a possible bone fracture, draws a box where it looked, and tells you how confident it is.</p>
   <a class="cta" href="Login.dc.html?next=Radiant.dc.html">Sign in with Google to open Radiant</a>
+  <div class="es-note" lang="es">
+    <button type="button" class="lang" data-set-lang="es"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9s1.3-6.3 3.8-9z"></path></svg>Ver en español</button>
+    <p><strong>¿Prefiere español?</strong> Todo Radiant está disponible en español: las páginas, los resultados del análisis y el informe PDF.</p>
+  </div>
 
   <img class="hero" src="images/og.png" width="1200" height="630" alt="A dog forelimb X-ray with a possible fracture boxed by Radiant">
 
@@ -67,11 +86,38 @@ footer span{color:#8A8178}
   <div class="note">
     <p><strong>What Radiant does not do.</strong> Radiant only analyzes veterinary X-rays for bone fractures. It does not generate, edit or alter images, does not create images of people, and is never used to create sexual or intimate imagery of anyone. It is not a diagnostic tool and does not replace a veterinarian.</p>
   </div>
+  </div>
+
+  <div data-lang="es" lang="es">
+  <h1>Detección de fracturas con IA en radiografías de perros.</h1>
+  <p class="lead">Radiant es una herramienta gratuita. Usted sube una radiografía de un perro o un gato; un modelo de IA que funciona en su navegador la revisa en busca de una posible fractura ósea, dibuja un recuadro donde miró y le indica qué tan seguro está.</p>
+  <a class="cta" href="Login.dc.html?next=Radiant.dc.html">Inicie sesión con Google para abrir Radiant</a>
+  <div class="es-note" lang="en">
+    <button type="button" class="lang" data-set-lang="en"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9s1.3-6.3 3.8-9z"></path></svg>View in English</button>
+    <p>Radiant está en español: las páginas, los resultados y el informe PDF. Also available in English.</p>
+  </div>
+
+  <img class="hero" src="images/og.png" width="1200" height="630" alt="Radiografía de la pata delantera de un perro con una posible fractura enmarcada por Radiant">
+
+  <h2>Cómo funciona</h2>
+  <ol>
+    <li><strong>Suba</strong> una radiografía en JPG o PNG de un perro o un gato.</li>
+    <li><strong>El modelo se ejecuta en su dispositivo.</strong> Un modelo de detección de fracturas comprueba que la imagen sea una radiografía y luego busca posibles fracturas. La imagen no se nos envía para su análisis.</li>
+    <li><strong>Vea el resultado:</strong> “posible fractura” o “no se encontró fractura”, un nivel de confianza, un mapa de calor de dónde miró el modelo y un recuadro alrededor de la zona de interés.</li>
+  </ol>
+
+  <h2>Por qué pide iniciar sesión con Google</h2>
+  <p>El inicio de sesión con Google se usa solo para dos cosas: mostrar qué cuenta tiene la sesión iniciada y guardar <em>sus</em> escaneos en una carpeta privada y oculta de la aplicación en <em>su propio</em> Google Drive, para que aparezcan en cualquier dispositivo que use. Radiant solicita su nombre, correo electrónico, foto de perfil y acceso a su propia carpeta de aplicación en Drive (<code>drive.appdata</code>). No puede ver sus otros archivos de Drive y nunca vende ni comparte sus datos.</p>
+
+  <div class="note">
+    <p><strong>Lo que Radiant no hace.</strong> Radiant solo analiza radiografías veterinarias en busca de fracturas óseas. No genera, edita ni altera imágenes, no crea imágenes de personas y nunca se usa para crear imágenes sexuales o íntimas de nadie. No es una herramienta de diagnóstico y no reemplaza a un veterinario.</p>
+  </div>
+  </div>
 
   <footer>
-    <a href="privacy.html">Privacy policy</a>
-    <a href="terms.html">Terms of service</a>
-    <a href="https://github.com/realpkim-gif/X-ray.web">Source code</a>
+    <a href="privacy.html"><span data-lang="en">Privacy policy</span><span data-lang="es">Política de privacidad</span></a>
+    <a href="terms.html"><span data-lang="en">Terms of service</span><span data-lang="es">Términos del servicio</span></a>
+    <a href="https://github.com/realpkim-gif/X-ray.web"><span data-lang="en">Source code</span><span data-lang="es">Código fuente</span></a>
     <span>© 2026 Radiant</span>
   </footer>
 </main>
