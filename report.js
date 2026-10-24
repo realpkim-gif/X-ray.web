@@ -4,7 +4,7 @@
   var INK = '#1A1612', BODY = '#4A433C', MUTE = '#6E665E', LINE = '#E2DBD2', OR = '#E0641C', ORD = '#C9551A', FILM = '#0B0A09';
   var SANS = "'Hanken Grotesk',system-ui,sans-serif", MONO = "'IBM Plex Mono',ui-monospace,monospace";
   var PW = 850, PH = 1100, K = 2, M = 60, CW = PW - 2 * M;   // 8.5 x 11 in at 100 px/in, drawn at 200 dpi
-  var DISCLAIMER = 'Radiant is an AI-assisted research prototype. It is not a veterinary diagnostic tool and does not replace evaluation by a qualified veterinarian.';
+  var DISCLAIMER = 'Radiant is an AI-assisted tool. It is not a veterinary diagnostic tool and does not replace evaluation by a qualified veterinarian.';
   var QA = [
     ['What does the confidence score mean?', 'It\u2019s the share of the model\u2019s 10 votes that agree with its answer: 8 of 10 is 80%. It is not the probability that a fracture is really there, and it can be wrong in either direction.'],
     ['Why \u201cpossible fracture\u201d?', 'The model can be wrong, so it never says \u201cfracture\u201d outright. The box and heatmap show where to look; the decision stays with the person reviewing the image.']
