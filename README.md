@@ -1,7 +1,7 @@
 # X-ray.web
 
-AI-assisted X-ray research prototype built for the Congressional App Challenge. Radiant
-is a student research/demo project — **not a medical diagnostic device**. It never
+AI-assisted X-ray analysis for dogs and cats. Radiant
+is **not a medical diagnostic device**. It never
 claims to diagnose conditions or replace a qualified medical professional.
 
 ## Stack
@@ -77,7 +77,7 @@ Demo, the dog demo) consumes this same shape.
 
 ## Authentication
 
-Login/signup in this prototype are **mock, frontend-only** (see
+Login/signup in this app are **mock, frontend-only** (see
 [`src/context/AuthContext.jsx`](src/context/AuthContext.jsx)) — there is no real backend
 and no real password or account is ever created or stored. There is currently no
 third-party sign-in (e.g. Google OAuth) wired up; if that's added later, it will need its
@@ -170,5 +170,5 @@ The joined, decrypted model only ever exists in the browser's memory. It is neve
 
 ## Disclaimer
 
-This tool is an AI-assisted research prototype and is not intended to diagnose medical
+This tool is AI-assisted and is not intended to diagnose medical
 conditions or replace evaluation by a qualified medical professional.
