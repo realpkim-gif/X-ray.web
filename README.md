@@ -1,7 +1,7 @@
 # Radiant
 
 AI-assisted X-ray review for dogs. Radiant helps veterinary professionals examine limb X-rays for possible
-fractures. It is **not a medical diagnostic device** and does not replace a qualified veterinarian.
+fractures.
 
 **Live site:** https://realpkim-gif.github.io/X-ray.web/Radiant.dc.html
 
