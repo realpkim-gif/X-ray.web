@@ -1,111 +1,63 @@
-# X-ray.web
+# Radiant
 
-AI-assisted X-ray analysis for dogs and cats. Radiant
-is **not a medical diagnostic device**. It never
-claims to diagnose conditions or replace a qualified medical professional.
+AI-assisted X-ray review for dogs. Radiant helps veterinary professionals examine limb X-rays for possible
+fractures. It is **not a medical diagnostic device** and does not replace a qualified veterinarian.
 
-##Website Link
-https://realpkim-gif.github.io/X-ray.web/Radiant.dc.html
+**Live site:** https://realpkim-gif.github.io/X-ray.web/Radiant.dc.html
+
+## What it does
+
+- **Fracture check:** upload a limb X-ray and Radiant says whether it sees a possible fracture, with a confidence score,
+  a heatmap and a box showing where. It first checks that the image is actually an X-ray.
+- **Visual explanations:** switch between Box + heatmap, Box, or Heatmap without running the model again.
+- **PDF report:** download a one-page report of the result.
+- **English and Spanish:** the whole site and the PDF report, starting in the browser's main language.
+- **Private by design:** the model runs in the visitor's browser, so X-rays never leave their computer.
+- **Optional Google sign-in:** saves scans and results to the user's own Google Drive.
 
 ## Stack
 
-- React 19 + Vite
-- Tailwind CSS v4 for styling
-- React Router for navigation
-- Anime.js for scroll reveals, staggered entrances, and cursor/scroll motion
-- Lucide for icons
+- Plain HTML, CSS and JavaScript (no framework, no build step)
+- [onnxruntime-web](https://onnxruntime.ai/) to run the model in the browser, and the browser's Web Crypto API to
+  decrypt it
+- Google sign-in and Drive for optional backup of scans
+- GitHub Pages for free hosting (no server and no API)
 
-## Getting started
+## Run it locally
 
-```bash
-npm install
-npm run dev
-```
-
-Then open the URL Vite prints (usually `http://localhost:5173`).
-
-Other scripts:
+There is nothing to install or build. Serve the folder with any static file server and open it in a browser:
 
 ```bash
-npm run build     # production build, output in dist/
-npm run preview   # preview the production build locally
-npm run lint      # run oxlint
+git clone https://github.com/realpkim-gif/X-ray.web.git
+cd X-ray.web
+python -m http.server 8000
 ```
+
+Then open http://localhost:8000/. The first time you analyze an X-ray, the browser downloads the model (about 305 MB,
+then cached), so the first run takes a little while. Google sign-in and Drive backup are set up for the hosted site
+and may not work on localhost; everything else does.
 
 ## Project structure
 
 ```
-src/
-  components/
-    layout/        Navbar, Footer, page Layout (with route transitions)
-    xray/           UploadZone, XrayViewer, AnalysisLoader, ResultsPanel
-    xray/illustrations/  DogLegXray (stylized SVG) + shared XrayFilm backdrop
-    auth/           shared AuthCard used by Login/Signup/ForgotPassword
-    ui/             Button, FormField, Disclaimer — shared primitives
-  assets/xrays/     real, public-domain (CC0) sample X-ray images — see below
-  context/
-    AuthContext.jsx   mock, frontend-only auth (never stores real passwords)
-    ToastContext.jsx  toast notifications
-  hooks/
-    useReveal.js      scroll-triggered fade/slide-in (single + staggered group)
-    useCountUp.js     animated stat numbers
-    useTilt.js        cursor-based 3D tilt (desktop, motion-safe only)
-    useParallax.js    subtle scroll parallax (motion-safe only)
-  lib/
-    xrayService.js    <-- the AI/backend integration boundary (see below)
-    demoCases.js       prepared "Try a Demo" cases
-    mockDashboard.js   mock dashboard data
-  pages/            one file per route, wired up in App.jsx
+index.html            Entry page (redirects signed-in users to the main page)
+Login.dc.html         Sign-in page
+Intro.dc.html         Intro page
+Radiant.dc.html       Main page
+Analyze.dc.html       X-ray upload and analysis page
+Founders.dc.html      About the team
+radiant.js            Model pipeline: X-ray gate, features, heads, confidence, heatmap, box
+report.js             PDF report (drawn on a canvas, wrapped in a PDF with no libraries)
+i18n.js               English and Spanish text
+beam.js, lens.js, tiles.js, waves.js, sfx.js   Animations and sound effects
+model/                Encrypted model files, cut into pieces
+privacy.html, terms.html   Privacy policy and terms of service
 ```
-
-## Connecting the real AI model
-
-The entire app calls exactly one function to get an analysis result:
-[`src/lib/xrayService.js`](src/lib/xrayService.js). It currently returns mock data after
-a simulated delay. To connect the real backend, replace the body of `analyzeXray()` with
-a real API call (e.g. `fetch` to the backend), but keep returning the same shape:
-
-```js
-{
-  hasFinding: boolean,
-  finding: string,        // short human-readable label
-  confidence: number,     // 0–1, model confidence — not medical certainty
-  region: { x, y, width, height } | null,  // percentages (0–100), for the overlay
-  explanation: string,
-}
-```
-
-Nothing else in the UI needs to change — every screen that shows a result (Analyze,
-Demo, the dog demo) consumes this same shape.
-
-## Authentication
-
-Login/signup in this app are **mock, frontend-only** (see
-[`src/context/AuthContext.jsx`](src/context/AuthContext.jsx)) — there is no real backend
-and no real password or account is ever created or stored. There is currently no
-third-party sign-in (e.g. Google OAuth) wired up; if that's added later, it will need its
-own Client ID and authorized origins configured separately.
-
-## Demo images
-
-The three human demo cases (`src/assets/xrays/`) are real radiographs released into the
-public domain (**CC0 1.0 Universal**) by **Mikael Häggström, M.D.**, via Wikimedia
-Commons. No attribution is legally required for CC0, but it's credited here anyway:
-
-- `chest-normal.jpg` — [Normal posteroanterior (PA) chest radiograph](https://commons.wikimedia.org/wiki/File:Normal_posteroanterior_(PA)_chest_radiograph_(X-ray).jpg)
-- `chest-finding.jpg` — [Chest radiograph in influenza and H. influenzae](https://commons.wikimedia.org/wiki/File:Chest_radiograph_in_influensa_and_H_influenzae,_posteroanterior.jpg) (real patchy consolidation, upper right lobe; used here with a mock/simulated analysis overlay, not a real diagnosis)
-- `foot-normal.jpg` — [X-ray of normal right foot](https://commons.wikimedia.org/wiki/File:X-ray_of_normal_right_foot_by_dorsoplantar_projection.jpg)
-
-The veterinary demo (`DogLegXray.jsx`) still uses an original stylized illustration — no
-suitably licensed modern dog-leg radiograph was found; swap it for a real one the same
-way (an `<img>` in `DogDemo.jsx`) if you find a properly licensed source.
 
 ## Deployment
 
-A GitHub Pages workflow is included ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)),
-triggered on push to `main`. It builds with `GITHUB_PAGES=true` so Vite serves assets
-from the `/X-ray.web/` base path. To enable it, turn on GitHub Pages for this repository
-(Settings → Pages → Source: GitHub Actions).
+`.github/workflows/deploy.yml` publishes the repository root to GitHub Pages on every push to `main`. There is no build
+step.
 
 ## The fracture model (runs in the browser)
 
